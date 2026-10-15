@@ -1,0 +1,27 @@
+# Environment
+.env
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyTorch / Models cache
+.model_weights/
+*.ckpt
+*.pth
+*.pt
+model_weights/
+temp_images/
+output/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Test coverage & reports
+.pytest_cache/
+.coverage
+htmlcov/
