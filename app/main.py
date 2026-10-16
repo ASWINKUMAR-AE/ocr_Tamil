@@ -5,11 +5,12 @@ table detection, and cross-platform client integration.
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 
 from app.api.routes import router
 from app.config import settings
@@ -125,6 +126,40 @@ async def general_exception_handler(request: Request, exc: Exception):
             "error_code": "INTERNAL_SERVER_ERROR"
         }
     )
+
+
+# ============================================================================
+# Root Dashboard & Web UI
+# ============================================================================
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+TESTER_HTML_PATH = os.path.join(FRONTEND_DIR, "tamil-ocr-tester.html")
+
+
+@app.get("/", summary="Web Dashboard & Landing Page", include_in_schema=False)
+async def root():
+    """
+    Serve the interactive Tamil OCR Web Tester UI directly on the root URL.
+    Falls back to a JSON landing payload if the frontend HTML file is absent.
+    """
+    if os.path.exists(TESTER_HTML_PATH):
+        return FileResponse(TESTER_HTML_PATH, media_type="text/html")
+
+    return JSONResponse(
+        content={
+            "service": settings.APP_NAME,
+            "version": settings.APP_VERSION,
+            "status": "online",
+            "documentation": "/docs",
+            "health": "/health",
+            "api_info": "/api/v1/info",
+        }
+    )
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Silence browser favicon requests with 204 No Content."""
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # ============================================================================

@@ -532,9 +532,12 @@
     }
     table.ocr-rendered-table th, table.ocr-rendered-table td {
       border: 1px solid var(--border);
-      padding: 12px 14px;
+      padding: 10px 14px;
       vertical-align: top;
       white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      min-width: 90px;
     }
     table.ocr-rendered-table th {
       background-color: #f8fafc;
@@ -544,11 +547,59 @@
       top: 0;
       z-index: 1;
     }
+    table.ocr-rendered-table th[contenteditable="true"]:focus,
+    table.ocr-rendered-table td[contenteditable="true"]:focus {
+      outline: 2px solid var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
     table.ocr-rendered-table tr:nth-child(even) td {
       background-color: #fcfcfc;
     }
     table.ocr-rendered-table tr:hover td {
       background-color: #f1f5f9;
+    }
+    .badge-strategy {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      background: #e0e7ff;
+      color: #3730a3;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-uncertain {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .th-sem-type {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #475569;
+      margin-top: 4px;
+      user-select: none;
+    }
+    .table-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
     }
 
     /* Raw API Response Panel */
@@ -1142,9 +1193,11 @@
     }
 
     /**
-     * Normalized Table Structure Renderer
+     * Interactive Dynamic Table Structure Renderer
      * Security: DOM elements are created and populated via textContent to prevent HTML injection.
      */
+    let originalTablesSnapshot = null;
+
     function renderTables(data) {
       const container = el.tablesOutputContainer;
       container.innerHTML = '';
@@ -1157,7 +1210,12 @@
         rawTables = [data.table];
       }
 
+      if (!originalTablesSnapshot && rawTables.length > 0) {
+        originalTablesSnapshot = JSON.parse(JSON.stringify(rawTables));
+      }
+
       if (rawTables.length === 0) {
+        originalTablesSnapshot = null;
         el.badgeTableCount.textContent = "0 tables";
         const empty = document.createElement('div');
         empty.className = 'empty-state';
@@ -1168,6 +1226,18 @@
         }
         
         empty.innerHTML = `<p>${msg}</p>`;
+
+        // If extracted text contains multiple lines, offer reviewable table mode
+        const extractedLines = (data.extracted_text || "").trim().split('\n').filter(l => l.trim().length > 0);
+        if (extractedLines.length >= 2) {
+          const fallbackBtn = document.createElement('button');
+          fallbackBtn.className = 'btn-outline btn-sm';
+          fallbackBtn.style.marginTop = '12px';
+          fallbackBtn.textContent = 'View Extracted Text in Review Table';
+          fallbackBtn.onclick = () => renderReviewableFallback(extractedLines);
+          empty.appendChild(fallbackBtn);
+        }
+
         container.appendChild(empty);
         return;
       }
@@ -1202,13 +1272,46 @@
 
         const titleDiv = document.createElement('div');
         titleDiv.className = 'table-card-title';
-        titleDiv.textContent = `Table #${index + 1} (${rows.length} rows × ${headers.length} columns)`;
+        titleDiv.style.display = 'flex';
+        titleDiv.style.flexWrap = 'wrap';
+        titleDiv.style.alignItems = 'center';
+        titleDiv.style.gap = '8px';
+
+        const titleText = document.createElement('span');
+        titleText.textContent = `Table #${index + 1} (${rows.length} rows × ${headers.length} columns)`;
+        titleDiv.appendChild(titleText);
+
+        // Strategy Badge
+        if (tbl.detection_strategy) {
+          const stratBadge = document.createElement('span');
+          stratBadge.className = 'badge-strategy';
+          let stratName = tbl.detection_strategy;
+          if (stratName === 'bbox_clustering') stratName = 'OCR Dynamic Schema';
+          else if (stratName === 'morphology_grid') stratName = 'Ruled Grid';
+          else if (stratName === 'text_alignment') stratName = 'Text Alignment';
+          stratBadge.textContent = stratName;
+          titleDiv.appendChild(stratBadge);
+        }
+
+        // Uncertainty Badge
+        if (tbl.is_uncertain) {
+          const uncBadge = document.createElement('span');
+          uncBadge.className = 'badge-uncertain';
+          uncBadge.textContent = 'Needs Review';
+          titleDiv.appendChild(uncBadge);
+        }
+
+        const editHint = document.createElement('span');
+        editHint.style.fontSize = '0.75rem';
+        editHint.style.color = 'var(--text-muted)';
+        editHint.textContent = '✏️ Click any header or cell to edit inline; exports sync live';
+        titleDiv.appendChild(editHint);
+
         cardHeader.appendChild(titleDiv);
 
-        // Table Action Buttons (CSV, Copy)
+        // Table Action Buttons (TSV, CSV, Reset)
         const btnRow = document.createElement('div');
-        btnRow.style.display = 'flex';
-        btnRow.style.gap = '8px';
+        btnRow.className = 'table-card-actions';
 
         const btnCopyTbl = document.createElement('button');
         btnCopyTbl.className = 'btn-outline btn-sm';
@@ -1220,8 +1323,20 @@
         btnCsv.textContent = 'Download CSV';
         btnCsv.onclick = () => downloadTableCSV(headers, rows, index + 1);
 
+        const btnReset = document.createElement('button');
+        btnReset.className = 'btn-outline btn-sm';
+        btnReset.textContent = 'Reset Edits';
+        btnReset.onclick = () => {
+          if (originalTablesSnapshot && originalTablesSnapshot[index]) {
+            data.tables[index] = JSON.parse(JSON.stringify(originalTablesSnapshot[index]));
+            renderTables(data);
+            el.jsonOutput.textContent = JSON.stringify(data, null, 2);
+          }
+        };
+
         btnRow.appendChild(btnCopyTbl);
         btnRow.appendChild(btnCsv);
+        btnRow.appendChild(btnReset);
         cardHeader.appendChild(btnRow);
         card.appendChild(cardHeader);
 
@@ -1236,9 +1351,32 @@
         if (headers.length > 0) {
           const thead = document.createElement('thead');
           const headerRow = document.createElement('tr');
-          headers.forEach(hText => {
+          headers.forEach((hText, cIdx) => {
             const th = document.createElement('th');
-            th.textContent = String(hText); // Safe textContent
+            th.contentEditable = "true";
+            th.title = "Click to rename column header";
+            
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = String(hText || `Column ${cIdx + 1}`);
+            th.appendChild(titleSpan);
+
+            // Display semantic type tag if known
+            if (tbl.headers_detail && tbl.headers_detail[cIdx] && tbl.headers_detail[cIdx].semantic_type && tbl.headers_detail[cIdx].semantic_type !== 'unknown') {
+              const semTag = document.createElement('div');
+              semTag.className = 'th-sem-type';
+              semTag.textContent = tbl.headers_detail[cIdx].semantic_type;
+              th.appendChild(semTag);
+            }
+
+            // Sync on rename
+            th.addEventListener('input', () => {
+              const newTitle = titleSpan.innerText.trim();
+              headers[cIdx] = newTitle;
+              if (tbl.headers) tbl.headers[cIdx] = newTitle;
+              if (tbl.columns && tbl.columns[cIdx]) tbl.columns[cIdx].label = newTitle;
+              el.jsonOutput.textContent = JSON.stringify(data, null, 2);
+            });
+
             headerRow.appendChild(th);
           });
           thead.appendChild(headerRow);
@@ -1247,12 +1385,28 @@
 
         // Table Body
         const tbody = document.createElement('tbody');
-        rows.forEach(r => {
+        rows.forEach((r, rIdx) => {
           const tr = document.createElement('tr');
           if (Array.isArray(r)) {
-            r.forEach(cellVal => {
+            r.forEach((cellVal, cIdx) => {
               const td = document.createElement('td');
-              td.textContent = cellVal !== undefined && cellVal !== null ? String(cellVal) : ""; // Safe textContent
+              td.contentEditable = "true";
+              td.textContent = cellVal !== undefined && cellVal !== null ? String(cellVal) : "";
+              if (!td.textContent.trim()) {
+                td.innerHTML = "&nbsp;";
+              }
+
+              // Live synchronization on cell edits
+              td.addEventListener('input', () => {
+                const val = td.innerText.trim();
+                rows[rIdx][cIdx] = val;
+                if (tbl.rows && tbl.rows[rIdx]) tbl.rows[rIdx][cIdx] = val;
+                if (tbl.data && tbl.data[rIdx] && tbl.columns && tbl.columns[cIdx]) {
+                  tbl.data[rIdx][tbl.columns[cIdx].key] = val;
+                }
+                el.jsonOutput.textContent = JSON.stringify(data, null, 2);
+              });
+
               tr.appendChild(td);
             });
           }
@@ -1264,6 +1418,48 @@
         card.appendChild(responsiveDiv);
         container.appendChild(card);
       });
+    }
+
+    function renderReviewableFallback(lines) {
+      const container = el.tablesOutputContainer;
+      container.innerHTML = '';
+      const card = document.createElement('div');
+      card.className = 'table-card';
+
+      const cardHeader = document.createElement('div');
+      cardHeader.className = 'table-card-header';
+      cardHeader.innerHTML = `
+        <div class="table-card-title">
+          <span>Reviewable Line Table (${lines.length} lines)</span>
+          <span class="badge-uncertain">Review Mode</span>
+        </div>
+      `;
+      card.appendChild(cardHeader);
+
+      const responsiveDiv = document.createElement('div');
+      responsiveDiv.className = 'table-responsive';
+      const tableElem = document.createElement('table');
+      tableElem.className = 'ocr-rendered-table';
+
+      const thead = document.createElement('thead');
+      thead.innerHTML = '<tr><th style="width: 80px;">Line #</th><th>Recognized Tamil / English Content</th></tr>';
+      tableElem.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      lines.forEach((l, idx) => {
+        const tr = document.createElement('tr');
+        const tdIdx = document.createElement('td');
+        tdIdx.textContent = String(idx + 1);
+        const tdText = document.createElement('td');
+        tdText.textContent = l;
+        tr.appendChild(tdIdx);
+        tr.appendChild(tdText);
+        tbody.appendChild(tr);
+      });
+      tableElem.appendChild(tbody);
+      responsiveDiv.appendChild(tableElem);
+      card.appendChild(responsiveDiv);
+      container.appendChild(card);
     }
 
     // ========================================================================
@@ -1357,6 +1553,7 @@
       el.btnCopyJson.disabled = true;
       el.btnDownloadJson.style.display = 'none';
       currentRawResponse = null;
+      originalTablesSnapshot = null;
       hideAlerts();
     }
 
@@ -1379,6 +1576,11 @@
 
     // Auto-test connection on initial load
     window.addEventListener('DOMContentLoaded', () => {
+      // Auto-adapt Server Base URL to current origin when served over HTTP/HTTPS
+      if (window.location.protocol.startsWith('http') && window.location.origin) {
+        el.apiUrlInput.value = window.location.origin;
+        updateDocsLink();
+      }
       testConnection();
     });
   </script>

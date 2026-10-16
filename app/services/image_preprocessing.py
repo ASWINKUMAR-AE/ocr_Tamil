@@ -68,34 +68,49 @@ class ImagePreprocessor:
     def deskew(img: np.ndarray) -> Tuple[np.ndarray, float]:
         """
         Detect text skew angle and rotate to straighten text lines.
+        Uses Hough transform on edge/ruled lines with contour fallback.
         Only corrects slight skew (-25 to +25 degrees) to avoid false 90-degree flips.
         """
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if len(img.shape) == 3 else img
-        
-        # Invert: text should be white, background black
-        thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+        (h, w) = img.shape[:2]
 
-        coords = np.column_stack(np.where(thresh > 0))
-        if len(coords) < 100:
-            return img, 0.0
+        angle = 0.0
 
-        angle = cv2.minAreaRect(coords)[-1]
+        # Method 1: Probabilistic Hough Lines on Canny edges (reliable for notebooks, forms, documents)
+        edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+        min_line_len = max(50, int(w * 0.05))
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 80, minLineLength=min_line_len, maxLineGap=12)
+        if lines is not None and len(lines) >= 3:
+            h_angles = []
+            for l in lines:
+                x1, y1, x2, y2 = l[0]
+                deg = float(np.degrees(np.arctan2(y2 - y1, x2 - x1)))
+                if abs(deg) <= 25.0:
+                    h_angles.append(deg)
+            if len(h_angles) >= 3:
+                angle = float(np.median(h_angles))
 
-        # OpenCV minAreaRect returns angle in range [-90, 0)
-        if angle < -45:
-            angle = -(90 + angle)
-        else:
-            angle = -angle
+        # Method 2: Fallback to text contour minAreaRect if Hough lines didn't find clear angles
+        if abs(angle) < 0.4:
+            thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+            coords = np.column_stack(np.where(thresh > 0))
+            if len(coords) >= 100:
+                rect_angle = cv2.minAreaRect(coords)[-1]
+                if rect_angle < -45:
+                    rect_angle = -(90 + rect_angle)
+                else:
+                    rect_angle = -rect_angle
+                if 0.5 <= abs(rect_angle) <= 25.0:
+                    angle = float(rect_angle)
 
-        # Only deskew if significant skew detected, but within safe boundaries
-        if 0.5 <= abs(angle) <= 25.0:
-            (h, w) = img.shape[:2]
+        # Only deskew if significant skew detected, within safe boundaries
+        if 0.4 <= abs(angle) <= 25.0:
             center = (w // 2, h // 2)
             M = cv2.getRotationMatrix2D(center, angle, 1.0)
             rotated = cv2.warpAffine(
                 img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE
             )
-            return rotated, float(angle)
+            return rotated, float(round(angle, 2))
 
         return img, 0.0
 

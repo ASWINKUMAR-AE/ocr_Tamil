@@ -55,20 +55,39 @@ class ApiInfoResponse(BaseModel):
 # Table & Extraction Schemas
 # ============================================================================
 
+class ColumnHeaderDetail(BaseModel):
+    original: str = Field(default="", description="Detected header text from document")
+    display: str = Field(default="", description="Display header text")
+    semantic_type: str = Field(default="unknown", description="Inferred semantic type: identifier, name, date, gender, phone, address, quantity, amount, serial_number, unknown")
+    confidence: float = Field(default=0.9, description="Confidence score")
+    inference_method: str = Field(default="header", description="Inference method: header, semantic_inference, or position_fallback")
+
+
 class TableColumn(BaseModel):
     key: str = Field(..., description="Stable programmatic key for the column")
     label: str = Field(..., description="Original Tamil/English text header label")
+    original_header: Optional[str] = Field(default=None, description="Original raw detected header text")
+    display_header: Optional[str] = Field(default=None, description="Clean display header text")
+    semantic_type: Optional[str] = Field(default="unknown", description="Inferred semantic type")
+    confidence: Optional[float] = Field(default=None, description="Confidence score")
+    inference_method: Optional[str] = Field(default="header", description="header, semantic_inference, or position_fallback")
 
 
 class TableResult(BaseModel):
     table_index: int = Field(default=0, description="0-indexed position of table in image")
+    table_id: Optional[int] = Field(default=None, description="1-indexed table identifier")
     headers: List[str] = Field(default_factory=list, description="Column header strings")
+    headers_detail: List[ColumnHeaderDetail] = Field(default_factory=list, description="Detailed column header objects")
     rows: List[List[str]] = Field(default_factory=list, description="Row values as 2D string array")
     row_count: int = Field(default=0, description="Total number of rows")
     column_count: int = Field(default=0, description="Total number of columns")
     columns: List[TableColumn] = Field(default_factory=list, description="Structured column definitions")
     data: List[Dict[str, str]] = Field(default_factory=list, description="Key-value row objects")
     confidence: Optional[float] = Field(default=None, description="Detection confidence score")
+    detection_strategy: Optional[str] = Field(default=None, description="Strategy used: bbox_clustering, morphology_grid, or text_alignment")
+    is_uncertain: bool = Field(default=False, description="Flag indicating if the table structure requires user review")
+    warnings: List[str] = Field(default_factory=list, description="Table-level warnings or notes")
+    html: Optional[str] = Field(default=None, description="Semantic HTML table markup")
 
 
 class ProcessingMetadata(BaseModel):

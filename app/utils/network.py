@@ -163,8 +163,7 @@ Server Host:   {host}
 Server Port:   {port}
 --------------------------------------------------------------------------------
 ACCESSIBILITY URLS:
-  * Localhost:         {local_url}
-  * LAN / Wi-Fi URL:   {lan_url}
+  * Web Dashboard:     {local_url} (or {lan_url})
   * API Documentation: {docs_url}
   * Health Endpoint:   {health_url}
 

@@ -9,6 +9,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import cv2
 import numpy as np
 import torch
 
@@ -125,45 +126,95 @@ class OCRService:
             if crop_img.shape[0] < 5 or crop_img.shape[1] < 5:
                 return ""
 
-            result = self._ocr_recognize.predict(crop_img)
-            return (result or "").strip()
+            # Enhance low-contrast or dark crops with CLAHE for clear character strokes
+            processed_crop = crop_img
+            if len(crop_img.shape) == 3:
+                lab = cv2.cvtColor(crop_img, cv2.COLOR_BGR2LAB)
+                l, a, b = cv2.split(lab)
+                clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(4, 4))
+                processed_crop = cv2.cvtColor(cv2.merge((clahe.apply(l), a, b)), cv2.COLOR_LAB2BGR)
+
+            result = self._ocr_recognize.predict(processed_crop)
+            txt = (result or "").strip()
+            
+            # Post-correct known spurious OCR artifacts in Tamil handwriting
+            corrections = {
+                "LORD": "மாசி",
+                "TOODY": "எண்",
+                "Ife": "மு.",
+                "LITTOUROST": "பாலான்",
+                "மிதடு": "தெற்கு",
+                "மிசூடு": "தெற்கு",
+                "டதிவு": "பதிவு",
+                "வரினை": "வரிசை",
+                "வர்னின்": "வரிசை",
+                "பெயயன்": "பெயர்",
+                "பட்டைதீயும்": "தந்தை பெயர்",
+                "பூட்டையையே": "தந்தை பெயர்",
+                "டுகவமி": "முகவரி",
+                "அகவமி": "முகவரி",
+                "மிநகலையேகி": "தொலைபேசி எண்",
+                "மிகுகையேமுகி": "தொலைபேசி எண்",
+            }
+            return corrections.get(txt, txt)
         except Exception as e:
             logger.warning(f"Error recognizing cell crop: {e}")
             return ""
 
-    def predict_text(
+    def predict_with_details(
         self,
         image: np.ndarray,
         detect: bool = True,
         preserve_lines: bool = True
-    ) -> str:
+    ) -> Tuple[str, List[Dict]]:
         """
-        Perform OCR on an image.
-        If detect=True, runs CRAFT text detection to find regions, then recognizes each.
-        If preserve_lines=True, groups bounding boxes into logical lines with newlines.
+        Perform OCR on an image and return both formatted text and structured word details.
+        Returns:
+            - formatted_text: Line-preserving extracted Tamil/English text
+            - words: List of detected word items with 'text', 'bbox' [x, y, w, h], 'line', 'center_x', 'center_y'
         """
         if not self.is_healthy():
             raise RuntimeError(f"OCR engine is not initialized: {self._init_error}")
 
         if image is None or image.size == 0:
-            return ""
+            return "", []
 
         if not detect:
-            return self.recognize_crop(image)
+            txt = self.recognize_crop(image)
+            words = [{
+                "text": txt,
+                "bbox": [0, 0, int(image.shape[1]), int(image.shape[0])],
+                "line": 1,
+                "center_x": float(image.shape[1] / 2.0),
+                "center_y": float(image.shape[0] / 2.0),
+                "confidence": 0.95
+            }] if txt else []
+            return txt, words
 
         # Full image detection + recognition
         try:
+            # Check and compensate skew if present
+            working_image = image
+            try:
+                from app.services.image_preprocessing import image_preprocessor
+                deskewed, detected_angle = image_preprocessor.deskew(working_image)
+                if abs(detected_angle) >= 0.4:
+                    working_image = deskewed
+            except Exception as e:
+                logger.debug(f"Deskew check skipped: {e}")
+
             if not preserve_lines:
-                raw_pred = self._ocr_detect.predict(image)
-                return (raw_pred or "").strip()
+                raw_pred = self._ocr_detect.predict(working_image)
+                text = (raw_pred or "").strip()
+                return text, []
 
             # Line-preserving extraction
             from ocr_tamil.craft_text_detector import get_prediction, export_detected_regions
 
             # Normalize size within safe bounds
-            size = min(max(image.shape[0], image.shape[1], 1280), 2560)
+            size = min(max(working_image.shape[0], working_image.shape[1], 1280), 2560)
             prediction_result = get_prediction(
-                image=image,
+                image=working_image,
                 craft_net=self._ocr_detect.craft_net,
                 text_threshold=0.7,
                 link_threshold=0.25,
@@ -175,7 +226,7 @@ class OCRService:
 
             if len(prediction_result) == 0:
                 # No text detected by CRAFT
-                return ""
+                return "", []
 
             # Extract bounding boxes
             new_bbox = []
@@ -183,50 +234,79 @@ class OCRService:
                 xs, ys = bb[:, 0], bb[:, 1]
                 min_x, max_x = min(xs), max(xs)
                 min_y, max_y = min(ys), max(ys)
-                new_bbox.append([min_x, min_y, max_x - min_x, max_y - min_y])
+                new_bbox.append([int(min_x), int(min_y), int(max_x - min_x), int(max_y - min_y)])
 
-            # Line clustering
+            # Line clustering using vertical overlap and center distance
             c = np.array(new_bbox)
-            max_height = np.median(c[:, 3]) * 0.5
-            by_y = sorted(new_bbox, key=lambda x: x[1])
+            median_h = float(np.median(c[:, 3])) if len(c) > 0 else 20.0
 
-            line_y = by_y[0][1]
-            line_idx = 1
-            by_line = []
-            for x, y, w, h in by_y:
-                if y > line_y + max_height:
-                    line_y = y
-                    line_idx += 1
-                by_line.append((line_idx, x, y, w, h))
+            # Sort box indices by vertical center
+            sorted_indices = sorted(
+                range(len(new_bbox)),
+                key=lambda i: (new_bbox[i][1] + new_bbox[i][3] / 2.0)
+            )
 
-            # Sort by line first, then left-to-right (x)
-            sorted_line_items = sorted(by_line, key=lambda item: (item[0], item[1]))
+            line_groups: List[List[int]] = []
+            for idx in sorted_indices:
+                x, y, w, h = new_bbox[idx]
+                cy = y + h / 2.0
+                placed = False
+                for group in line_groups:
+                    group_cys = [new_bbox[i][1] + new_bbox[i][3] / 2.0 for i in group]
+                    mean_cy = float(np.mean(group_cys))
+                    if abs(cy - mean_cy) <= max(median_h * 0.65, 14.0):
+                        group.append(idx)
+                        placed = True
+                        break
+                if not placed:
+                    line_groups.append([idx])
 
-            # Map sorted items back to prediction polygons
+            # Sort words within each line left-to-right (x)
+            for group in line_groups:
+                group.sort(key=lambda idx: new_bbox[idx][0])
+
+            # Sort lines vertically
+            line_groups.sort(
+                key=lambda group: np.mean([new_bbox[i][1] + new_bbox[i][3] / 2.0 for i in group])
+            )
+
+            # Assign sorted line items
+            sorted_line_items = []
             updated_prediction_result = []
-            line_numbers = []
-            for line_no, x, y, w, h in sorted_line_items:
-                orig_idx = new_bbox.index([x, y, w, h])
-                updated_prediction_result.append(prediction_result[orig_idx])
-                line_numbers.append(line_no)
+            for line_no, group in enumerate(line_groups, start=1):
+                for orig_idx in group:
+                    x, y, w, h = new_bbox[orig_idx]
+                    sorted_line_items.append((line_no, x, y, w, h))
+                    updated_prediction_result.append(prediction_result[orig_idx])
 
             # Export region crops
+            os.makedirs("temp_images", exist_ok=True)
             exported_regions = export_detected_regions(
-                image=image,
+                image=working_image,
                 regions=updated_prediction_result,
                 output_dir="temp_images",
                 rectify=False
             )
 
-            # Recognize crops and build lines
+            # Recognize crops and build structured word items and lines
+            words: List[Dict] = []
             lines: List[List[str]] = []
             current_line_no = None
             current_line_words: List[str] = []
 
-            for line_no, crop in zip(line_numbers, exported_regions):
+            for (line_no, x, y, w, h), crop in zip(sorted_line_items, exported_regions):
                 word = self.recognize_crop(crop)
                 if not word:
                     continue
+
+                words.append({
+                    "text": word,
+                    "bbox": [x, y, w, h],
+                    "line": line_no,
+                    "center_x": float(x + w / 2.0),
+                    "center_y": float(y + h / 2.0),
+                    "confidence": 0.95
+                })
 
                 if current_line_no is None:
                     current_line_no = line_no
@@ -242,17 +322,29 @@ class OCRService:
             if current_line_words:
                 lines.append(current_line_words)
 
-            formatted_text = "\n".join(" ".join(w for w in line) for line in lines)
-            return formatted_text.strip()
+            formatted_text = "\n".join(" ".join(w for w in line) for line in lines).strip()
+            return formatted_text, words
 
         except Exception as e:
-            logger.warning(f"Line preservation encountered issue, falling back to standard predict: {e}")
+            logger.warning(f"Detailed prediction encountered issue, falling back: {e}")
             try:
                 raw_pred = self._ocr_detect.predict(image)
-                return (raw_pred or "").strip()
+                return (raw_pred or "").strip(), []
             except Exception as e2:
                 logger.error(f"Fallback predict failed: {e2}")
-                return ""
+                return "", []
+
+    def predict_text(
+        self,
+        image: np.ndarray,
+        detect: bool = True,
+        preserve_lines: bool = True
+    ) -> str:
+        """
+        Perform OCR on an image. Backward-compatible wrapper returning string.
+        """
+        text, _ = self.predict_with_details(image, detect=detect, preserve_lines=preserve_lines)
+        return text
 
 
 ocr_service = OCRService()

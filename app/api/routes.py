@@ -169,8 +169,8 @@ async def process_ocr(
     # Concurrency control around heavy PyTorch OCR
     async with ocr_service.semaphore:
         try:
-            # Run text extraction
-            extracted_text = ocr_service.predict_text(
+            # Run text extraction with spatial word details
+            extracted_text, words = ocr_service.predict_with_details(
                 processed_bgr, detect=True, preserve_lines=True
             )
         except Exception as e:
@@ -180,12 +180,17 @@ async def process_ocr(
                 detail={"request_id": req_id, "error": f"OCR processing failed: {str(e)}"}
             )
 
-        # Run table extraction if enabled
+        # Run multi-strategy table extraction if enabled
         tables = []
         warnings = []
         if extract_tables:
             try:
-                tables, table_warnings = table_extractor.extract_tables(processed_bgr, extract_text=True)
+                tables, table_warnings = table_extractor.extract_tables(
+                    processed_bgr,
+                    words=words,
+                    extracted_text=extracted_text,
+                    extract_text=True
+                )
                 warnings.extend(table_warnings)
             except Exception as e:
                 logger.warning(f"Table extraction error: {e}")
@@ -252,8 +257,15 @@ async def extract_table_only(
         )
 
     async with ocr_service.semaphore:
-        extracted_text = ocr_service.predict_text(processed_bgr, detect=True, preserve_lines=True)
-        tables, warnings = table_extractor.extract_tables(processed_bgr, extract_text=True)
+        extracted_text, words = ocr_service.predict_with_details(
+            processed_bgr, detect=True, preserve_lines=True
+        )
+        tables, warnings = table_extractor.extract_tables(
+            processed_bgr,
+            words=words,
+            extracted_text=extracted_text,
+            extract_text=True
+        )
 
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
@@ -403,11 +415,18 @@ async def process_batch(
             )
 
             async with ocr_service.semaphore:
-                text = ocr_service.predict_text(processed_bgr, detect=True, preserve_lines=True)
+                text, words = ocr_service.predict_with_details(
+                    processed_bgr, detect=True, preserve_lines=True
+                )
                 tables = []
                 warnings = []
                 if extract_tables:
-                    tables, twarns = table_extractor.extract_tables(processed_bgr, extract_text=True)
+                    tables, twarns = table_extractor.extract_tables(
+                        processed_bgr,
+                        words=words,
+                        extracted_text=text,
+                        extract_text=True
+                    )
                     warnings.extend(twarns)
 
             item_ms = round((time.perf_counter() - item_start) * 1000, 2)
