@@ -320,7 +320,7 @@ def test_table_without_headers_level_c_fallback():
     # Headers inferred from data distribution
     assert t.headers_detail[0].semantic_type == "identifier"
     assert t.headers_detail[1].semantic_type == "date"
-    assert t.headers_detail[2].semantic_type == "phone"
+    assert t.headers_detail[2].semantic_type in ["phone", "phone_number"]
 
 
 def test_empty_cells_preserved_no_left_shift():
@@ -388,3 +388,134 @@ def test_tamil_english_mixed_table():
     assert "Student Name" in t.headers[1]
     assert t.rows[0] == ["101", "அரவிந்தன்", "95.5"]
     assert t.rows[1] == ["102", "பிரியா", "98.0"]
+
+
+def test_pure_english_table_discovery():
+    """Verify dynamic discovery on pure English invoices/tables."""
+    import numpy as np
+    from app.services.table_extraction import table_extractor
+
+    mock_words = [
+        {"text": "Item", "bbox": [30, 20, 40, 20], "line": 1, "center_x": 50, "center_y": 30},
+        {"text": "Description", "bbox": [120, 20, 80, 20], "line": 1, "center_x": 160, "center_y": 30},
+        {"text": "Qty", "bbox": [250, 20, 30, 20], "line": 1, "center_x": 265, "center_y": 30},
+        {"text": "Rate", "bbox": [330, 20, 35, 20], "line": 1, "center_x": 347, "center_y": 30},
+        {"text": "Total", "bbox": [410, 20, 40, 20], "line": 1, "center_x": 430, "center_y": 30},
+
+        {"text": "1", "bbox": [35, 60, 20, 20], "line": 2, "center_x": 45, "center_y": 70},
+        {"text": "Wireless Mouse", "bbox": [110, 60, 95, 20], "line": 2, "center_x": 157, "center_y": 70},
+        {"text": "5", "bbox": [255, 60, 20, 20], "line": 2, "center_x": 265, "center_y": 70},
+        {"text": "450.00", "bbox": [325, 60, 50, 20], "line": 2, "center_x": 350, "center_y": 70},
+        {"text": "2250.00", "bbox": [405, 60, 55, 20], "line": 2, "center_x": 432, "center_y": 70},
+    ]
+
+    mock_img = np.zeros((160, 500, 3), dtype=np.uint8)
+    tables, warnings = table_extractor.extract_tables(mock_img, words=mock_words, extract_text=False)
+
+    assert len(tables) == 1
+    t = tables[0]
+    assert t.column_count == 5
+    assert t.row_count == 1
+    assert "Item" in t.headers[0]
+    assert "Description" in t.headers[1]
+    assert "Qty" in t.headers[2]
+    assert "Rate" in t.headers[3]
+    assert "Total" in t.headers[4]
+    assert t.rows[0] == ["1", "Wireless Mouse", "5", "450.00", "2250.00"]
+    assert "en" in t.detected_languages
+
+
+def test_cattle_aadhaar_in_cattle_context():
+    """Verify 12-digit number in cattle context is classified as cattle_aadhaar_id."""
+    import numpy as np
+    from app.services.table_extraction import table_extractor
+
+    mock_words = [
+        # Table with explicit cattle/pashu context
+        {"text": "வ.எண்", "bbox": [30, 20, 40, 20], "line": 1, "center_x": 50, "center_y": 30},
+        {"text": "கால்நடை", "bbox": [110, 20, 65, 20], "line": 1, "center_x": 142, "center_y": 30},
+        {"text": "ஆதார்", "bbox": [180, 20, 45, 20], "line": 1, "center_x": 202, "center_y": 30},
+        {"text": "பால் அளவு", "bbox": [280, 20, 70, 20], "line": 1, "center_x": 315, "center_y": 30},
+
+        # Data Row
+        {"text": "1", "bbox": [35, 60, 20, 20], "line": 2, "center_x": 45, "center_y": 70},
+        {"text": "123456789012", "bbox": [115, 60, 110, 20], "line": 2, "center_x": 170, "center_y": 70},
+        {"text": "15.5 லிட்டர்", "bbox": [280, 60, 80, 20], "line": 2, "center_x": 320, "center_y": 70},
+    ]
+
+    mock_img = np.zeros((150, 420, 3), dtype=np.uint8)
+    tables, warnings = table_extractor.extract_tables(mock_img, words=mock_words, extract_text=False)
+
+    assert len(tables) == 1
+    t = tables[0]
+    assert t.column_count == 3
+    assert t.headers_detail[1].semantic_type == "cattle_aadhaar_id"
+    assert t.rows[0][1] == "123456789012"  # Exact string representation preserved
+
+
+def test_twelve_digit_identifier_outside_cattle_context():
+    """Verify 12-digit number in non-cattle document is NOT classified as cattle_aadhaar_id."""
+    from app.services.pattern_classifier import pattern_classifier
+
+    # In general non-cattle document
+    res = pattern_classifier.classify_single_value("987654321098", column_context="UID", document_context="Invoice Report")
+    assert res.semantic_type != "cattle_aadhaar_id"
+    assert res.semantic_type == "identifier"
+
+
+def test_conflict_resolution_account_number_with_ten_digits():
+    """Verify column named 'Account Number' containing 10-digit numbers retains explicit header with warning."""
+    from app.services.pattern_classifier import pattern_classifier
+
+    # Explicit header 'Account Number' with 10-digit values
+    vals = ["9840112233", "9840223344", "9840334455"]
+    res = pattern_classifier.analyze_column_distribution(
+        column_values=vals,
+        header_text="Account Number",
+        preferred_language="en"
+    )
+
+    # Must preserve explicit header and record conflict warning
+    assert res.display_text == "Account Number"
+    assert res.semantic_type in ["account_number", "identifier", "explicit_text"]
+    assert len(res.warnings) > 0
+    assert "phone" in res.warnings[0].lower()
+
+
+def test_preservation_of_leading_zeros():
+    """Verify identifiers with leading zeros retain zeros as strings and are never truncated."""
+    from app.services.pattern_classifier import pattern_classifier
+
+    res1 = pattern_classifier.classify_single_value("012345678901", column_context="மாடு ஆதார்")
+    assert res1.normalized_value == "012345678901"
+    assert res1.normalized_value.startswith("0")
+
+    res2 = pattern_classifier.classify_single_value("00452", column_context="Reg No")
+    assert res2.original_text == "00452"
+
+
+def test_unassigned_text_extraction():
+    """Verify text outside table bounding boundaries is captured in unassigned_text."""
+    import numpy as np
+    from app.services.table_extraction import table_extractor
+
+    mock_words = [
+        # Title outside table at top
+        {"text": "தலைமைச் செயலக அறிக்கை 2026", "bbox": [50, 10, 200, 25], "line": 1, "center_x": 150, "center_y": 22},
+
+        # Table rows (well below title)
+        {"text": "வ.எண்", "bbox": [50, 100, 50, 25], "line": 2, "center_x": 75, "center_y": 112},
+        {"text": "விவரம்", "bbox": [150, 100, 60, 25], "line": 2, "center_x": 180, "center_y": 112},
+        {"text": "1", "bbox": [55, 140, 20, 25], "line": 3, "center_x": 65, "center_y": 152},
+        {"text": "பராமரிப்பு", "bbox": [140, 140, 80, 25], "line": 3, "center_x": 180, "center_y": 152},
+    ]
+
+    mock_img = np.zeros((220, 400, 3), dtype=np.uint8)
+    tables, warnings = table_extractor.extract_tables(mock_img, words=mock_words, extract_text=False)
+
+    assert len(tables) == 1
+    t = tables[0]
+    assert t.column_count == 2
+    assert t.unassigned_text is not None
+    assert "தலைமைச்" in t.unassigned_text
+

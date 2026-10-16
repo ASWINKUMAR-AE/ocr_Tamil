@@ -171,7 +171,7 @@ async def process_ocr(
         try:
             # Run text extraction with spatial word details
             extracted_text, words = ocr_service.predict_with_details(
-                processed_bgr, detect=True, preserve_lines=True
+                processed_bgr, detect=True, preserve_lines=True, language_hint=language_hint
             )
         except Exception as e:
             logger.error(f"OCR inference failed: {e}", exc_info=True)
@@ -197,6 +197,10 @@ async def process_ocr(
                 warnings.append(f"Table extraction warning: {str(e)}")
 
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+    doc_langs = ocr_service.detect_document_languages(words)
+    unassigned = None
+    if tables and hasattr(tables[0], "unassigned_text") and tables[0].unassigned_text:
+        unassigned = tables[0].unassigned_text
 
     return OCRResponse(
         success=True,
@@ -214,7 +218,9 @@ async def process_ocr(
                 "height": prep_meta.get("original_height", 0)
             }
         ),
-        warnings=warnings
+        warnings=warnings,
+        detected_languages=doc_langs,
+        unassigned_text=unassigned
     )
 
 
@@ -232,7 +238,8 @@ async def process_ocr(
 async def extract_table_only(
     response: Response,
     file: UploadFile = File(..., description="Uploaded image containing table(s)"),
-    preprocess: bool = Form(default=True, description="Apply image preprocessing")
+    preprocess: bool = Form(default=True, description="Apply image preprocessing"),
+    language_hint: Optional[str] = Form(default=None, description="Optional language hint (ta/en)")
 ):
     """
     Dedicated endpoint for table recognition.
@@ -258,7 +265,7 @@ async def extract_table_only(
 
     async with ocr_service.semaphore:
         extracted_text, words = ocr_service.predict_with_details(
-            processed_bgr, detect=True, preserve_lines=True
+            processed_bgr, detect=True, preserve_lines=True, language_hint=language_hint
         )
         tables, warnings = table_extractor.extract_tables(
             processed_bgr,

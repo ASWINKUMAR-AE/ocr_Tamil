@@ -58,9 +58,12 @@ class ApiInfoResponse(BaseModel):
 class ColumnHeaderDetail(BaseModel):
     original: str = Field(default="", description="Detected header text from document")
     display: str = Field(default="", description="Display header text")
+    original_header: Optional[str] = Field(default=None, description="Original raw detected header text")
+    display_header: Optional[str] = Field(default=None, description="Clean display header text")
     semantic_type: str = Field(default="unknown", description="Inferred semantic type: identifier, name, date, gender, phone, address, quantity, amount, serial_number, unknown")
     confidence: float = Field(default=0.9, description="Confidence score")
-    inference_method: str = Field(default="header", description="Inference method: header, semantic_inference, or position_fallback")
+    inference_method: str = Field(default="header", description="Inference method: explicit_header, pattern_and_context, or position_fallback")
+    classification_warnings: List[str] = Field(default_factory=list, description="Column-level warnings, e.g. conflicting pattern vs header")
 
 
 class TableColumn(BaseModel):
@@ -70,7 +73,8 @@ class TableColumn(BaseModel):
     display_header: Optional[str] = Field(default=None, description="Clean display header text")
     semantic_type: Optional[str] = Field(default="unknown", description="Inferred semantic type")
     confidence: Optional[float] = Field(default=None, description="Confidence score")
-    inference_method: Optional[str] = Field(default="header", description="header, semantic_inference, or position_fallback")
+    inference_method: Optional[str] = Field(default="header", description="explicit_header, pattern_and_context, or position_fallback")
+    classification_warnings: List[str] = Field(default_factory=list, description="Column-level warnings")
 
 
 class TableResult(BaseModel):
@@ -88,6 +92,8 @@ class TableResult(BaseModel):
     is_uncertain: bool = Field(default=False, description="Flag indicating if the table structure requires user review")
     warnings: List[str] = Field(default_factory=list, description="Table-level warnings or notes")
     html: Optional[str] = Field(default=None, description="Semantic HTML table markup")
+    detected_languages: List[str] = Field(default_factory=lambda: ["ta"], description="Languages detected in table")
+    unassigned_text: Optional[str] = Field(default=None, description="Text tokens outside table bounding boundaries")
 
 
 class ProcessingMetadata(BaseModel):
@@ -110,6 +116,8 @@ class OCRResponse(BaseModel):
     tables: List[TableResult] = Field(default_factory=list, description="Detected tabular structures")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list, description="Non-fatal warnings")
+    detected_languages: List[str] = Field(default_factory=lambda: ["ta"], description="Languages detected across image: ta, en, or mixed")
+    unassigned_text: Optional[str] = Field(default=None, description="Text tokens located outside recognized table boundaries")
 
 
 class TextOnlyResponse(BaseModel):

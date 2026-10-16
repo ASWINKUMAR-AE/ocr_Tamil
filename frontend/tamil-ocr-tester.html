@@ -726,6 +726,14 @@
               <input type="checkbox" id="chkPreprocess" checked>
               <span>Preprocess</span>
             </label>
+            <div style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-subtle); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <label for="selLanguageHint" style="font-weight: 600; color: var(--text-main);">Language Mode:</label>
+              <select id="selLanguageHint" style="padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.85rem; background: var(--bg-card); color: var(--text-main); font-weight: 500;">
+                <option value="">Auto (Tamil + English)</option>
+                <option value="ta">Tamil First (தமிழ்)</option>
+                <option value="en">English First</option>
+              </select>
+            </div>
           </div>
 
           <div class="button-group">
@@ -876,6 +884,7 @@
       previewMetaText: document.getElementById('previewMetaText'),
       chkExtractTables: document.getElementById('chkExtractTables'),
       chkPreprocess: document.getElementById('chkPreprocess'),
+      selLanguageHint: document.getElementById('selLanguageHint'),
       btnExtractText: document.getElementById('btnExtractText'),
       btnExtractTable: document.getElementById('btnExtractTable'),
       btnClear: document.getElementById('btnClear'),
@@ -1082,6 +1091,10 @@
         formData.append('extract_tables', el.chkExtractTables.checked ? 'true' : 'false');
       }
       formData.append('preprocess', el.chkPreprocess.checked ? 'true' : 'false');
+      const langHint = el.selLanguageHint ? el.selLanguageHint.value : '';
+      if (langHint) {
+        formData.append('language_hint', langHint);
+      }
 
       const headers = { 'Accept': 'application/json' };
       if (apiKey) {
@@ -1361,11 +1374,22 @@
             th.appendChild(titleSpan);
 
             // Display semantic type tag if known
-            if (tbl.headers_detail && tbl.headers_detail[cIdx] && tbl.headers_detail[cIdx].semantic_type && tbl.headers_detail[cIdx].semantic_type !== 'unknown') {
+            const detail = tbl.headers_detail && tbl.headers_detail[cIdx];
+            if (detail && detail.semantic_type && detail.semantic_type !== 'unknown') {
               const semTag = document.createElement('div');
               semTag.className = 'th-sem-type';
-              semTag.textContent = tbl.headers_detail[cIdx].semantic_type;
+              semTag.textContent = detail.semantic_type;
               th.appendChild(semTag);
+            }
+
+            // Display classification warnings or conflicts if present
+            if (detail && detail.classification_warnings && detail.classification_warnings.length > 0) {
+              const warnTag = document.createElement('div');
+              warnTag.className = 'th-warn-tag';
+              warnTag.style.cssText = 'font-size: 0.70rem; color: #b45309; background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 4px; margin-top: 4px; font-weight: normal;';
+              warnTag.textContent = '⚠️ ' + detail.classification_warnings[0];
+              warnTag.title = detail.classification_warnings.join('; ');
+              th.appendChild(warnTag);
             }
 
             // Sync on rename
@@ -1416,6 +1440,21 @@
 
         responsiveDiv.appendChild(tableElem);
         card.appendChild(responsiveDiv);
+
+        // Display text detected outside table boundaries if present
+        if (tbl.unassigned_text && tbl.unassigned_text.trim()) {
+          const unassignedBox = document.createElement('div');
+          unassignedBox.style.cssText = 'padding: 10px 16px; background: #f8fafc; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted);';
+          const strong = document.createElement('strong');
+          strong.textContent = 'Text outside table: ';
+          const span = document.createElement('span');
+          span.style.cssText = 'font-family: var(--font-tamil); color: var(--text-main);';
+          span.textContent = tbl.unassigned_text;
+          unassignedBox.appendChild(strong);
+          unassignedBox.appendChild(span);
+          card.appendChild(unassignedBox);
+        }
+
         container.appendChild(card);
       });
     }

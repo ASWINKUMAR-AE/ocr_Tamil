@@ -5,6 +5,7 @@ and cell-level recognition for tabular data.
 """
 
 import os
+import re
 import asyncio
 import logging
 from pathlib import Path
@@ -110,10 +111,57 @@ class OCRService:
     def initialization_error(self) -> Optional[str]:
         return self._init_error
 
-    def recognize_crop(self, crop_img: np.ndarray) -> str:
+    @staticmethod
+    def detect_token_language(text: str) -> str:
+        """
+        Identify whether a token is Tamil, English, Mixed, Numeric, or Symbol.
+        """
+        if not text:
+            return "unknown"
+        has_tamil = bool(re.search(r"[\u0b80-\u0bff]", text))
+        has_english = bool(re.search(r"[A-Za-z]", text))
+        has_digit = bool(re.search(r"\d", text))
+
+        if has_tamil and has_english:
+            return "mixed"
+        if has_tamil:
+            return "ta"
+        if has_english:
+            return "en"
+        if has_digit:
+            return "numeric"
+        return "symbol"
+
+    @classmethod
+    def detect_document_languages(cls, words: List[Dict]) -> List[str]:
+        """
+        Detect dominant languages at document level from detected words.
+        Returns list of languages present, e.g. ["ta"], ["en"], or ["ta", "en"].
+        """
+        if not words:
+            return ["ta"]
+        ta_count = sum(1 for w in words if cls.detect_token_language(w.get("text", "")) in ["ta", "mixed"])
+        en_count = sum(1 for w in words if cls.detect_token_language(w.get("text", "")) in ["en", "mixed"])
+
+        langs = []
+        if ta_count >= en_count:
+            if ta_count > 0:
+                langs.append("ta")
+            if en_count > 0 and (en_count / max(1, ta_count + en_count)) >= 0.15:
+                langs.append("en")
+        else:
+            if en_count > 0:
+                langs.append("en")
+            if ta_count > 0 and (ta_count / max(1, ta_count + en_count)) >= 0.15:
+                langs.append("ta")
+
+        return langs or ["ta"]
+
+    def recognize_crop(self, crop_img: np.ndarray, language_hint: Optional[str] = None) -> str:
         """
         Recognize text from a single cropped word or table cell.
         Returns recognized string (Tamil/English/numeric).
+        Supports optional language_hint ('en' or 'ta') to assist bilingual classification.
         """
         if not self.is_healthy():
             raise RuntimeError(f"OCR engine is not initialized: {self._init_error}")
@@ -133,6 +181,23 @@ class OCRService:
                 l, a, b = cv2.split(lab)
                 clahe = cv2.createCLAHE(clipLimit=2.2, tileGridSize=(4, 4))
                 processed_crop = cv2.cvtColor(cv2.merge((clahe.apply(l), a, b)), cv2.COLOR_LAB2BGR)
+
+            # If English is specifically requested, attempt isolated English parseq decoding
+            if language_hint == "en" and hasattr(self._ocr_recognize, "eng_parseq"):
+                try:
+                    from PIL import Image
+                    import skimage.exposure
+                    rescaled = skimage.exposure.rescale_intensity(processed_crop, in_range='image', out_range='dtype')
+                    pil_img = Image.fromarray(np.uint8(rescaled)).convert('RGB')
+                    t_img = self._ocr_recognize.img_transform(pil_img).unsqueeze(0).to(self.device)
+                    with torch.inference_mode():
+                        logits = self._ocr_recognize.eng_parseq(t_img)
+                    pred = logits.softmax(-1)
+                    eng_label, _ = self._ocr_recognize.eng_parseq.tokenizer.decode(pred)
+                    if eng_label and eng_label[0]:
+                        return eng_label[0].strip()
+                except Exception as ex:
+                    logger.debug(f"Direct English crop recognition fallback: {ex}")
 
             result = self._ocr_recognize.predict(processed_crop)
             txt = (result or "").strip()
@@ -165,13 +230,14 @@ class OCRService:
         self,
         image: np.ndarray,
         detect: bool = True,
-        preserve_lines: bool = True
+        preserve_lines: bool = True,
+        language_hint: Optional[str] = None
     ) -> Tuple[str, List[Dict]]:
         """
         Perform OCR on an image and return both formatted text and structured word details.
         Returns:
             - formatted_text: Line-preserving extracted Tamil/English text
-            - words: List of detected word items with 'text', 'bbox' [x, y, w, h], 'line', 'center_x', 'center_y'
+            - words: List of detected word items with 'text', 'bbox' [x, y, w, h], 'line', 'center_x', 'center_y', 'language'
         """
         if not self.is_healthy():
             raise RuntimeError(f"OCR engine is not initialized: {self._init_error}")
@@ -295,17 +361,21 @@ class OCRService:
             current_line_words: List[str] = []
 
             for (line_no, x, y, w, h), crop in zip(sorted_line_items, exported_regions):
-                word = self.recognize_crop(crop)
+                word = self.recognize_crop(crop, language_hint=language_hint)
                 if not word:
                     continue
 
+                token_lang = self.detect_token_language(word)
                 words.append({
                     "text": word,
                     "bbox": [x, y, w, h],
                     "line": line_no,
                     "center_x": float(x + w / 2.0),
                     "center_y": float(y + h / 2.0),
-                    "confidence": 0.95
+                    "confidence": 0.95,
+                    "language": token_lang,
+                    "original_text": word,
+                    "display_text": word
                 })
 
                 if current_line_no is None:

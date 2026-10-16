@@ -24,26 +24,34 @@ import numpy as np
 
 from app.schemas.ocr import ColumnHeaderDetail, TableColumn, TableResult
 from app.services.ocr_service import ocr_service
+from app.services.pattern_classifier import pattern_classifier, ClassificationResult
 
 logger = logging.getLogger("tamil_ocr.tables")
 
 # Common Tamil and English table header vocabulary for dynamic header row detection
-TAMIL_HEADER_KEYWORDS = {
+TABLE_HEADER_KEYWORDS = {
+    # Tamil
     "வரிசை", "பதிவு", "பெயர்", "விவரம்", "தேதி", "எண்", "தொகை", "விலை",
     "மாதம்", "ஆண்டு", "வ.எண்", "குறிப்பு", "வங்கி", "முகவரி", "இனம்", "அளவு",
     "நிலை", "ஊர்", "வயது", "தொலைபேசி", "செல்பேசி", "கைபேசி", "நாள்", "காலம்",
     "கட்டணம்", "மொத்தம்", "மாணவர்", "சேர்க்கை", "பாலினம்", "பெற்றோர்", "தந்தை",
     "தாய்", "தாயார்", "சாதி", "வகுப்பு", "பாடம்", "மதிப்பெண்", "தேர்ச்சி", "வரி",
     "மாடு", "பால்", "விவசாயி", "கொள்முதல்", "பற்று", "வரவு", "மீதி", "இருப்பு",
-    "sl", "no", "name", "date", "particulars", "amount", "total", "description",
-    "id", "reg", "phone", "mobile", "address", "city", "age", "qty", "quantity",
-    "gender", "rate", "price", "unit", "balance", "debit", "credit", "father"
+    "கால்நடை", "பசு", "எடை", "கணக்கு", "மின்னஞ்சல்", "குறியீடு",
+    # English
+    "sl", "s.no", "serial", "no", "name", "date", "dob", "particulars", "amount", "total", "description",
+    "id", "reg", "phone", "mobile", "contact", "address", "city", "age", "qty", "quantity",
+    "gender", "sex", "rate", "price", "unit", "balance", "debit", "credit", "father", "parent",
+    "student", "admission", "roll", "class", "cattle", "cow", "tag", "pashu", "aadhaar",
+    "account", "acc", "item", "sn", "code", "status", "remarks", "milk", "weight", "email",
+    "pin", "tax", "gst", "invoice", "bill"
 }
+TAMIL_HEADER_KEYWORDS = TABLE_HEADER_KEYWORDS
 
 # Common compound header suffixes in Tamil & English (merged when intra-header spacing is small)
 HEADER_COMPOUND_SUFFIXES = {
     "பெயர்", "எண்", "எஸ்ஸா", "தேதி", "அளவு", "விலை", "தொகை", "விவரம்", "குறியீடு",
-    "no", "name", "date", "number", "code", "amount", "rate", "count"
+    "no", "name", "date", "number", "code", "amount", "rate", "count", "id"
 }
 
 
@@ -110,8 +118,10 @@ def generate_html_table(
             detail = headers_detail[idx] if headers_detail and idx < len(headers_detail) else None
             sem_attr = f' data-semantic-type="{html.escape(detail.semantic_type)}"' if detail else ""
             method_attr = f' data-inference-method="{html.escape(detail.inference_method)}"' if detail else ""
+            warn_title = f' title="{html.escape("; ".join(detail.classification_warnings))}"' if (detail and detail.classification_warnings) else ' title="Click to rename"'
+            warn_badge = ' <span class="th-warn-icon" title="Review note">⚠️</span>' if (detail and detail.classification_warnings) else ""
             html_parts.append(
-                f'        <th scope="col" data-col-idx="{idx}" contenteditable="true"{sem_attr}{method_attr}>{display_h}</th>'
+                f'        <th scope="col" data-col-idx="{idx}" contenteditable="true"{sem_attr}{method_attr}{warn_title}>{display_h}{warn_badge}</th>'
             )
         html_parts.append("      </tr>")
         html_parts.append("    </thead>")
@@ -204,6 +214,30 @@ class TableExtractor:
             return cleaned
 
         return f"col_{fallback_idx + 1}"
+
+    # -------------------------------------------------------------------------
+    # Stage 0: Preserve Raw OCR Result
+    # -------------------------------------------------------------------------
+    def preserve_raw_ocr_result(
+        self,
+        extracted_text: Optional[str],
+        words: Optional[List[Dict[str, Any]]]
+    ) -> Tuple[str, List[Dict[str, Any]]]:
+        """
+        Safely preserve raw OCR extracted text and word tokens without modification.
+        """
+        raw_text = str(extracted_text or "")
+        token_list = [dict(w) for w in (words or [])]
+        return raw_text, token_list
+
+    # -------------------------------------------------------------------------
+    # Stage 0B: Detect Document Languages
+    # -------------------------------------------------------------------------
+    def detect_document_languages(self, words: List[Dict[str, Any]]) -> List[str]:
+        """
+        Detect dominant document language(s) across words: 'ta', 'en', or ['ta', 'en'].
+        """
+        return ocr_service.detect_document_languages(words)
 
     # -------------------------------------------------------------------------
     # Stage 1: Detect Table Regions
@@ -578,17 +612,24 @@ class TableExtractor:
         return body_rows
 
     # -------------------------------------------------------------------------
-    # Stage 7: Infer Column Semantics (Level B: Semantic Inference)
+    # Stage 7: Infer Column Semantics (Level B: Semantic Inference & Conflict Resolution)
     # -------------------------------------------------------------------------
     def infer_column_semantics(
         self,
         headers: List[Dict[str, Any]],
         body_rows: List[List[str]],
-        is_explicit_header: bool
+        is_explicit_header: bool,
+        document_context: Optional[str] = None,
+        dominant_language: str = "ta"
     ) -> Tuple[List[str], List[ColumnHeaderDetail]]:
         """
         Analyze multi-cell data distribution and header keywords to determine semantic types.
-        Supports 3-level strategy: Level A (Explicit) -> Level B (Semantic Inference) -> Level C (Position Fallback).
+        Implements 5-priority strategy with language-aware labels and conflict resolution:
+          Priority 1: Table Geometry (preserved)
+          Priority 2: Explicit Header Recognition (Tamil & English)
+          Priority 3: Pattern-Based Column Inference (consistency across rows)
+          Priority 4: Contextual and Language-Based Inference (cattle, student, bilingual)
+          Priority 5: Neutral Fallback (Column N)
         """
         num_cols = len(headers)
         display_headers: List[str] = []
@@ -600,103 +641,65 @@ class TableExtractor:
             disp_h = h_info.get("display", "").strip()
 
             col_vals = [r[c_idx].strip() for r in body_rows if c_idx < len(r) and r[c_idx].strip()]
-            val_count = len(col_vals)
 
-            # Feature tests across column values
-            digit_only_count = sum(1 for v in col_vals if v.isdigit())
-            serial_no_count = sum(1 for v in col_vals if re.match(r"^\d{1,4}[.)]?$", v))
-            date_count = sum(1 for v in col_vals if re.search(r"\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b", v))
-            phone_count = sum(1 for v in col_vals if re.search(r"\b[6-9]\d{9}\b|\b[6-9]\d{4}\s*\d{5}\b", v))
-            gender_count = sum(1 for v in col_vals if any(g in v for g in ["ஆண்", "ஆண", "பெண்", "male", "female", "trans"]))
-            id_count = sum(1 for v in col_vals if (re.search(r"\b[0-9]{2,}[A-Za-z][A-Za-z0-9]*\b|\b[A-Za-z]+[0-9]+\b|\b\d{4,8}\b", v) and not re.search(r"[./-]", v) and len(re.sub(r"\D", "", v)) != 10))
-            amount_count = sum(1 for v in col_vals if re.search(r"[₹$]|ரூ|\b\d+[.,]\d{2}\b", v))
-            qty_count = sum(1 for v in col_vals if re.search(r"\b\d+(\.\d+)?\s*(லி|லிட்டர்|kg|கிலோ|கிராம்|l|ml|units?)\b", v, re.I))
-            address_count = sum(1 for v in col_vals if any(kw in v for kw in ["தெரு", "சாலை", "நகர்", "வீதி", "காலனி", "அக்ரஹாரம்", "சந்து", "சென்னை", "மதுரை", "கோவை", "திருச்சி", "street", "road", "nagar"]))
+            # Use PatternClassifier to analyze column distribution
+            class_res = pattern_classifier.analyze_column_distribution(
+                column_values=col_vals,
+                header_text=disp_h if is_explicit_header else raw_h,
+                document_context=document_context,
+                preferred_language=dominant_language
+            )
 
-            semantic_type = "unknown"
-            confidence = 0.90 if is_explicit_header else 0.60
-            inference_method = "header" if is_explicit_header else "position_fallback"
+            final_disp_h = class_res.display_text
+            if not final_disp_h or final_disp_h.lower() == "column":
+                final_disp_h = f"Column {c_idx + 1}"
 
-            # 1. Determine semantic type from explicit header text if available
-            lower_h = disp_h.lower()
-            if any(kw in lower_h for kw in ["வரிசை", "வ.எண்", "sl", "s.no"]):
-                semantic_type = "serial_number"
-            elif any(kw in lower_h for kw in ["தேதி", "date"]):
-                semantic_type = "date"
-            elif any(kw in lower_h for kw in ["தொலைபேசி", "செல்பேசி", "கைபேசி", "phone", "mobile"]):
-                semantic_type = "phone"
-            elif any(kw in lower_h for kw in ["பாலினம்", "gender"]):
-                semantic_type = "gender"
-            elif any(kw in lower_h for kw in ["பதிவு", "சேர்க்கை", "reg", "admission", "id"]):
-                semantic_type = "identifier"
-            elif any(kw in lower_h for kw in ["முகவரி", "address"]):
-                semantic_type = "address"
-            elif any(kw in lower_h for kw in ["பெயர்", "name"]):
-                semantic_type = "name"
-            elif any(kw in lower_h for kw in ["தொகை", "விலை", "amount", "price", "cost"]):
-                semantic_type = "amount"
-            elif any(kw in lower_h for kw in ["அளவு", "பால்", "qty", "quantity"]):
-                semantic_type = "quantity"
-
-            # 2. Level B: Semantic inference from data if header was generic or absent
-            if not is_explicit_header or disp_h.startswith("Column ") or disp_h.startswith("Field "):
-                if val_count >= 2:
-                    if date_count / float(val_count) >= 0.5:
-                        semantic_type = "date"
-                        disp_h = "தேதி"
-                        confidence = 0.88
-                        inference_method = "semantic_inference"
-                    elif phone_count / float(val_count) >= 0.5:
-                        semantic_type = "phone"
-                        disp_h = "தொலைபேசி எண்"
-                        confidence = 0.88
-                        inference_method = "semantic_inference"
-                    elif serial_no_count / float(val_count) >= 0.7:
-                        semantic_type = "serial_number"
-                        disp_h = "வரிசை எண்"
-                        confidence = 0.88
-                        inference_method = "semantic_inference"
-                    elif gender_count / float(val_count) >= 0.5:
-                        semantic_type = "gender"
-                        disp_h = "பாலினம்"
-                        confidence = 0.86
-                        inference_method = "semantic_inference"
-                    elif address_count / float(val_count) >= 0.4:
-                        semantic_type = "address"
-                        disp_h = "முகவரி"
-                        confidence = 0.82
-                        inference_method = "semantic_inference"
-                    elif qty_count / float(val_count) >= 0.5:
-                        semantic_type = "quantity"
-                        disp_h = "அளவு"
-                        confidence = 0.84
-                        inference_method = "semantic_inference"
-                    elif amount_count / float(val_count) >= 0.5:
-                        semantic_type = "amount"
-                        disp_h = "தொகை"
-                        confidence = 0.84
-                        inference_method = "semantic_inference"
-                    elif id_count / float(val_count) >= 0.5:
-                        semantic_type = "identifier"
-                        disp_h = "பதிவு எண்"
-                        confidence = 0.85
-                        inference_method = "semantic_inference"
-
-            if not disp_h:
-                disp_h = f"Column {c_idx + 1}"
-                inference_method = "position_fallback"
-                confidence = 0.50
-
-            display_headers.append(disp_h)
+            display_headers.append(final_disp_h)
             header_details.append(ColumnHeaderDetail(
                 original=raw_h,
-                display=disp_h,
-                semantic_type=semantic_type,
-                confidence=float(round(confidence, 2)),
-                inference_method=inference_method
+                display=final_disp_h,
+                original_header=raw_h or final_disp_h,
+                display_header=final_disp_h,
+                semantic_type=class_res.semantic_type,
+                confidence=float(round(class_res.confidence, 2)),
+                inference_method=class_res.inference_method,
+                classification_warnings=class_res.warnings
             ))
 
         return display_headers, header_details
+
+    # -------------------------------------------------------------------------
+    # Stage 7B: Classify Value Patterns
+    # -------------------------------------------------------------------------
+    def classify_value_patterns(
+        self,
+        value: str,
+        column_context: Optional[str] = None,
+        document_context: Optional[str] = None
+    ) -> ClassificationResult:
+        """
+        Classify a single value using the configurable pattern recognition engine.
+        """
+        return pattern_classifier.classify_single_value(
+            value, column_context=column_context, document_context=document_context
+        )
+
+    # -------------------------------------------------------------------------
+    # Stage 7C: Resolve Classification Conflicts
+    # -------------------------------------------------------------------------
+    def resolve_classification_conflicts(
+        self,
+        header_details: List[ColumnHeaderDetail],
+        body_rows: List[List[str]]
+    ) -> List[str]:
+        """
+        Aggregate any classification conflicts or structural warnings across columns.
+        """
+        warnings = []
+        for d in header_details:
+            if d.classification_warnings:
+                warnings.extend(d.classification_warnings)
+        return warnings
 
     # -------------------------------------------------------------------------
     # Stage 8: Validate Table Structure
@@ -856,16 +859,24 @@ class TableExtractor:
         if (filled_cells / float(total_cells)) < 0.20:
             return None
 
-        # 6. Infer Column Semantics (Level B / Level C)
+        # Document language detection & document context string
+        doc_languages = self.detect_document_languages(valid_words)
+        dominant_lang = doc_languages[0] if doc_languages else "ta"
+        doc_context = " ".join(w.get("text", "") for w in valid_words[:30])
+
+        # 6. Infer Column Semantics (Level B / Level C with pattern recognition)
         display_headers, header_details = self.infer_column_semantics(
-            raw_headers, body_rows, is_explicit_header
+            raw_headers, body_rows, is_explicit_header,
+            document_context=doc_context,
+            dominant_language=dominant_lang
         )
 
         # 7. Optional AI Schema Enhancement
         ai_result = ai_schema_inferer.infer(
             headers=display_headers,
             sample_rows=body_rows[:5],
-            column_count=num_cols
+            column_count=num_cols,
+            document_context=doc_context
         )
         if ai_result and len(ai_result) == num_cols:
             for idx, ai_col in enumerate(ai_result):
@@ -890,13 +901,35 @@ class TableExtractor:
                 display_header=detail.display,
                 semantic_type=detail.semantic_type,
                 confidence=detail.confidence,
-                inference_method=detail.inference_method
+                inference_method=detail.inference_method,
+                classification_warnings=detail.classification_warnings
             ))
 
         data: List[Dict[str, str]] = []
         for row in body_rows:
             data.append({col.key: str(val) for col, val in zip(columns, row)})
 
+        # Compute unassigned text outside table boundaries
+        table_line_groups = line_groups[header_idx:] if header_idx is not None else line_groups
+        all_table_words = [w for g in table_line_groups for w in g]
+        if all_table_words:
+            min_table_y = min(w["bbox"][1] for w in all_table_words) - 5
+            max_table_y = max(w["bbox"][1] + w["bbox"][3] for w in all_table_words) + 5
+            min_table_x = min(w["bbox"][0] for w in all_table_words) - 5
+            max_table_x = max(w["bbox"][0] + w["bbox"][2] for w in all_table_words) + 5
+
+            outside_tokens = [
+                w.get("text", "") for w in words
+                if (w.get("center_y", w["bbox"][1] + w["bbox"][3] / 2) < min_table_y or
+                    w.get("center_y", w["bbox"][1] + w["bbox"][3] / 2) > max_table_y or
+                    w.get("center_x", w["bbox"][0] + w["bbox"][2] / 2) < min_table_x or
+                    w.get("center_x", w["bbox"][0] + w["bbox"][2] / 2) > max_table_x)
+            ]
+            unassigned_text = " ".join(t for t in outside_tokens if t.strip()).strip() if outside_tokens else None
+        else:
+            unassigned_text = None
+
+        all_warnings = self.resolve_classification_conflicts(header_details, body_rows)
         is_uncertain = not is_explicit_header or any(d.confidence < 0.70 for d in header_details)
         html_markup = generate_html_table(
             headers=display_headers,
@@ -920,8 +953,10 @@ class TableExtractor:
             confidence=0.94 if is_explicit_header else 0.82,
             detection_strategy="bbox_clustering",
             is_uncertain=is_uncertain,
-            warnings=[],
-            html=html_markup
+            warnings=all_warnings,
+            html=html_markup,
+            detected_languages=doc_languages,
+            unassigned_text=unassigned_text
         )
 
     # =========================================================================
