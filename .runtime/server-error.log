@@ -1,0 +1,12 @@
+INFO:     Started server process [20208]
+INFO:     Waiting for application startup.
+2026-10-16 18:54:31 [INFO] tamil_ocr.main: Starting Tamil OCR API Server...
+2026-10-16 18:54:31 [INFO] tamil_ocr.service: Initializing ocr-tamil engine...
+2026-10-16 18:54:55 [INFO] tamil_ocr.service: Using device: cpu, CUDA: False
+2026-10-16 18:54:55 [INFO] tamil_ocr.service: Tamil model: C:\Users\itsme\.model_weights\parseq_tamil_v6.ckpt
+2026-10-16 18:54:55 [INFO] tamil_ocr.service: Detector model: C:\Users\itsme\.model_weights\craft_mlt_25k.pth
+Using cache found in D:\ocr_Tamil\.runtime\torch\hub\baudm_parseq_main
+Using cache found in D:\ocr_Tamil\.runtime\torch\hub\baudm_parseq_main
+2026-10-16 18:55:01 [INFO] tamil_ocr.service: ocr-tamil engine successfully initialized.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)

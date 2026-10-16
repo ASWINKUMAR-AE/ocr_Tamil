@@ -1,0 +1,15 @@
+# Only send the files needed by the runtime image to the build context.
+**
+!Dockerfile
+!.dockerignore
+!requirements.txt
+!run.py
+!app/
+!app/**
+!frontend/
+!frontend/**
+
+**/__pycache__/
+**/*.py[cod]
+**/.env
+**/.env.*

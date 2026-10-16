@@ -1,0 +1,7 @@
+127.0.0.1 - - [16/Oct/2026 13:28:56] "GET /tamil-ocr-tester.html HTTP/1.1" 200 -
+127.0.0.1 - - [16/Oct/2026 13:30:29] "GET /tamil-ocr-tester.html HTTP/1.1" 200 -
+127.0.0.1 - - [16/Oct/2026 13:30:30] code 404, message File not found
+127.0.0.1 - - [16/Oct/2026 13:30:30] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [16/Oct/2026 13:31:00] "GET /tamil-ocr-tester.html HTTP/1.1" 200 -
+127.0.0.1 - - [16/Oct/2026 13:31:00] code 404, message File not found
+127.0.0.1 - - [16/Oct/2026 13:31:00] "GET /favicon.ico HTTP/1.1" 404 -

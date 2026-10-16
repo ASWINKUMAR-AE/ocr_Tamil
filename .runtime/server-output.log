@@ -1,0 +1,44 @@
+
+================================================================================
+           TAMIL OCR REST API SERVER - PRODUCTION READY
+================================================================================
+Engine:        ocr-tamil v0.1.4 (PARSeq Tamil + English, CRAFT Detector)
+Server Host:   0.0.0.0
+Server Port:   8000
+--------------------------------------------------------------------------------
+ACCESSIBILITY URLS:
+  * Web Dashboard:     http://127.0.0.1:8000 (or http://192.168.1.33:8000)
+  * API Documentation: http://192.168.1.33:8000/docs
+  * Health Endpoint:   http://192.168.1.33:8000/health
+
+NETWORK ADAPTERS DETECTED:
+  - Local Area Connection* 1: 169.254.232.71 (Not recommended (Link-local/APIPA))
+  - Local Area Connection* 2: 169.254.214.170 (Not recommended (Link-local/APIPA))
+  - Wi-Fi: 192.168.1.33 [PRIMARY] (Primary LAN (Recommended for mobile/web devices))
+  - vEthernet (WSL (Hyper-V firewall)): 192.168.144.1 (Secondary LAN)
+  - Loopback Pseudo-Interface 1: 127.0.0.1 (Loopback (This device only))
+
+FOR CLIENT APPLICATIONS (React Native, Expo, Web, Desktop):
+  * Use the LAN URL: http://192.168.1.33:8000
+  * Ensure devices are on the same Wi-Fi / Local Network.
+  * Windows Firewall: Run in admin PowerShell if blocked:
+      New-NetFirewallRule -DisplayName "Tamil-OCR-Port-8000" -Direction Inbound -LocalPort 8000 -Protocol TCP -Action Allow
+  * Linux Firewall:
+      sudo ufw allow 8000/tcp
+================================================================================
+
+False
+Device: cpu
+False
+Device: cpu
+INFO:     127.0.0.1:62298 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62302 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62304 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62305 - "POST /api/v1/ocr/text HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51070 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51070 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51070 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:63304 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63304 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63304 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:60139 - "POST /api/v1/ocr HTTP/1.1" 200 OK

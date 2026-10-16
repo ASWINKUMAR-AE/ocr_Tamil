@@ -202,6 +202,34 @@ python run.py --host 0.0.0.0 --port 8000 --reload
 
 ---
 
+### Run with Docker
+
+Use Docker with Linux containers. The image uses Python 3.10 and CPU-only
+PyTorch, serves both the API and web tester on port 8000, and runs as a
+non-root user.
+
+```bash
+docker build -t tamil-ocr .
+docker run -d --name tamil-ocr -p 8000:8000 --mount type=volume,source=tamil-ocr-cache,target=/home/ocr/.cache tamil-ocr
+docker logs -f tamil-ocr
+```
+
+Open the web tester at `http://localhost:8000`, API documentation at
+`http://localhost:8000/docs`, or check readiness at `http://localhost:8000/health`.
+The image includes a health check that succeeds once the OCR engine is ready.
+
+The build downloads the Tamil and CRAFT checkpoints. On first startup, the OCR
+library also downloads the English PARSeq model and its Torch Hub source, so
+internet access is required and startup can take several minutes. The named
+`tamil-ocr-cache` volume retains these downloads across container replacements.
+
+To supply custom settings, copy `.env.example` to `.env`, edit it, and add
+`--env-file .env` before the image name in `docker run`. Keep `HOST=0.0.0.0`
+and `PORT=8000` for the port mapping above. To use a different host port, change
+the mapping, for example `-p 8080:8000`. This image is CPU-only; keep
+`ENABLE_CUDA=false`. Local `.env` files, virtual environments, model files,
+and runtime caches are excluded from the build context.
+
 ### 2. Frontend Web Tester Run
 
 Open a second terminal window to serve the standalone web tester:

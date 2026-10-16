@@ -11,6 +11,7 @@ pytorch-lightning>=1.9.0,<2.0.0
 fastapi>=0.110.0
 uvicorn[standard]>=0.28.0
 pydantic>=2.0.0
+pydantic-settings>=2.0.0
 python-multipart>=0.0.9
 python-dotenv>=1.0.0
 a2wsgi>=1.10.0

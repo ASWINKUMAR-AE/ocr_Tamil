@@ -1,0 +1,42 @@
+
+================================================================================
+           TAMIL OCR REST API SERVER - PRODUCTION READY
+================================================================================
+Engine:        ocr-tamil v0.1.4 (PARSeq Tamil + English, CRAFT Detector)
+Server Host:   0.0.0.0
+Server Port:   8000
+--------------------------------------------------------------------------------
+ACCESSIBILITY URLS:
+  * Localhost:         http://127.0.0.1:8000
+  * LAN / Wi-Fi URL:   http://192.168.1.33:8000
+  * API Documentation: http://192.168.1.33:8000/docs
+  * Health Endpoint:   http://192.168.1.33:8000/health
+
+NETWORK ADAPTERS DETECTED:
+  - Local Area Connection* 1: 169.254.232.71 (Not recommended (Link-local/APIPA))
+  - Local Area Connection* 2: 169.254.214.170 (Not recommended (Link-local/APIPA))
+  - Wi-Fi: 192.168.1.33 [PRIMARY] (Primary LAN (Recommended for mobile/web devices))
+  - vEthernet (WSL (Hyper-V firewall)): 192.168.144.1 (Secondary LAN)
+  - Loopback Pseudo-Interface 1: 127.0.0.1 (Loopback (This device only))
+
+FOR CLIENT APPLICATIONS (React Native, Expo, Web, Desktop):
+  * Use the LAN URL: http://192.168.1.33:8000
+  * Ensure devices are on the same Wi-Fi / Local Network.
+  * Windows Firewall: Run in admin PowerShell if blocked:
+      New-NetFirewallRule -DisplayName "Tamil-OCR-Port-8000" -Direction Inbound -LocalPort 8000 -Protocol TCP -Action Allow
+  * Linux Firewall:
+      sudo ufw allow 8000/tcp
+================================================================================
+
+False
+Device: cpu
+False
+Device: cpu
+INFO:     127.0.0.1:61426 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61427 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61428 - "POST /api/v1/ocr HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61438 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58306 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52735 - "POST /api/v1/ocr HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57447 - "POST /api/v1/ocr/table HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63562 - "POST /api/v1/ocr/table HTTP/1.1" 200 OK
