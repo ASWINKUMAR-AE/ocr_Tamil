@@ -4,7 +4,7 @@ Provides strong typing, validation, and serialization matching the API specifica
 """
 
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ============================================================================
@@ -103,16 +103,28 @@ class ProcessingMetadata(BaseModel):
     image_dimensions: Optional[Dict[str, int]] = Field(default=None, description="Width and height")
 
 
+class OCRFormats(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    json: Dict[str, Any] = Field(..., description="Structured JSON representation of extracted data")
+    html: str = Field(..., description="Semantic HTML representation of extracted data")
+    text: str = Field(..., description="Plain-text representation with preserved line breaks")
+
+
 # ============================================================================
 # Main OCR Response Schemas
 # ============================================================================
 
 class OCRResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     success: bool = True
     request_id: str = Field(..., description="Unique UUID for request tracing")
     filename: str = Field(..., description="Name of uploaded image file")
     content_type: str = Field(..., description="MIME content type")
     extracted_text: str = Field(..., description="Full recognized Tamil & mixed-language text")
+    text: str = Field(default="", description="Clean plain text format with reading order preserved")
+    html: str = Field(default="", description="Safe semantic HTML representation (paragraphs and rendered tables)")
+    json: Dict[str, Any] = Field(default_factory=dict, description="Rich structured JSON format with line, word, and table metadata")
+    formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
     tables: List[TableResult] = Field(default_factory=list, description="Detected tabular structures")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list, description="Non-fatal warnings")
@@ -121,22 +133,32 @@ class OCRResponse(BaseModel):
 
 
 class TextOnlyResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     success: bool = True
     request_id: str
     filename: str
     content_type: str
     extracted_text: str
+    text: str = Field(default="", description="Clean plain text format")
+    html: str = Field(default="", description="Semantic HTML format")
+    json: Dict[str, Any] = Field(default_factory=dict, description="Structured JSON format")
+    formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list)
 
 
 class TableOnlyResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     success: bool = True
     request_id: str
     filename: str
     content_type: str
     tables: List[TableResult]
     extracted_text: str
+    text: str = Field(default="", description="Clean plain text format")
+    html: str = Field(default="", description="Semantic HTML format")
+    json: Dict[str, Any] = Field(default_factory=dict, description="Structured JSON format")
+    formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list)
 
@@ -146,9 +168,14 @@ class TableOnlyResponse(BaseModel):
 # ============================================================================
 
 class BatchItemResult(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     filename: str
     success: bool
     extracted_text: Optional[str] = None
+    text: Optional[str] = None
+    html: Optional[str] = None
+    json: Optional[Dict[str, Any]] = None
+    formats: Optional[OCRFormats] = None
     tables: List[TableResult] = Field(default_factory=list)
     metadata: Optional[ProcessingMetadata] = None
     error: Optional[str] = None

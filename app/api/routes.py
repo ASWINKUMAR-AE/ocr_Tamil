@@ -16,6 +16,7 @@ from fastapi import (
     UploadFile,
     status
 )
+from fastapi.responses import HTMLResponse, PlainTextResponse
 
 from app.config import settings
 from app.schemas.ocr import (
@@ -23,11 +24,13 @@ from app.schemas.ocr import (
     BatchItemResult,
     BatchOCRResponse,
     HealthResponse,
+    OCRFormats,
     OCRResponse,
     ProcessingMetadata,
     TableOnlyResponse,
     TextOnlyResponse,
 )
+from app.services.format_builder import build_output_formats
 from app.services.image_preprocessing import image_preprocessor
 from app.services.ocr_service import ocr_service
 from app.services.table_extraction import table_extractor
@@ -112,7 +115,10 @@ async def get_api_info():
             "cell_level_extraction",
             "orientation_correction",
             "deskewing",
-            "contrast_enhancement"
+            "contrast_enhancement",
+            "json_format",
+            "html_format",
+            "text_format"
         ],
         network=net_summary,
     )
@@ -134,7 +140,8 @@ async def process_ocr(
     file: UploadFile = File(..., description="Uploaded image file (JPEG, PNG, WebP)"),
     extract_tables: bool = Form(default=True, description="Attempt table structure detection"),
     preprocess: bool = Form(default=True, description="Apply image preprocessing"),
-    language_hint: Optional[str] = Form(default=None, description="Optional language hint (ta/en)")
+    language_hint: Optional[str] = Form(default=None, description="Optional language hint (ta/en)"),
+    format: str = Form(default="json", description="Output format: 'json' (default), 'html', 'text', or 'all'")
 ):
     """
     Process an uploaded image:
@@ -142,6 +149,7 @@ async def process_ocr(
     2. Corrects EXIF orientation and deskews.
     3. Runs Tamil/English OCR with reading order and line breaks preserved.
     4. Detects tables and returns structured JSON rows and columns.
+    5. Formats output into JSON, HTML, and TEXT formats.
     """
     req_id = generate_request_id()
     response.headers["X-Request-ID"] = req_id
@@ -202,22 +210,40 @@ async def process_ocr(
     if tables and hasattr(tables[0], "unassigned_text") and tables[0].unassigned_text:
         unassigned = tables[0].unassigned_text
 
+    meta_dict = {
+        "ocr_engine": settings.OCR_ENGINE_NAME,
+        "preprocessing_applied": prep_meta.get("preprocessing_applied", False),
+        "processing_time_ms": elapsed_ms,
+        "image_dimensions": {
+            "width": prep_meta.get("original_width", 0),
+            "height": prep_meta.get("original_height", 0)
+        }
+    }
+    text_out, html_out, json_out, formats_bundle = build_output_formats(
+        extracted_text=extracted_text,
+        tables=tables,
+        filename=file.filename or "image",
+        metadata=meta_dict
+    )
+
+    fmt = (format or "json").strip().lower()
+    if fmt in ("html", "text/html"):
+        return HTMLResponse(content=html_out, media_type="text/html; charset=utf-8")
+    if fmt in ("text", "txt", "text/plain"):
+        return PlainTextResponse(content=text_out, media_type="text/plain; charset=utf-8")
+
     return OCRResponse(
         success=True,
         request_id=req_id,
         filename=file.filename or "image",
         content_type=file.content_type or "image/png",
         extracted_text=extracted_text,
+        text=text_out,
+        html=html_out,
+        json=json_out,
+        formats=OCRFormats(**formats_bundle),
         tables=tables,
-        metadata=ProcessingMetadata(
-            ocr_engine=settings.OCR_ENGINE_NAME,
-            preprocessing_applied=prep_meta.get("preprocessing_applied", False),
-            processing_time_ms=elapsed_ms,
-            image_dimensions={
-                "width": prep_meta.get("original_width", 0),
-                "height": prep_meta.get("original_height", 0)
-            }
-        ),
+        metadata=ProcessingMetadata(**meta_dict),
         warnings=warnings,
         detected_languages=doc_langs,
         unassigned_text=unassigned
@@ -239,11 +265,12 @@ async def extract_table_only(
     response: Response,
     file: UploadFile = File(..., description="Uploaded image containing table(s)"),
     preprocess: bool = Form(default=True, description="Apply image preprocessing"),
-    language_hint: Optional[str] = Form(default=None, description="Optional language hint (ta/en)")
+    language_hint: Optional[str] = Form(default=None, description="Optional language hint (ta/en)"),
+    format: str = Form(default="json", description="Output format: 'json' (default), 'html', 'text', or 'all'")
 ):
     """
     Dedicated endpoint for table recognition.
-    Returns structured rows, column definitions, key-value data mappings, and full text.
+    Returns structured rows, column definitions, key-value data mappings, and full text in JSON, HTML, and TEXT.
     """
     req_id = generate_request_id()
     response.headers["X-Request-ID"] = req_id
@@ -276,6 +303,28 @@ async def extract_table_only(
 
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
+    meta_dict = {
+        "ocr_engine": settings.OCR_ENGINE_NAME,
+        "preprocessing_applied": prep_meta.get("preprocessing_applied", False),
+        "processing_time_ms": elapsed_ms,
+        "image_dimensions": {
+            "width": prep_meta.get("original_width", 0),
+            "height": prep_meta.get("original_height", 0)
+        }
+    }
+    text_out, html_out, json_out, formats_bundle = build_output_formats(
+        extracted_text=extracted_text,
+        tables=tables,
+        filename=file.filename or "image",
+        metadata=meta_dict
+    )
+
+    fmt = (format or "json").strip().lower()
+    if fmt in ("html", "text/html"):
+        return HTMLResponse(content=html_out, media_type="text/html; charset=utf-8")
+    if fmt in ("text", "txt", "text/plain"):
+        return PlainTextResponse(content=text_out, media_type="text/plain; charset=utf-8")
+
     return TableOnlyResponse(
         success=True,
         request_id=req_id,
@@ -283,15 +332,11 @@ async def extract_table_only(
         content_type=file.content_type or "image/png",
         tables=tables,
         extracted_text=extracted_text,
-        metadata=ProcessingMetadata(
-            ocr_engine=settings.OCR_ENGINE_NAME,
-            preprocessing_applied=prep_meta.get("preprocessing_applied", False),
-            processing_time_ms=elapsed_ms,
-            image_dimensions={
-                "width": prep_meta.get("original_width", 0),
-                "height": prep_meta.get("original_height", 0)
-            }
-        ),
+        text=text_out,
+        html=html_out,
+        json=json_out,
+        formats=OCRFormats(**formats_bundle),
+        metadata=ProcessingMetadata(**meta_dict),
         warnings=warnings
     )
 
@@ -310,11 +355,12 @@ async def extract_table_only(
 async def extract_text_only(
     response: Response,
     file: UploadFile = File(..., description="Uploaded image file"),
-    preprocess: bool = Form(default=True, description="Apply image preprocessing")
+    preprocess: bool = Form(default=True, description="Apply image preprocessing"),
+    format: str = Form(default="json", description="Output format: 'json' (default), 'html', 'text', or 'all'")
 ):
     """
-    Extract only plain text and basic execution metadata without running table parsing.
-    Ideal for mobile scanners and speed-critical document recognition.
+    Extract only plain text and basic execution metadata.
+    Provides fast JSON, HTML, and TEXT representations.
     """
     req_id = generate_request_id()
     response.headers["X-Request-ID"] = req_id
@@ -339,21 +385,39 @@ async def extract_text_only(
 
     elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
 
+    meta_dict = {
+        "ocr_engine": settings.OCR_ENGINE_NAME,
+        "preprocessing_applied": prep_meta.get("preprocessing_applied", False),
+        "processing_time_ms": elapsed_ms,
+        "image_dimensions": {
+            "width": prep_meta.get("original_width", 0),
+            "height": prep_meta.get("original_height", 0)
+        }
+    }
+    text_out, html_out, json_out, formats_bundle = build_output_formats(
+        extracted_text=extracted_text,
+        tables=[],
+        filename=file.filename or "image",
+        metadata=meta_dict
+    )
+
+    fmt = (format or "json").strip().lower()
+    if fmt in ("html", "text/html"):
+        return HTMLResponse(content=html_out, media_type="text/html; charset=utf-8")
+    if fmt in ("text", "txt", "text/plain"):
+        return PlainTextResponse(content=text_out, media_type="text/plain; charset=utf-8")
+
     return TextOnlyResponse(
         success=True,
         request_id=req_id,
         filename=file.filename or "image",
         content_type=file.content_type or "image/png",
         extracted_text=extracted_text,
-        metadata=ProcessingMetadata(
-            ocr_engine=settings.OCR_ENGINE_NAME,
-            preprocessing_applied=prep_meta.get("preprocessing_applied", False),
-            processing_time_ms=elapsed_ms,
-            image_dimensions={
-                "width": prep_meta.get("original_width", 0),
-                "height": prep_meta.get("original_height", 0)
-            }
-        ),
+        text=text_out,
+        html=html_out,
+        json=json_out,
+        formats=OCRFormats(**formats_bundle),
+        metadata=ProcessingMetadata(**meta_dict),
         warnings=[]
     )
 
@@ -437,20 +501,31 @@ async def process_batch(
                     warnings.extend(twarns)
 
             item_ms = round((time.perf_counter() - item_start) * 1000, 2)
+            item_meta = {
+                "ocr_engine": settings.OCR_ENGINE_NAME,
+                "preprocessing_applied": prep_meta.get("preprocessing_applied", False),
+                "processing_time_ms": item_ms,
+                "image_dimensions": {
+                    "width": prep_meta.get("original_width", 0),
+                    "height": prep_meta.get("original_height", 0)
+                }
+            }
+            text_out, html_out, json_out, formats_bundle = build_output_formats(
+                extracted_text=text,
+                tables=tables,
+                filename=fname,
+                metadata=item_meta
+            )
             results.append(BatchItemResult(
                 filename=fname,
                 success=True,
                 extracted_text=text,
+                text=text_out,
+                html=html_out,
+                json=json_out,
+                formats=OCRFormats(**formats_bundle),
                 tables=tables,
-                metadata=ProcessingMetadata(
-                    ocr_engine=settings.OCR_ENGINE_NAME,
-                    preprocessing_applied=prep_meta.get("preprocessing_applied", False),
-                    processing_time_ms=item_ms,
-                    image_dimensions={
-                        "width": prep_meta.get("original_width", 0),
-                        "height": prep_meta.get("original_height", 0)
-                    }
-                ),
+                metadata=ProcessingMetadata(**item_meta),
                 warnings=warnings
             ))
             success_count += 1

@@ -798,6 +798,9 @@
             </div>
             <div class="badges-row">
               <span class="badge badge-secondary" id="badgeTableCount">0 tables</span>
+              <button type="button" class="btn-outline btn-sm" id="btnCopyHtml" onclick="copyHtmlFormat()" style="display:none;">
+                Copy HTML
+              </button>
               <button type="button" class="btn-outline btn-sm" id="btnDownloadJson" onclick="downloadJSON()" style="display:none;">
                 Download JSON
               </button>
@@ -1203,6 +1206,8 @@
       el.jsonOutput.textContent = JSON.stringify(data, null, 2);
       el.btnCopyJson.disabled = false;
       el.btnDownloadJson.style.display = 'inline-flex';
+      const btnCopyHtml = document.getElementById('btnCopyHtml');
+      if (btnCopyHtml) btnCopyHtml.style.display = 'inline-flex';
     }
 
     /**
@@ -1520,6 +1525,19 @@
         const orig = el.btnCopyJson.textContent;
         el.btnCopyJson.textContent = "Copied!";
         setTimeout(() => { el.btnCopyJson.textContent = orig; }, 2000);
+      });
+    }
+
+    function copyHtmlFormat() {
+      const htmlContent = (currentRawResponse && currentRawResponse.html) ? currentRawResponse.html : el.tablesOutputContainer.innerHTML;
+      if (!htmlContent) return;
+      navigator.clipboard.writeText(htmlContent).then(() => {
+        const btn = document.getElementById("btnCopyHtml");
+        if (btn) {
+          const orig = btn.textContent;
+          btn.textContent = "Copied HTML!";
+          setTimeout(() => { btn.textContent = orig; }, 2000);
+        }
       });
     }
 
