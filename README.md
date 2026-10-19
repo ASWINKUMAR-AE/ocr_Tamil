@@ -196,7 +196,196 @@ print('Model weights downloaded successfully.')
 # Using launcher script
 python run.py --host 0.0.0.0 --port 8000
 
-# Or with live code reload (development)
+# Or with live code reload (development)# Project: Improve Tamil + English Handwritten Table OCR Accuracy
+
+Act as a senior OCR engineer, computer vision developer, and full-stack engineer.
+
+## Objective
+
+Improve my existing OCR application so that it accurately extracts handwritten and printed Tamil, English, numbers, and mixed-language tabular data from uploaded images.
+
+The main test case is a handwritten farmer register containing:
+
+1. S.No
+2. Farmer Name
+3. Phone No.
+4. Pashu Aadhaar (12 Digit)
+
+The application currently misses rows, merges cells, misrecognizes Tamil and English text, and places extracted values in incorrect columns.
+
+**Do not create a new project or replace the existing application unnecessarily. First inspect the repository and improve the current implementation.**
+
+## Phase 1: Audit the existing code
+
+1. Inspect the frontend, backend, OCR engine, model configuration, dependencies, upload flow, API endpoints, and HTML table rendering.
+2. Identify the actual causes of missing rows, incorrect character recognition, and cell misalignment.
+3. Check whether OCR coordinates and confidence scores are available.
+4. Identify existing Tamil OCR support and determine whether the selected engine can recognize handwriting adequately.
+5. Preserve existing working APIs, authentication, database integration, UI, and deployment configuration.
+6. Produce a short implementation plan based on the actual repository before modifying files.
+
+Do not assume a particular framework or OCR engine without inspecting the project.
+
+## Phase 2: Image preprocessing
+
+Implement a preprocessing pipeline that preserves the original uploaded image.
+
+- Correct image orientation and EXIF rotation.
+- Detect and correct skew and perspective distortion.
+- Correct uneven lighting and shadows.
+- Apply suitable denoising, contrast enhancement, and adaptive thresholding.
+- Upscale small text when appropriate.
+- Generate alternative preprocessing variants when the original image is difficult to read.
+- Avoid preprocessing that removes thin handwriting strokes or Tamil vowel marks.
+- Detect image blur and poor resolution and provide useful warnings.
+- Keep the original image available for visual verification.
+
+Use OpenCV or the existing compatible image-processing libraries.
+
+## Phase 3: Table structure detection
+
+Do not depend on plain OCR text output to reconstruct the table.
+
+- Detect the table's outer boundary.
+- Detect horizontal row boundaries and vertical column boundaries.
+- Support ruled tables, partially ruled tables, uneven handwritten tables, and photographs of notebook pages.
+- Use line detection and text-layout analysis together.
+- Detect merged cells and multi-line cell content.
+- Correctly identify headers separately from data rows.
+- Assign recognized words to cells using bounding-box coordinates and overlap.
+- Sort rows from top to bottom and cells from left to right.
+- Do not discard a row just because one cell is empty or unreadable.
+- Do not shift later rows when an earlier row is incomplete.
+- Preserve page, row, and column coordinates for debugging.
+
+When table boundaries are uncertain, return a review warning instead of silently inventing a table structure.
+
+## Phase 4: Tamil and English OCR
+
+Support Tamil, English, numerals, and mixed-language documents.
+
+- Inspect the current OCR engine and its supported languages.
+- Select suitable OCR models based on actual Tamil handwriting support, English handwriting support, deployment resources, and licensing.
+- Run OCR on detected cells or regions, not only on the entire page.
+- Use separate recognition strategies for text fields and numeric fields when beneficial.
+- Preserve Tamil Unicode characters and combining marks.
+- Handle English initials, punctuation, abbreviations, and names.
+- Compare multiple OCR outputs only when the improvement justifies the added latency.
+- Use confidence scores and disagreement detection to flag uncertain text.
+- Do not claim perfect handwriting recognition.
+- Do not translate names or silently normalize a person's name into a different name.
+
+If the current engine cannot reliably recognize handwritten Tamil, document this limitation and provide an optional pluggable OCR engine or model adapter.
+
+## Phase 5: Field-level validation
+
+Support configurable column schemas.
+
+For the farmer-register test case:
+
+- S.No: positive integer, checked for missing or duplicate sequence numbers.
+- Farmer Name: Tamil or English text, including initials, punctuation, and spaces.
+- Phone No.: string containing exactly 10 digits after permitted formatting is removed. For this dataset, verify that it is a plausible Indian mobile number.
+- Pashu Aadhaar: string containing exactly 12 digits.
+
+Important:
+- Store phone numbers and Pashu Aadhaar identifiers as strings, never as floating-point numbers.
+- Preserve leading zeros.
+- Do not automatically invent missing digits.
+- Do not silently replace uncertain characters with assumed digits.
+- Validate formatting separately from identity verification.
+- A 12-digit value must not be treated as an officially verified identity merely because its length is correct.
+- Flag duplicates for human review rather than automatically deleting records.
+
+Use configurable schemas rather than hardcoding this farmer register into the entire OCR system.
+
+## Phase 6: OCR output and HTML table
+
+Return structured results containing:
+
+- Document ID and page number.
+- Table headers and detected column boundaries.
+- Each row and its individual cells.
+- Original OCR text.
+- Bounding boxes and confidence scores when available.
+- Validation status and warnings.
+- Row-level and cell-level review status.
+
+Generate a semantic HTML table using proper thead, tbody, tr, th, and td elements.
+
+Requirements:
+- Preserve row-to-column alignment.
+- Escape extracted content to prevent HTML injection.
+- Do not render OCR output as executable HTML.
+- Support Tamil Unicode correctly.
+- Keep cells editable.
+- Allow correction of individual cells.
+- Show uncertain cells with accessible warning indicators.
+- Keep original OCR output available for comparison.
+- Support CSV and Excel export using appropriate text types for identifiers.
+
+## Phase 7: Review and correction UI
+
+Create a responsive interface with:
+
+1. The original image.
+2. An optional processed-image preview.
+3. The extracted table.
+4. A row and cell confidence display.
+5. Highlighting for invalid or uncertain values.
+6. A way to select a table cell and inspect its corresponding image region.
+7. Manual correction, save, and export controls.
+8. Clear distinction between extracted, manually corrected, and verified data.
+
+Never automatically mark records as verified just because OCR has completed.
+
+## Phase 8: Testing and acceptance criteria
+
+Create automated tests using synthetic images and manually verified real-world samples.
+
+Include:
+- English handwritten tables.
+- Tamil handwritten tables.
+- Mixed Tamil and English tables.
+- Numeric identifiers.
+- Missing cells and empty rows.
+- Curved notebook pages.
+- Uneven lighting and shadows.
+- Skewed and perspective-distorted photographs.
+- Overlapping handwriting and table lines.
+- Multiple tables and multi-page documents.
+- Duplicate identifiers and malformed phone numbers.
+
+Measure:
+- Character error rate.
+- Word error rate.
+- Exact cell accuracy.
+- Exact row accuracy.
+- Column assignment accuracy.
+- Field-specific exact match accuracy.
+- Processing time and memory consumption.
+
+Do not claim a target accuracy unless tests demonstrate it. Keep a manually verified ground-truth dataset and compare results before and after each change.
+
+## Phase 9: Deployment and delivery
+
+- Preserve existing API contracts wherever possible.
+- Add regression tests for existing endpoints.
+- Handle model initialization, dependency failures, timeouts, and memory limits.
+- Reuse existing deployment settings and environment variables.
+- Avoid exposing API keys in frontend code or logs.
+- Add structured logging without unnecessarily logging personal data.
+- Document required packages, model downloads, configuration, endpoints, and deployment steps.
+
+## Final instructions
+
+Work incrementally.
+
+First report the repository audit and proposed implementation plan. Then implement the changes in small, testable stages. Run the available tests, fix regressions, and report which tests passed and failed.
+
+Do not fabricate missing OCR values, do not silently discard rows, and do not claim the problem is fixed without evidence from the test dataset.
+
+The goal is reliable, reviewable extraction—not merely producing a visually attractive HTML table.
 python run.py --host 0.0.0.0 --port 8000 --reload
 ```
 

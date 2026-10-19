@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tamil OCR REST API Tester</title>
-  <meta name="description" content="Production testing dashboard for Tamil Optical Character Recognition (OCR) REST API powered by ocr-tamil==0.1.4, FastAPI, and OpenCV.">
+  <title> OCR REST API Tester</title>
+  <meta name="description"
+    content="Production testing dashboard for Tamil Optical Character Recognition (OCR) REST API powered by ocr-tamil==0.1.4, FastAPI, and OpenCV.">
   <style>
     :root {
       --primary: #4f46e5;
@@ -35,11 +37,15 @@
       --font-tamil: "Noto Sans Tamil", "Latha", "Nirmala UI", "Mukta Malar", system-ui, -apple-system, sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-body);
+      background-color: black;
       color: var(--text-main);
       line-height: 1.5;
       padding-bottom: 60px;
@@ -60,6 +66,7 @@
       margin-bottom: 30px;
       box-shadow: var(--shadow-md);
     }
+
     .header-content {
       display: flex;
       flex-wrap: wrap;
@@ -67,6 +74,7 @@
       align-items: center;
       gap: 16px;
     }
+
     .header-title h1 {
       font-size: 1.75rem;
       font-weight: 700;
@@ -75,11 +83,13 @@
       align-items: center;
       gap: 10px;
     }
+
     .header-title p {
       color: #c7d2fe;
       font-size: 0.95rem;
       margin-top: 4px;
     }
+
     .badge-engine {
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(8px);
@@ -99,6 +109,7 @@
       grid-template-columns: 1fr;
       gap: 24px;
     }
+
     @media (min-width: 992px) {
       .dashboard-grid {
         grid-template-columns: 420px 1fr;
@@ -114,9 +125,11 @@
       box-shadow: var(--shadow-sm);
       transition: box-shadow 0.2s ease, border-color 0.2s ease;
     }
+
     .card:hover {
       box-shadow: var(--shadow-md);
     }
+
     .card-title {
       font-size: 1.1rem;
       font-weight: 600;
@@ -131,9 +144,11 @@
     .form-group {
       margin-bottom: 16px;
     }
+
     .form-group:last-child {
       margin-bottom: 0;
     }
+
     label {
       display: block;
       font-size: 0.85rem;
@@ -141,11 +156,14 @@
       color: var(--text-muted);
       margin-bottom: 6px;
     }
+
     .input-group {
       display: flex;
       gap: 8px;
     }
-    input[type="text"], input[type="password"] {
+
+    input[type="text"],
+    input[type="password"] {
       width: 100%;
       padding: 10px 12px;
       font-size: 0.9rem;
@@ -156,7 +174,9 @@
       outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
-    input[type="text"]:focus, input[type="password"]:focus {
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
       border-color: var(--border-focus);
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
       background: #ffffff;
@@ -168,6 +188,7 @@
       gap: 6px;
       margin-top: 8px;
     }
+
     .preset-pill {
       background: var(--bg-subtle);
       border: 1px solid var(--border);
@@ -178,6 +199,7 @@
       cursor: pointer;
       transition: all 0.15s ease;
     }
+
     .preset-pill:hover {
       background: var(--primary-light);
       border-color: var(--primary);
@@ -196,6 +218,7 @@
       width: 100%;
       margin-top: 10px;
     }
+
     .status-dot {
       width: 10px;
       height: 10px;
@@ -203,12 +226,34 @@
       background: var(--text-light);
       flex-shrink: 0;
     }
-    .status-connected { background: var(--success-light); color: var(--success); }
-    .status-connected .status-dot { background: var(--success); box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
-    .status-disconnected { background: var(--danger-light); color: var(--danger); }
-    .status-disconnected .status-dot { background: var(--danger); }
-    .status-checking { background: var(--warning-light); color: var(--warning); }
-    .status-checking .status-dot { background: var(--warning); }
+
+    .status-connected {
+      background: var(--success-light);
+      color: var(--success);
+    }
+
+    .status-connected .status-dot {
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+
+    .status-disconnected {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .status-disconnected .status-dot {
+      background: var(--danger);
+    }
+
+    .status-checking {
+      background: var(--warning-light);
+      color: var(--warning);
+    }
+
+    .status-checking .status-dot {
+      background: var(--warning);
+    }
 
     /* Drop Zone */
     .drop-zone {
@@ -221,10 +266,13 @@
       transition: all 0.2s ease;
       position: relative;
     }
-    .drop-zone:hover, .drop-zone.dragover {
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
       border-color: var(--primary);
       background: var(--primary-light);
     }
+
     .drop-zone svg {
       width: 44px;
       height: 44px;
@@ -233,14 +281,17 @@
       stroke-width: 1.5;
       margin-bottom: 8px;
     }
+
     .drop-zone.dragover svg {
       stroke: var(--primary);
     }
+
     .drop-zone-text {
       font-size: 0.95rem;
       font-weight: 600;
       color: var(--text-main);
     }
+
     .drop-zone-hint {
       font-size: 0.8rem;
       color: var(--text-muted);
@@ -256,6 +307,7 @@
       overflow: hidden;
       position: relative;
     }
+
     .preview-image {
       width: 100%;
       max-height: 260px;
@@ -263,6 +315,7 @@
       display: block;
       background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 0% 50%) 50% / 16px 16px;
     }
+
     .preview-meta {
       background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(6px);
@@ -273,6 +326,7 @@
       justify-content: space-between;
       align-items: center;
     }
+
     .btn-remove-image {
       background: rgba(239, 68, 68, 0.2);
       border: 1px solid var(--danger);
@@ -283,6 +337,7 @@
       cursor: pointer;
       font-weight: 600;
     }
+
     .btn-remove-image:hover {
       background: var(--danger);
       color: #ffffff;
@@ -295,6 +350,7 @@
       gap: 12px;
       margin: 16px 0;
     }
+
     .checkbox-label {
       display: flex;
       align-items: center;
@@ -305,6 +361,7 @@
       cursor: pointer;
       user-select: none;
     }
+
     .checkbox-label input[type="checkbox"] {
       accent-color: var(--primary);
       width: 16px;
@@ -319,6 +376,7 @@
       gap: 10px;
       margin-top: 16px;
     }
+
     button {
       display: inline-flex;
       align-items: center;
@@ -333,35 +391,43 @@
       transition: all 0.15s ease;
       user-select: none;
     }
+
     button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
+
     .btn-primary {
       background: var(--primary);
       color: #ffffff;
     }
+
     .btn-primary:hover:not(:disabled) {
       background: var(--primary-hover);
       box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
+
     .btn-secondary {
       background: var(--secondary);
       color: #ffffff;
     }
+
     .btn-secondary:hover:not(:disabled) {
       background: var(--secondary-hover);
       box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
     }
+
     .btn-outline {
       background: #ffffff;
       border-color: var(--border);
       color: var(--text-main);
     }
+
     .btn-outline:hover:not(:disabled) {
       background: var(--bg-subtle);
       border-color: #cbd5e1;
     }
+
     .btn-sm {
       padding: 6px 12px;
       font-size: 0.8rem;
@@ -377,6 +443,7 @@
       overflow: hidden;
       position: relative;
     }
+
     .progress-bar {
       width: 100%;
       height: 100%;
@@ -384,9 +451,15 @@
       background-size: 200% 100%;
       animation: progressIndeterminate 1.5s infinite linear;
     }
+
     @keyframes progressIndeterminate {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     .alert-box {
@@ -396,11 +469,13 @@
       font-size: 0.85rem;
       margin-top: 14px;
     }
+
     .alert-danger {
       background: var(--danger-light);
       border: 1px solid #fecaca;
       color: #b91c1c;
     }
+
     .alert-success {
       background: var(--success-light);
       border: 1px solid #a7f3d0;
@@ -413,6 +488,7 @@
       flex-direction: column;
       gap: 24px;
     }
+
     .result-section {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -420,6 +496,7 @@
       padding: 24px;
       box-shadow: var(--shadow-sm);
     }
+
     .section-header {
       display: flex;
       flex-wrap: wrap;
@@ -430,6 +507,7 @@
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
+
     .section-title {
       font-size: 1.15rem;
       font-weight: 700;
@@ -438,12 +516,14 @@
       align-items: center;
       gap: 8px;
     }
+
     .badges-row {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
       align-items: center;
     }
+
     .badge {
       font-size: 0.75rem;
       font-weight: 600;
@@ -453,9 +533,24 @@
       color: var(--text-muted);
       border: 1px solid var(--border);
     }
-    .badge-primary { background: var(--primary-light); color: var(--primary); border-color: #c7d2fe; }
-    .badge-success { background: var(--success-light); color: var(--success); border-color: #a7f3d0; }
-    .badge-warning { background: var(--warning-light); color: var(--warning); border-color: #fde68a; }
+
+    .badge-primary {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: #c7d2fe;
+    }
+
+    .badge-success {
+      background: var(--success-light);
+      color: var(--success);
+      border-color: #a7f3d0;
+    }
+
+    .badge-warning {
+      background: var(--warning-light);
+      color: var(--warning);
+      border-color: #fde68a;
+    }
 
     /* Tamil Text Display */
     .tamil-text-box {
@@ -474,6 +569,7 @@
       max-height: 480px;
       overflow-y: auto;
     }
+
     .empty-state {
       display: flex;
       flex-direction: column;
@@ -483,6 +579,7 @@
       color: var(--text-muted);
       text-align: center;
     }
+
     .empty-state svg {
       width: 48px;
       height: 48px;
@@ -500,9 +597,11 @@
       overflow: hidden;
       box-shadow: var(--shadow-sm);
     }
+
     .table-card:first-child {
       margin-top: 0;
     }
+
     .table-card-header {
       background: var(--bg-subtle);
       padding: 12px 16px;
@@ -513,16 +612,19 @@
       gap: 10px;
       border-bottom: 1px solid var(--border);
     }
+
     .table-card-title {
       font-size: 0.95rem;
       font-weight: 700;
       color: var(--text-main);
     }
+
     .table-responsive {
       width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
+
     table.ocr-rendered-table {
       width: 100%;
       border-collapse: collapse;
@@ -530,7 +632,9 @@
       font-size: 0.95rem;
       text-align: left;
     }
-    table.ocr-rendered-table th, table.ocr-rendered-table td {
+
+    table.ocr-rendered-table th,
+    table.ocr-rendered-table td {
       border: 1px solid var(--border);
       padding: 10px 14px;
       vertical-align: top;
@@ -539,6 +643,7 @@
       word-break: normal;
       min-width: 90px;
     }
+
     table.ocr-rendered-table th {
       background-color: #f8fafc;
       color: var(--primary);
@@ -547,18 +652,22 @@
       top: 0;
       z-index: 1;
     }
+
     table.ocr-rendered-table th[contenteditable="true"]:focus,
     table.ocr-rendered-table td[contenteditable="true"]:focus {
       outline: 2px solid var(--primary);
       background-color: #ffffff;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
+
     table.ocr-rendered-table tr:nth-child(even) td {
       background-color: #fcfcfc;
     }
+
     table.ocr-rendered-table tr:hover td {
       background-color: #f1f5f9;
     }
+
     .badge-strategy {
       display: inline-flex;
       align-items: center;
@@ -572,6 +681,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
+
     .badge-uncertain {
       display: inline-flex;
       align-items: center;
@@ -583,6 +693,7 @@
       background: #fef3c7;
       color: #92400e;
     }
+
     .th-sem-type {
       display: inline-block;
       font-size: 0.65rem;
@@ -595,6 +706,7 @@
       margin-top: 4px;
       user-select: none;
     }
+
     .table-card-actions {
       display: flex;
       flex-wrap: wrap;
@@ -610,6 +722,7 @@
       overflow-x: auto;
       max-height: 420px;
     }
+
     pre.code-block {
       color: #e2e8f0;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -627,18 +740,30 @@
       font-size: 0.85rem;
       text-align: center;
     }
+
     footer a {
       color: var(--primary);
       text-decoration: none;
     }
+
     footer a:hover {
       text-decoration: underline;
     }
 
     /* Utility */
-    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
   </style>
 </head>
+
 <body>
 
   <!-- Header -->
@@ -663,7 +788,7 @@
 
       <!-- Left Column: Settings, Upload, Actions -->
       <section class="controls-column">
-        
+
         <!-- 1. API Configuration Card -->
         <div class="card" style="margin-bottom: 24px;">
           <h2 class="card-title">
@@ -674,19 +799,22 @@
           <div class="form-group">
             <label for="apiUrlInput">Server Base URL:</label>
             <div class="input-group">
-              <input type="text" id="apiUrlInput" value="http://127.0.0.1:8000" placeholder="http://10.110.44.105:8000" spellcheck="false">
+              <input type="text" id="apiUrlInput" value="http://127.0.0.1:8000" placeholder="http://10.110.44.105:8000"
+                spellcheck="false">
               <button type="button" class="btn-outline btn-sm" id="btnTestConn" onclick="testConnection()">Test</button>
             </div>
-            
+
             <div class="preset-pills">
               <span class="preset-pill" onclick="setApiUrl('http://127.0.0.1:8000')">Localhost (127.0.0.1:8000)</span>
-              <span class="preset-pill" onclick="setApiUrl('http://10.110.44.105:8000')">LAN Wi-Fi (10.110.44.105:8000)</span>
+              <span class="preset-pill" onclick="setApiUrl('http://10.110.44.105:8000')">LAN Wi-Fi
+                (10.110.44.105:8000)</span>
             </div>
           </div>
 
           <div class="form-group" style="margin-top: 14px;">
             <label for="apiKeyInput">API Key (Optional):</label>
-            <input type="password" id="apiKeyInput" placeholder="Leave blank if server has no API_KEY configured" autocomplete="off">
+            <input type="password" id="apiKeyInput" placeholder="Leave blank if server has no API_KEY configured"
+              autocomplete="off">
           </div>
 
           <div id="connectionStatusBox" class="status-indicator status-checking">
@@ -703,10 +831,14 @@
           </h2>
 
           <div class="drop-zone" id="dropZone" onclick="triggerFileInput()">
-            <svg viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
             <div class="drop-zone-text">Click to browse or drag & drop image</div>
             <div class="drop-zone-hint">Supports JPEG, PNG, and WebP (Tamil text or tables)</div>
-            <input type="file" id="fileInput" class="sr-only" accept="image/jpeg,image/png,image/webp" onchange="handleFileSelected(event)">
+            <input type="file" id="fileInput" class="sr-only" accept="image/jpeg,image/png,image/webp"
+              onchange="handleFileSelected(event)">
           </div>
 
           <div class="preview-container" id="previewContainer">
@@ -726,9 +858,11 @@
               <input type="checkbox" id="chkPreprocess" checked>
               <span>Preprocess</span>
             </label>
-            <div style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-subtle); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+            <div
+              style="grid-column: span 2; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-subtle); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
               <label for="selLanguageHint" style="font-weight: 600; color: var(--text-main);">Language Mode:</label>
-              <select id="selLanguageHint" style="padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.85rem; background: var(--bg-card); color: var(--text-main); font-weight: 500;">
+              <select id="selLanguageHint"
+                style="padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.85rem; background: var(--bg-card); color: var(--text-main); font-weight: 500;">
                 <option value="">Auto (Tamil + English)</option>
                 <option value="ta">Tamil First (தமிழ்)</option>
                 <option value="en">English First</option>
@@ -738,15 +872,22 @@
 
           <div class="button-group">
             <button type="button" class="btn-primary" id="btnExtractText" onclick="executeOCR('full')" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 7V4h16v3M9 20h6M12 4v16" />
+              </svg>
               Extract Text & Tables
             </button>
             <button type="button" class="btn-secondary" id="btnExtractTable" onclick="executeOCR('table')" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+              </svg>
               Extract Table Only
             </button>
             <button type="button" class="btn-outline" id="btnClear" onclick="clearResults()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 6L6 19M6 6l13 13"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 6L6 19M6 6l13 13" />
+              </svg>
               Clear Results
             </button>
           </div>
@@ -763,12 +904,15 @@
 
       <!-- Right Column: Results Display -->
       <section class="results-column results-container">
-        
+
         <!-- 3. Extracted Tamil Text Panel -->
         <article class="result-section">
           <div class="section-header">
             <div class="section-title">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+              </svg>
               Extracted Tamil Text
             </div>
             <div class="badges-row">
@@ -783,7 +927,10 @@
 
           <div id="tamilTextOutput" class="tamil-text-box">
             <div class="empty-state">
-              <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
               <p>Upload a Tamil image and click <strong>Extract Text</strong> to view results.</p>
             </div>
           </div>
@@ -793,12 +940,15 @@
         <article class="result-section">
           <div class="section-header">
             <div class="section-title">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2">
+                <path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18" />
+              </svg>
               Structured HTML Tables
             </div>
             <div class="badges-row">
               <span class="badge badge-secondary" id="badgeTableCount">0 tables</span>
-              <button type="button" class="btn-outline btn-sm" id="btnDownloadJson" onclick="downloadJSON()" style="display:none;">
+              <button type="button" class="btn-outline btn-sm" id="btnDownloadJson" onclick="downloadJSON()"
+                style="display:none;">
                 Download JSON
               </button>
             </div>
@@ -806,7 +956,9 @@
 
           <div id="tablesOutputContainer">
             <div class="empty-state">
-              <svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
               <p>No table detected yet. Bordered and aligned tables will render here as native HTML tables.</p>
             </div>
           </div>
@@ -816,9 +968,12 @@
         <article class="result-section">
           <details id="detailsRawJson">
             <summary style="cursor: pointer; user-select: none;">
-              <div class="section-header" style="display: inline-flex; width: 100%; border-bottom: none; margin-bottom: 0;">
+              <div class="section-header"
+                style="display: inline-flex; width: 100%; border-bottom: none; margin-bottom: 0;">
                 <div class="section-title">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 18l6-6-6-6M8 6l-6 6 6 6" />
+                  </svg>
                   Raw API Response
                 </div>
                 <div class="badges-row">
@@ -1038,12 +1193,12 @@
 
       // Update Preview
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         el.previewImage.src = e.target.result;
         el.previewContainer.style.display = 'block';
 
         const img = new Image();
-        img.onload = function() {
+        img.onload = function () {
           const sizeKb = (file.size / 1024).toFixed(1);
           el.previewMetaText.textContent = `${file.name} (${this.naturalWidth}×${this.naturalHeight}px, ${sizeKb} KB)`;
         };
@@ -1086,7 +1241,7 @@
       // Build Multipart Form Data
       const formData = new FormData();
       formData.append('file', selectedFile, selectedFile.name);
-      
+
       if (mode === 'full') {
         formData.append('extract_tables', el.chkExtractTables.checked ? 'true' : 'false');
       }
@@ -1117,7 +1272,7 @@
         const json = await response.json().catch(() => null);
 
         if (!response.ok) {
-          const errMsg = (json && (json.error || json.detail || json.message)) 
+          const errMsg = (json && (json.error || json.detail || json.message))
             ? (typeof json.error === 'object' ? JSON.stringify(json.error) : (json.error || json.detail))
             : `HTTP ${response.status}: ${response.statusText}`;
           throw new Error(errMsg);
@@ -1232,12 +1387,12 @@
         el.badgeTableCount.textContent = "0 tables";
         const empty = document.createElement('div');
         empty.className = 'empty-state';
-        
+
         let msg = "No structured table detected in this image.";
         if (data.warnings && data.warnings.length > 0) {
           msg += ` (${data.warnings.join(', ')})`;
         }
-        
+
         empty.innerHTML = `<p>${msg}</p>`;
 
         // If extracted text contains multiple lines, offer reviewable table mode
@@ -1368,7 +1523,7 @@
             const th = document.createElement('th');
             th.contentEditable = "true";
             th.title = "Click to rename column header";
-            
+
             const titleSpan = document.createElement('span');
             titleSpan.textContent = String(hText || `Column ${cIdx + 1}`);
             th.appendChild(titleSpan);
@@ -1624,4 +1779,5 @@
     });
   </script>
 </body>
+
 </html>
