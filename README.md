@@ -282,10 +282,11 @@ ACCESSIBILITY URLS:
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/health` | Health check verifying server and `ocr-tamil` model initialization. |
-| `GET` | `/api/v1/info` | Capabilities, supported MIME formats, limits, and dynamic network metadata. |
+| `GET` | `/health` | Health check verifying server and `surya-ocr` / ParSeq model initialization. |
+| `GET` | `/api/v1/info` | Capabilities, supported MIME formats, limits, engine versions, and dynamic network metadata. |
 | `POST`| `/api/v1/ocr` | Full OCR: extracts Tamil & English text and detects tabular structures. |
-| `POST`| `/api/v1/ocr/table`| Dedicated table extraction returning structured rows, columns, and key-value data. |
+| `POST`| `/api/v1/ocr/structured`| **Aavin Register Intelligence (Surya 0.1.2)**: Extracts tabular structures and maps candidate records (Farmers, 12-digit Pashu Aadhaar IDs, milk quantities) in a review-first schema. |
+| `POST`| `/api/v1/ocr/table`| Dedicated table extraction (Backward-compatible schema: `table_id`, `headers`, `rows`, `columns`, `confidence`). |
 | `POST`| `/api/v1/ocr/text` | Fast plain-text extraction skipping table analysis. |
 | `POST`| `/api/v1/ocr/batch`| Batch processing of up to 10 images with concurrency controls. |
 

@@ -1,0 +1,80 @@
+{
+  "image_filename": "img2_clean_english_register.jpg",
+  "document_type": "aavin_clean_register",
+  "language": "en",
+  "total_records": 10,
+  "headers": [
+    "S.No",
+    "Farmer Name",
+    "Phone No.",
+    "Pashu Aadhar (12 Digit)"
+  ],
+  "columns": [
+    {"key": "s_no", "label": "S.No", "semantic_type": "serial_number"},
+    {"key": "farmer_name", "label": "Farmer Name", "semantic_type": "farmer_name"},
+    {"key": "phone_no", "label": "Phone No.", "semantic_type": "phone_number"},
+    {"key": "pashu_aadhar", "label": "Pashu Aadhar (12 Digit)", "semantic_type": "cattle_aadhaar_id"}
+  ],
+  "rows": [
+    {
+      "s_no": "1",
+      "farmer_name": "R. Murugan",
+      "phone_no": "9345126780",
+      "pashu_aadhar": "111234567890"
+    },
+    {
+      "s_no": "2",
+      "farmer_name": "S. Lakshmi",
+      "phone_no": "9786543210",
+      "pashu_aadhar": "111987654321"
+    },
+    {
+      "s_no": "3",
+      "farmer_name": "M. Ramesh",
+      "phone_no": "9500876123",
+      "pashu_aadhar": "112345678901"
+    },
+    {
+      "s_no": "4",
+      "farmer_name": "K. Selvam",
+      "phone_no": "9843210765",
+      "pashu_aadhar": "112876543210"
+    },
+    {
+      "s_no": "5",
+      "farmer_name": "P. Meena",
+      "phone_no": "9092345678",
+      "pashu_aadhar": "113456789012"
+    },
+    {
+      "s_no": "6",
+      "farmer_name": "V. Kumar",
+      "phone_no": "9367890123",
+      "pashu_aadhar": "113098765432"
+    },
+    {
+      "s_no": "7",
+      "farmer_name": "A. Geetha",
+      "phone_no": "9790123456",
+      "pashu_aadhar": "114567890123"
+    },
+    {
+      "s_no": "8",
+      "farmer_name": "S. Dinesh",
+      "phone_no": "8876543210",
+      "pashu_aadhar": "114321098765"
+    },
+    {
+      "s_no": "9",
+      "farmer_name": "T. Revathi",
+      "phone_no": "9956789012",
+      "pashu_aadhar": "115678901234"
+    },
+    {
+      "s_no": "10",
+      "farmer_name": "R. Arul",
+      "phone_no": "9365432789",
+      "pashu_aadhar": "115432109876"
+    }
+  ]
+}

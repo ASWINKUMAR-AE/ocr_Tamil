@@ -1,0 +1,167 @@
+{
+  "image_filename": "img3_large_english_register.jpg",
+  "document_type": "aavin_share_register",
+  "language": "en",
+  "total_farmers": 6,
+  "headers": [
+    "S.No",
+    "Farmer Name",
+    "Farmer Aadhaar No.",
+    "Share No.",
+    "Share Aadhaar No.",
+    "Relationship",
+    "Address",
+    "Phone No."
+  ],
+  "farmers": [
+    {
+      "s_no": "1",
+      "farmer_name": "M. Kandan",
+      "farmer_aadhaar": "743586924216",
+      "shares": [
+        {
+          "share_no": "1",
+          "share_aadhaar": "322687625891",
+          "relationship": "Husband",
+          "address": "75, Nariyappan Colony, Pannaiyur",
+          "phone_no": "9508770971"
+        },
+        {
+          "share_no": "2",
+          "share_aadhaar": "400578511362",
+          "relationship": "Wife",
+          "address": "115, Vappankulam",
+          "phone_no": "9781607730"
+        },
+        {
+          "share_no": "3",
+          "share_aadhaar": "673928610414",
+          "relationship": "Son",
+          "address": "Vappankulam",
+          "phone_no": "9781607730",
+          "phone_inferred_from_ditto": true
+        }
+      ]
+    },
+    {
+      "s_no": "2",
+      "farmer_name": "N. Mariyappan",
+      "farmer_aadhaar": "426877663224",
+      "shares": [
+        {
+          "share_no": "3",
+          "share_aadhaar": "296540502393",
+          "relationship": "Wife",
+          "address": "Vappankulam",
+          "phone_no": "9781607730",
+          "phone_inferred_from_ditto": true
+        }
+      ]
+    },
+    {
+      "s_no": "3",
+      "farmer_name": "P. Kanmani",
+      "farmer_aadhaar": "632110222899",
+      "shares": [
+        {
+          "share_no": "5",
+          "share_aadhaar": "100346552999",
+          "relationship": "Son",
+          "address": "27, Sivamurthy Nagar, Pannaiyur",
+          "phone_no": "8822811882"
+        }
+      ]
+    },
+    {
+      "s_no": "4",
+      "farmer_name": "A. Thangam",
+      "farmer_aadhaar": "992453532004",
+      "shares": [
+        {
+          "share_no": "2",
+          "share_aadhaar": "143262895555",
+          "relationship": "Wife",
+          "address": "84, Vannaar Colony, Karaipudur",
+          "phone_no": "7894564341"
+        }
+      ]
+    },
+    {
+      "s_no": "5",
+      "farmer_name": "P. Balamani",
+      "farmer_aadhaar": "572326370079",
+      "shares": [
+        {
+          "share_no": "4",
+          "share_aadhaar": "122643227824",
+          "relationship": "Wife",
+          "address": "84, Vannaar Colony, Karaipudur",
+          "phone_no": "7894564341",
+          "phone_inferred_from_ditto": true
+        },
+        {
+          "share_no": "",
+          "share_aadhaar": "265432798801",
+          "relationship": "Son",
+          "address": "Karaipudur",
+          "phone_no": "7894564341",
+          "phone_inferred_from_ditto": true
+        },
+        {
+          "share_no": "",
+          "share_aadhaar": "257432894325",
+          "relationship": "Daughter",
+          "address": "Karaipudur",
+          "phone_no": "7894564341",
+          "phone_inferred_from_ditto": true
+        },
+        {
+          "share_no": "",
+          "share_aadhaar": "141466543327",
+          "relationship": "Daughter",
+          "address": "Karaipudur",
+          "phone_no": "7894564341",
+          "phone_inferred_from_ditto": true
+        },
+        {
+          "share_no": "",
+          "share_aadhaar": "141428354649",
+          "relationship": "Daughter",
+          "address": "Karaipudur",
+          "phone_no": "7894564341",
+          "phone_inferred_from_ditto": true
+        },
+        {
+          "share_no": "",
+          "share_aadhaar": "142462894329",
+          "relationship": "Daughter",
+          "address": "Karaipudur",
+          "phone_no": "7894564341",
+          "phone_inferred_from_ditto": true
+        },
+        {
+          "share_no": "",
+          "share_aadhaar": "150052895682",
+          "relationship": "Daughter",
+          "address": "Karaipudur",
+          "phone_no": "7894564341",
+          "phone_inferred_from_ditto": true
+        }
+      ]
+    },
+    {
+      "s_no": "6",
+      "farmer_name": "G. Raja",
+      "farmer_aadhaar": "889420043214",
+      "shares": [
+        {
+          "share_no": "1",
+          "share_aadhaar": "262887965431",
+          "relationship": "Son",
+          "address": "87, Gananayan Colony, Karaipudur",
+          "phone_no": "8432165431"
+        }
+      ]
+    }
+  ]
+}

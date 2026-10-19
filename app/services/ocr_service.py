@@ -68,7 +68,10 @@ class OCRService:
             return
 
         try:
-            logger.info("Initializing ocr-tamil engine...")
+            logger.info("Initializing Surya OCR 0.1.2 & Tamil ParSeq recognition engines...")
+            from app.services.surya_engine import surya_engine
+            surya_engine.initialize()
+
             from ocr_tamil.ocr import OCR
 
             tamil_ckpt, craft_pth = self._resolve_model_paths()
@@ -96,16 +99,17 @@ class OCRService:
 
             self._initialized = True
             self._init_error = None
-            logger.info("ocr-tamil engine successfully initialized.")
+            logger.info("Surya OCR 0.1.2 and Tamil recognition engines successfully initialized.")
 
         except Exception as e:
             self._init_error = str(e)
             self._initialized = False
-            logger.error(f"Failed to initialize ocr-tamil engine: {e}", exc_info=True)
+            logger.error(f"Failed to initialize OCR engines: {e}", exc_info=True)
 
     def is_healthy(self) -> bool:
         """Verify that the OCR engine is ready for inference."""
-        return self._initialized and (self._ocr_detect is not None)
+        from app.services.surya_engine import surya_engine
+        return self._initialized and (self._ocr_detect is not None) and surya_engine.is_healthy()
 
     @property
     def initialization_error(self) -> Optional[str]:

@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     # OCR Engine
     ENABLE_CUDA: bool = Field(default=False, description="Enable GPU CUDA if available")
     MAX_CONCURRENT_OCR: int = Field(default=2, ge=1, le=16, description="Max concurrent OCR workers")
+    OCR_ENGINE_NAME: str = Field(default="surya-ocr", description="Primary OCR & layout engine name")
+    SURYA_VERSION: str = Field(default="0.1.2", description="Pinned Surya OCR version")
+    SURYA_DETECTOR_CHECKPOINT: str = Field(default="vikp/line_detector", description="HuggingFace model checkpoint for Surya line detector")
+    SURYA_DETECTION_BATCH_SIZE: int = Field(default=2, ge=1, le=16, description="Batch size for Surya inference")
+    SURYA_DETECTION_THRESHOLD: float = Field(default=0.6, ge=0.1, le=1.0, description="Text detection confidence threshold")
+    AAVIN_PROFILE_ENABLED: bool = Field(default=True, description="Enable Aavin Smart Cattle Passport extraction profile")
     
     # Security & Limits
     API_KEY: Optional[str] = Field(default=None, description="Optional API key for securing endpoints")
@@ -31,8 +37,7 @@ class Settings(BaseSettings):
 
     # App Metadata
     APP_NAME: str = "Tamil OCR API"
-    APP_VERSION: str = "0.1.4"
-    OCR_ENGINE_NAME: str = "ocr-tamil"
+    APP_VERSION: str = "0.2.0"
 
     model_config = SettingsConfigDict(
         env_file=".env",

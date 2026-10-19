@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "request_id": "1c124dc4-5e7c-487a-912c-55788868ad38",
+  "api_version": "v1",
+  "engine": {
+    "name": "surya-ocr",
+    "version": "0.1.2"
+  },
+  "filename": "img1_tamil_handwritten_crop.png",
+  "content_type": "image/png",
+  "language_hint": "ta,en",
+  "document_type": "aavin_register",
+  "tables": [],
+  "records": [],
+  "unassigned_cattle_ids": [],
+  "metadata": {
+    "ocr_engine": "surya-ocr",
+    "preprocessing_applied": true,
+    "processing_time_ms": 8143.12,
+    "image_dimensions": {
+      "width": 158,
+      "height": 417
+    }
+  },
+  "warnings": [
+    "No tabular structures detected in the image."
+  ],
+  "errors": []
+}

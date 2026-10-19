@@ -23,13 +23,16 @@ from app.schemas.ocr import (
     ApiInfoResponse,
     BatchItemResult,
     BatchOCRResponse,
+    EngineInfo,
     HealthResponse,
     OCRFormats,
     OCRResponse,
     ProcessingMetadata,
+    StructuredOCRResponse,
     TableOnlyResponse,
     TextOnlyResponse,
 )
+from app.services.aavin_mapping import aavin_mapper
 from app.services.format_builder import build_output_formats
 from app.services.image_preprocessing import image_preprocessor
 from app.services.ocr_service import ocr_service
@@ -109,10 +112,13 @@ async def get_api_info():
         capabilities=[
             "tamil_text_recognition",
             "english_text_recognition",
-            "natural_scene_text_detection",
-            "line_order_preservation",
+            "surya_line_detection",
+            "surya_affinity_layout",
             "table_structure_detection",
             "cell_level_extraction",
+            "aavin_cattle_passport_extraction",
+            "pashu_aadhaar_validation",
+            "review_first_workflow",
             "orientation_correction",
             "deskewing",
             "contrast_enhancement",
@@ -232,9 +238,15 @@ async def process_ocr(
     if fmt in ("text", "txt", "text/plain"):
         return PlainTextResponse(content=text_out, media_type="text/plain; charset=utf-8")
 
+    first_tbl = tables[0] if tables else None
+    cand_records, _ = aavin_mapper.extract_candidate_records(first_tbl) if first_tbl else ([], [])
+
     return OCRResponse(
         success=True,
         request_id=req_id,
+        api_version="v1",
+        engine=EngineInfo(name=settings.OCR_ENGINE_NAME, version=settings.SURYA_VERSION),
+        language_hint=language_hint,
         filename=file.filename or "image",
         content_type=file.content_type or "image/png",
         extracted_text=extracted_text,
@@ -243,8 +255,10 @@ async def process_ocr(
         json=json_out,
         formats=OCRFormats(**formats_bundle),
         tables=tables,
+        records=cand_records,
         metadata=ProcessingMetadata(**meta_dict),
         warnings=warnings,
+        errors=[],
         detected_languages=doc_langs,
         unassigned_text=unassigned
     )
@@ -325,19 +339,137 @@ async def extract_table_only(
     if fmt in ("text", "txt", "text/plain"):
         return PlainTextResponse(content=text_out, media_type="text/plain; charset=utf-8")
 
+    first_tbl = tables[0] if tables else None
+    cand_records, _ = aavin_mapper.extract_candidate_records(first_tbl) if first_tbl else ([], [])
+
     return TableOnlyResponse(
         success=True,
         request_id=req_id,
+        api_version="v1",
+        engine=EngineInfo(name=settings.OCR_ENGINE_NAME, version=settings.SURYA_VERSION),
+        language_hint=language_hint,
         filename=file.filename or "image",
         content_type=file.content_type or "image/png",
         tables=tables,
+        table_id=first_tbl.table_id if first_tbl else None,
+        headers=first_tbl.headers if first_tbl else [],
+        headers_detail=first_tbl.headers_detail if first_tbl else [],
+        rows=first_tbl.rows if first_tbl else [],
+        columns=first_tbl.columns if first_tbl else [],
+        confidence=first_tbl.confidence if first_tbl else None,
+        detection_strategy=first_tbl.detection_strategy if first_tbl else None,
+        records=cand_records,
         extracted_text=extracted_text,
         text=text_out,
         html=html_out,
         json=json_out,
         formats=OCRFormats(**formats_bundle),
         metadata=ProcessingMetadata(**meta_dict),
-        warnings=warnings
+        warnings=warnings,
+        errors=[]
+    )
+
+
+# ============================================================================
+# Structured Aavin Extraction Endpoint
+# ============================================================================
+
+@router.post(
+    "/api/v1/ocr/structured",
+    response_model=StructuredOCRResponse,
+    summary="Aavin Register Table Intelligence & Candidate Record Extraction",
+    tags=["OCR"],
+    dependencies=[Depends(verify_api_key)]
+)
+async def extract_structured_aavin(
+    response: Response,
+    file: UploadFile = File(..., description="Uploaded register image file (JPEG, PNG, WebP)"),
+    document_type: str = Form(default="aavin_register", description="Register profile type"),
+    preprocess: bool = Form(default=True, description="Apply image preprocessing"),
+    language_hint: Optional[str] = Form(default="ta,en", description="Language hint: ta, en, or ta,en"),
+    schema_hint: Optional[str] = Form(default=None, description="Optional JSON schema hint e.g. {'0': 'member_id', '1': 'farmer_name'}")
+):
+    """
+    Structured extraction endpoint for Aavin register tables:
+    1. Validates and preprocesses uploaded register image.
+    2. Runs Surya 0.1.2 layout & affinity line detection + Tamil/English character recognition.
+    3. Reconstructs table geometry (rows, columns, cells) with continuation row handling.
+    4. Maps Tamil and English headers to Aavin Cattle Passport domain entities.
+    5. Returns review-first candidate records for farmers, 12-digit cattle IDs, and milk quantities.
+    """
+    req_id = generate_request_id()
+    response.headers["X-Request-ID"] = req_id
+    start_time = time.perf_counter()
+
+    content = await file.read()
+    is_valid, err_msg = validate_image_bytes(content, file.filename or "upload", file.content_type)
+    if not is_valid:
+        status_code = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE if "exceeds" in err_msg else status.HTTP_400_BAD_REQUEST
+        raise HTTPException(status_code=status_code, detail={"request_id": req_id, "error": err_msg})
+
+    try:
+        processed_bgr, _, prep_meta = image_preprocessor.process(content, enable_preprocess=preprocess)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"request_id": req_id, "error": f"Failed to decode image: {str(e)}"}
+        )
+
+    parsed_schema_hint = None
+    if schema_hint:
+        try:
+            import json
+            parsed_schema_hint = json.loads(schema_hint)
+        except Exception:
+            logger.debug(f"Failed to parse schema_hint as JSON: {schema_hint}")
+
+    async with ocr_service.semaphore:
+        extracted_text, words = ocr_service.predict_with_details(
+            processed_bgr, detect=True, preserve_lines=True, language_hint=language_hint
+        )
+        tables, warnings = table_extractor.extract_tables(
+            processed_bgr,
+            words=words,
+            extracted_text=extracted_text,
+            extract_text=True,
+            schema_hint=parsed_schema_hint
+        )
+
+    elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
+    meta_dict = {
+        "ocr_engine": settings.OCR_ENGINE_NAME,
+        "preprocessing_applied": prep_meta.get("preprocessing_applied", False),
+        "processing_time_ms": elapsed_ms,
+        "image_dimensions": {
+            "width": prep_meta.get("original_width", 0),
+            "height": prep_meta.get("original_height", 0)
+        }
+    }
+
+    all_records = []
+    all_unassigned = []
+    for tbl in tables:
+        tbl_records, tbl_unassigned = aavin_mapper.extract_candidate_records(tbl, schema_hint=parsed_schema_hint)
+        all_records.extend(tbl_records)
+        all_unassigned.extend(tbl_unassigned)
+
+    return StructuredOCRResponse(
+        success=True,
+        request_id=req_id,
+        api_version="v1",
+        engine=EngineInfo(name=settings.OCR_ENGINE_NAME, version=settings.SURYA_VERSION),
+        filename=file.filename or "image",
+        content_type=file.content_type or "image/png",
+        language_hint=language_hint,
+        document_type=document_type,
+        tables=tables,
+        records=all_records,
+        candidates=all_records,
+        review_required=True,
+        unassigned_cattle_ids=all_unassigned,
+        metadata=ProcessingMetadata(**meta_dict),
+        warnings=warnings,
+        errors=[]
     )
 
 

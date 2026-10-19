@@ -1,0 +1,749 @@
+{
+  "success": true,
+  "request_id": "ca4b7866-8097-4d99-ad81-f9c05f552df1",
+  "api_version": "v1",
+  "engine": {
+    "name": "surya-ocr",
+    "version": "0.1.2"
+  },
+  "filename": "img5_printed_tamil_register.jpg",
+  "content_type": "image/jpeg",
+  "language_hint": "ta,en",
+  "document_type": "aavin_register",
+  "tables": [
+    {
+      "table_index": 0,
+      "table_id": 1,
+      "headers": [
+        "வ.எண்",
+        "மாணவர் பெயர்",
+        "சேர்க்கை எண்",
+        "பிறந்த தேறி பாலினம்",
+        "பெற்றோர் பெயர்",
+        "கைபேசி எஸ்",
+        "முகவரி"
+      ],
+      "headers_detail": [
+        {
+          "original": "வடஎண்",
+          "display": "வ.எண்",
+          "original_header": "வடஎண்",
+          "display_header": "வ.எண்",
+          "semantic_type": "serial_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "மாணவர் பெயர்",
+          "display": "மாணவர் பெயர்",
+          "original_header": "மாணவர் பெயர்",
+          "display_header": "மாணவர் பெயர்",
+          "semantic_type": "student_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "சேர்க்கை எண்",
+          "display": "சேர்க்கை எண்",
+          "original_header": "சேர்க்கை எண்",
+          "display_header": "சேர்க்கை எண்",
+          "semantic_type": "identifier",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'சேர்க்கை எண்' contains data matching 'student_id' (100% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "original": "பிறந்த தேறி பாலினம்",
+          "display": "பிறந்த தேறி பாலினம்",
+          "original_header": "பிறந்த தேறி பாலினம்",
+          "display_header": "பிறந்த தேறி பாலினம்",
+          "semantic_type": "birth_date",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "பெற்றோர் பெயர்",
+          "display": "பெற்றோர் பெயர்",
+          "original_header": "பெற்றோர் பெயர்",
+          "display_header": "பெற்றோர் பெயர்",
+          "semantic_type": "person_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'பெற்றோர் பெயர்' contains data matching 'student_name' (100% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "original": "கைபேசி எஸ்",
+          "display": "கைபேசி எஸ்",
+          "original_header": "கைபேசி எஸ்",
+          "display_header": "கைபேசி எஸ்",
+          "semantic_type": "phone_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "முகவரி",
+          "display": "முகவரி",
+          "original_header": "முகவரி",
+          "display_header": "முகவரி",
+          "semantic_type": "address",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        }
+      ],
+      "rows": [
+        [
+          "1.",
+          "சபி செல்வன்",
+          "15A01",
+          "12/05/2009 ஆண்",
+          "கணணன்",
+          "9843123456 4 அண்ணா",
+          "தெடு செனனை"
+        ],
+        [
+          "2.",
+          "LD. மாலதி",
+          "15A02",
+          "03/08/2009 பெண்",
+          "முருகன்",
+          "9500678901 12 காந்தி",
+          "சாலை மதுரை"
+        ],
+        [
+          "3.",
+          "கி இனியன்",
+          "15A03",
+          "21/11/2009 ஆன",
+          "சேகர்",
+          "8870345678 8 நேரு",
+          "நகர் திருச்சி"
+        ],
+        [
+          "4.",
+          "LIIT. கவிதா",
+          "15A04",
+          "09/01/2010 பெண்",
+          "பாலு",
+          "9791123456 15",
+          "திருவள்ளுவர் வீதி சேலம்"
+        ],
+        [
+          "5.",
+          "ராமர் அரவிந்த்",
+          "15A05",
+          "15/04/2010 ஆல்ர",
+          "ராஜ",
+          "9443789012 10",
+          "பாரதியார் சாலை கோவை"
+        ],
+        [
+          "6.",
+          "6160. ன்திரி",
+          "15A06",
+          "27/06/2010 பெண்",
+          "லெனின்",
+          "9159456789",
+          "மேட்டுத் தெடூ ஈரோடு"
+        ],
+        [
+          "7.",
+          "வி தினேஷ்",
+          "15A07",
+          "11/09/2010 ஆண்",
+          "விஜய்",
+          "8220678123 21",
+          "காமராஜர் நகர் வேலூர்"
+        ],
+        [
+          "8.",
+          "மு ப்ரியா",
+          "15A08",
+          "19/12/2010 பெண்",
+          "முரளி",
+          "9626234567 5",
+          "புதிய காலனி தஞ்சை"
+        ],
+        [
+          "9.",
+          "பிரப்பின சகிஷ்",
+          "15A09",
+          "05/03/2011 ஆண்",
+          "சுரேஷ்",
+          "9360567890 14",
+          "அக்ரஹாரம் 5L லூர்"
+        ],
+        [
+          "9.",
+          "ஒஃபு சதீஷ்",
+          "15A09",
+          "05/03/2011 பெண்",
+          "சுரேஷ்",
+          "9092789123 14",
+          "அக்ரஹாரம் கிட் லூர்"
+        ],
+        [
+          "10.",
+          "தே யாழினி",
+          "15A10",
+          "22/07/2011 பெண்",
+          "தேவா",
+          "9092789123 9",
+          "கிழக்கு வீதி திண்டுக்கல்"
+        ]
+      ],
+      "row_count": 11,
+      "column_count": 7,
+      "columns": [
+        {
+          "key": "வஎண",
+          "label": "வ.எண்",
+          "original_header": "வடஎண்",
+          "display_header": "வ.எண்",
+          "semantic_type": "serial_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "மணவர_பயர",
+          "label": "மாணவர் பெயர்",
+          "original_header": "மாணவர் பெயர்",
+          "display_header": "மாணவர் பெயர்",
+          "semantic_type": "student_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "சரகக_எண",
+          "label": "சேர்க்கை எண்",
+          "original_header": "சேர்க்கை எண்",
+          "display_header": "சேர்க்கை எண்",
+          "semantic_type": "identifier",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'சேர்க்கை எண்' contains data matching 'student_id' (100% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "key": "பறநத_தற_பலனம",
+          "label": "பிறந்த தேறி பாலினம்",
+          "original_header": "பிறந்த தேறி பாலினம்",
+          "display_header": "பிறந்த தேறி பாலினம்",
+          "semantic_type": "birth_date",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "பறறர_பயர",
+          "label": "பெற்றோர் பெயர்",
+          "original_header": "பெற்றோர் பெயர்",
+          "display_header": "பெற்றோர் பெயர்",
+          "semantic_type": "person_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'பெற்றோர் பெயர்' contains data matching 'student_name' (100% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "key": "கபச_எஸ",
+          "label": "கைபேசி எஸ்",
+          "original_header": "கைபேசி எஸ்",
+          "display_header": "கைபேசி எஸ்",
+          "semantic_type": "phone_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "மகவர",
+          "label": "முகவரி",
+          "original_header": "முகவரி",
+          "display_header": "முகவரி",
+          "semantic_type": "address",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        }
+      ],
+      "data": [
+        {
+          "வஎண": "1.",
+          "மணவர_பயர": "சபி செல்வன்",
+          "சரகக_எண": "15A01",
+          "பறநத_தற_பலனம": "12/05/2009 ஆண்",
+          "பறறர_பயர": "கணணன்",
+          "கபச_எஸ": "9843123456 4 அண்ணா",
+          "மகவர": "தெடு செனனை"
+        },
+        {
+          "வஎண": "2.",
+          "மணவர_பயர": "LD. மாலதி",
+          "சரகக_எண": "15A02",
+          "பறநத_தற_பலனம": "03/08/2009 பெண்",
+          "பறறர_பயர": "முருகன்",
+          "கபச_எஸ": "9500678901 12 காந்தி",
+          "மகவர": "சாலை மதுரை"
+        },
+        {
+          "வஎண": "3.",
+          "மணவர_பயர": "கி இனியன்",
+          "சரகக_எண": "15A03",
+          "பறநத_தற_பலனம": "21/11/2009 ஆன",
+          "பறறர_பயர": "சேகர்",
+          "கபச_எஸ": "8870345678 8 நேரு",
+          "மகவர": "நகர் திருச்சி"
+        },
+        {
+          "வஎண": "4.",
+          "மணவர_பயர": "LIIT. கவிதா",
+          "சரகக_எண": "15A04",
+          "பறநத_தற_பலனம": "09/01/2010 பெண்",
+          "பறறர_பயர": "பாலு",
+          "கபச_எஸ": "9791123456 15",
+          "மகவர": "திருவள்ளுவர் வீதி சேலம்"
+        },
+        {
+          "வஎண": "5.",
+          "மணவர_பயர": "ராமர் அரவிந்த்",
+          "சரகக_எண": "15A05",
+          "பறநத_தற_பலனம": "15/04/2010 ஆல்ர",
+          "பறறர_பயர": "ராஜ",
+          "கபச_எஸ": "9443789012 10",
+          "மகவர": "பாரதியார் சாலை கோவை"
+        },
+        {
+          "வஎண": "6.",
+          "மணவர_பயர": "6160. ன்திரி",
+          "சரகக_எண": "15A06",
+          "பறநத_தற_பலனம": "27/06/2010 பெண்",
+          "பறறர_பயர": "லெனின்",
+          "கபச_எஸ": "9159456789",
+          "மகவர": "மேட்டுத் தெடூ ஈரோடு"
+        },
+        {
+          "வஎண": "7.",
+          "மணவர_பயர": "வி தினேஷ்",
+          "சரகக_எண": "15A07",
+          "பறநத_தற_பலனம": "11/09/2010 ஆண்",
+          "பறறர_பயர": "விஜய்",
+          "கபச_எஸ": "8220678123 21",
+          "மகவர": "காமராஜர் நகர் வேலூர்"
+        },
+        {
+          "வஎண": "8.",
+          "மணவர_பயர": "மு ப்ரியா",
+          "சரகக_எண": "15A08",
+          "பறநத_தற_பலனம": "19/12/2010 பெண்",
+          "பறறர_பயர": "முரளி",
+          "கபச_எஸ": "9626234567 5",
+          "மகவர": "புதிய காலனி தஞ்சை"
+        },
+        {
+          "வஎண": "9.",
+          "மணவர_பயர": "பிரப்பின சகிஷ்",
+          "சரகக_எண": "15A09",
+          "பறநத_தற_பலனம": "05/03/2011 ஆண்",
+          "பறறர_பயர": "சுரேஷ்",
+          "கபச_எஸ": "9360567890 14",
+          "மகவர": "அக்ரஹாரம் 5L லூர்"
+        },
+        {
+          "வஎண": "9.",
+          "மணவர_பயர": "ஒஃபு சதீஷ்",
+          "சரகக_எண": "15A09",
+          "பறநத_தற_பலனம": "05/03/2011 பெண்",
+          "பறறர_பயர": "சுரேஷ்",
+          "கபச_எஸ": "9092789123 14",
+          "மகவர": "அக்ரஹாரம் கிட் லூர்"
+        },
+        {
+          "வஎண": "10.",
+          "மணவர_பயர": "தே யாழினி",
+          "சரகக_எண": "15A10",
+          "பறநத_தற_பலனம": "22/07/2011 பெண்",
+          "பறறர_பயர": "தேவா",
+          "கபச_எஸ": "9092789123 9",
+          "மகவர": "கிழக்கு வீதி திண்டுக்கல்"
+        }
+      ],
+      "confidence": 0.94,
+      "detection_strategy": "bbox_clustering",
+      "is_uncertain": false,
+      "warnings": [
+        "Column 'சேர்க்கை எண்' contains data matching 'student_id' (100% consistency); preserved explicit header.",
+        "Column 'பெற்றோர் பெயர்' contains data matching 'student_name' (100% consistency); preserved explicit header."
+      ],
+      "html": "<div class=\"ocr-table-container\">\n  <table class=\"ocr-rendered-table\" data-table-index=\"0\" data-strategy=\"bbox_clustering\">\n    <thead>\n      <tr>\n        <th scope=\"col\" data-col-idx=\"0\" contenteditable=\"true\" data-semantic-type=\"serial_number\" data-inference-method=\"explicit_header\" title=\"Click to rename\">வ.எண்</th>\n        <th scope=\"col\" data-col-idx=\"1\" contenteditable=\"true\" data-semantic-type=\"student_name\" data-inference-method=\"explicit_header\" title=\"Click to rename\">மாணவர் பெயர்</th>\n        <th scope=\"col\" data-col-idx=\"2\" contenteditable=\"true\" data-semantic-type=\"identifier\" data-inference-method=\"explicit_header\" title=\"Column &#x27;சேர்க்கை எண்&#x27; contains data matching &#x27;student_id&#x27; (100% consistency); preserved explicit header.\">சேர்க்கை எண் <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n        <th scope=\"col\" data-col-idx=\"3\" contenteditable=\"true\" data-semantic-type=\"birth_date\" data-inference-method=\"explicit_header\" title=\"Click to rename\">பிறந்த தேறி பாலினம்</th>\n        <th scope=\"col\" data-col-idx=\"4\" contenteditable=\"true\" data-semantic-type=\"person_name\" data-inference-method=\"explicit_header\" title=\"Column &#x27;பெற்றோர் பெயர்&#x27; contains data matching &#x27;student_name&#x27; (100% consistency); preserved explicit header.\">பெற்றோர் பெயர் <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n        <th scope=\"col\" data-col-idx=\"5\" contenteditable=\"true\" data-semantic-type=\"phone_number\" data-inference-method=\"explicit_header\" title=\"Click to rename\">கைபேசி எஸ்</th>\n        <th scope=\"col\" data-col-idx=\"6\" contenteditable=\"true\" data-semantic-type=\"address\" data-inference-method=\"explicit_header\" title=\"Click to rename\">முகவரி</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr data-row-idx=\"0\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">1.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">சபி செல்வன்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A01</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">12/05/2009 ஆண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">கணணன்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9843123456 4 அண்ணா</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">தெடு செனனை</td>\n      </tr>\n      <tr data-row-idx=\"1\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">2.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">LD. மாலதி</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A02</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">03/08/2009 பெண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">முருகன்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9500678901 12 காந்தி</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">சாலை மதுரை</td>\n      </tr>\n      <tr data-row-idx=\"2\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">3.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">கி இனியன்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A03</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">21/11/2009 ஆன</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">சேகர்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">8870345678 8 நேரு</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">நகர் திருச்சி</td>\n      </tr>\n      <tr data-row-idx=\"3\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">4.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">LIIT. கவிதா</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A04</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">09/01/2010 பெண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">பாலு</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9791123456 15</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">திருவள்ளுவர் வீதி சேலம்</td>\n      </tr>\n      <tr data-row-idx=\"4\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">5.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">ராமர் அரவிந்த்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A05</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">15/04/2010 ஆல்ர</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">ராஜ</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9443789012 10</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">பாரதியார் சாலை கோவை</td>\n      </tr>\n      <tr data-row-idx=\"5\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">6.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">6160. ன்திரி</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A06</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">27/06/2010 பெண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">லெனின்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9159456789</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">மேட்டுத் தெடூ ஈரோடு</td>\n      </tr>\n      <tr data-row-idx=\"6\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">7.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">வி தினேஷ்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A07</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">11/09/2010 ஆண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">விஜய்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">8220678123 21</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">காமராஜர் நகர் வேலூர்</td>\n      </tr>\n      <tr data-row-idx=\"7\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">8.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">மு ப்ரியா</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A08</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">19/12/2010 பெண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">முரளி</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9626234567 5</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">புதிய காலனி தஞ்சை</td>\n      </tr>\n      <tr data-row-idx=\"8\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">9.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">பிரப்பின சகிஷ்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A09</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">05/03/2011 ஆண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">சுரேஷ்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9360567890 14</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">அக்ரஹாரம் 5L லூர்</td>\n      </tr>\n      <tr data-row-idx=\"9\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">9.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">ஒஃபு சதீஷ்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A09</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">05/03/2011 பெண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">சுரேஷ்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9092789123 14</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">அக்ரஹாரம் கிட் லூர்</td>\n      </tr>\n      <tr data-row-idx=\"10\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">10.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">தே யாழினி</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">15A10</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">22/07/2011 பெண்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">தேவா</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">9092789123 9</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">கிழக்கு வீதி திண்டுக்கல்</td>\n      </tr>\n    </tbody>\n  </table>\n</div>",
+      "detected_languages": [
+        "ta"
+      ],
+      "unassigned_text": "மாணவர் வருகைப் பதிவேடு"
+    }
+  ],
+  "records": [
+    {
+      "record_id": 1,
+      "farmer_name": "கணணன்",
+      "raw_farmer_name": "கணணன்",
+      "phone": null,
+      "raw_phone": "9843123456 4 அண்ணா",
+      "village": "தெடு செனனை",
+      "cow_count": null,
+      "member_id": "1.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 12.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        0
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9843123456 4 அண்ணா' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 2,
+      "farmer_name": "முருகன்",
+      "raw_farmer_name": "முருகன்",
+      "phone": null,
+      "raw_phone": "9500678901 12 காந்தி",
+      "village": "சாலை மதுரை",
+      "cow_count": null,
+      "member_id": "2.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 3.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        1
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9500678901 12 காந்தி' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 3,
+      "farmer_name": "சேகர்",
+      "raw_farmer_name": "சேகர்",
+      "phone": null,
+      "raw_phone": "8870345678 8 நேரு",
+      "village": "நகர் திருச்சி",
+      "cow_count": null,
+      "member_id": "3.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 21.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        2
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '8870345678 8 நேரு' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 4,
+      "farmer_name": "பாலு",
+      "raw_farmer_name": "பாலு",
+      "phone": null,
+      "raw_phone": "9791123456 15",
+      "village": "திருவள்ளுவர் வீதி சேலம்",
+      "cow_count": null,
+      "member_id": "4.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 9.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        3
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9791123456 15' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 5,
+      "farmer_name": "ராஜ",
+      "raw_farmer_name": "ராஜ",
+      "phone": null,
+      "raw_phone": "9443789012 10",
+      "village": "பாரதியார் சாலை கோவை",
+      "cow_count": null,
+      "member_id": "5.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 15.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        4
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9443789012 10' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 6,
+      "farmer_name": "லெனின்",
+      "raw_farmer_name": "லெனின்",
+      "phone": "9159456789",
+      "raw_phone": "9159456789",
+      "village": "மேட்டுத் தெடூ ஈரோடு",
+      "cow_count": null,
+      "member_id": "6.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 27.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        5
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 7,
+      "farmer_name": "விஜய்",
+      "raw_farmer_name": "விஜய்",
+      "phone": null,
+      "raw_phone": "8220678123 21",
+      "village": "காமராஜர் நகர் வேலூர்",
+      "cow_count": null,
+      "member_id": "7.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 11.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        6
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '8220678123 21' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 8,
+      "farmer_name": "முரளி",
+      "raw_farmer_name": "முரளி",
+      "phone": null,
+      "raw_phone": "9626234567 5",
+      "village": "புதிய காலனி தஞ்சை",
+      "cow_count": null,
+      "member_id": "8.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 19.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        7
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9626234567 5' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 9,
+      "farmer_name": "சுரேஷ்",
+      "raw_farmer_name": "சுரேஷ்",
+      "phone": null,
+      "raw_phone": "9360567890 14",
+      "village": "அக்ரஹாரம் 5L லூர்",
+      "cow_count": null,
+      "member_id": "9.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 5.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        8
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9360567890 14' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 10,
+      "farmer_name": "சுரேஷ்",
+      "raw_farmer_name": "சுரேஷ்",
+      "phone": null,
+      "raw_phone": "9092789123 14",
+      "village": "அக்ரஹாரம் கிட் லூர்",
+      "cow_count": null,
+      "member_id": "9.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 5.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        9
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9092789123 14' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 11,
+      "farmer_name": "தேவா",
+      "raw_farmer_name": "தேவா",
+      "phone": null,
+      "raw_phone": "9092789123 9",
+      "village": "கிழக்கு வீதி திண்டுக்கல்",
+      "cow_count": null,
+      "member_id": "10.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [
+        {
+          "date": null,
+          "session": null,
+          "litres": 22.0,
+          "booth_id": null,
+          "confidence": 0.9,
+          "review_required": true,
+          "warnings": []
+        }
+      ],
+      "source_row_indices": [
+        10
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '9092789123 9' could not be normalized to 10 digits"
+      ]
+    }
+  ],
+  "unassigned_cattle_ids": [],
+  "metadata": {
+    "ocr_engine": "surya-ocr",
+    "preprocessing_applied": true,
+    "processing_time_ms": 31190.69,
+    "image_dimensions": {
+      "width": 1024,
+      "height": 558
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

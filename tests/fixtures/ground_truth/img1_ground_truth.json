@@ -1,0 +1,14 @@
+{
+  "image_filename": "img1_tamil_handwritten_crop.png",
+  "document_type": "tamil_handwritten_name_list",
+  "language": "ta",
+  "total_records": 6,
+  "records": [
+    {"line_no": 1, "text": "மு. கந்தன்"},
+    {"line_no": 2, "text": "க. மாரியப்பன்"},
+    {"line_no": 3, "text": "ம. கருப்பாயி"},
+    {"line_no": 4, "text": "அ. துர்கா"},
+    {"line_no": 5, "text": "ப. பெருமாள்"},
+    {"line_no": 6, "text": "10. முத்து"}
+  ]
+}

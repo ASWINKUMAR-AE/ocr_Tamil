@@ -1,0 +1,725 @@
+{
+  "success": true,
+  "request_id": "680ddb10-51ae-44bb-a514-6c16553a854f",
+  "api_version": "v1",
+  "engine": {
+    "name": "surya-ocr",
+    "version": "0.1.2"
+  },
+  "filename": "img2_clean_english_register.jpg",
+  "content_type": "image/jpeg",
+  "language_hint": "ta,en",
+  "document_type": "aavin_register",
+  "tables": [
+    {
+      "table_index": 0,
+      "table_id": 1,
+      "headers": [
+        "S.No",
+        "Farmer",
+        "Name",
+        "Phone",
+        "No.",
+        "Pashu",
+        "Aadhar"
+      ],
+      "headers_detail": [
+        {
+          "original": "S.No",
+          "display": "S.No",
+          "original_header": "S.No",
+          "display_header": "S.No",
+          "semantic_type": "serial_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Farmer",
+          "display": "Farmer",
+          "original_header": "Farmer",
+          "display_header": "Farmer",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Farmer' contains data matching 'farmer_name' (100% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "original": "Name",
+          "display": "Name",
+          "original_header": "Name",
+          "display_header": "Name",
+          "semantic_type": "person_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Phone",
+          "display": "Phone",
+          "original_header": "Phone",
+          "display_header": "Phone",
+          "semantic_type": "phone_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "No.",
+          "display": "No.",
+          "original_header": "No.",
+          "display_header": "No.",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Pashu",
+          "display": "Pashu",
+          "original_header": "Pashu",
+          "display_header": "Pashu",
+          "semantic_type": "cattle_aadhaar_id",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Aadhar",
+          "display": "Aadhar",
+          "original_header": "Aadhar",
+          "display_header": "Aadhar",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        }
+      ],
+      "rows": [
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "(12",
+          "Digit)"
+        ],
+        [
+          "1",
+          "R. Murugan",
+          "",
+          "9345126780",
+          "",
+          "111234567890",
+          ""
+        ],
+        [
+          "2",
+          "S. Lakshmi",
+          "",
+          "9786543210",
+          "",
+          "111987654321",
+          ""
+        ],
+        [
+          "",
+          "M. Ramesh",
+          "",
+          "9500876123",
+          "",
+          "112345678901",
+          ""
+        ],
+        [
+          "",
+          "K. Selvam",
+          "",
+          "9843210765",
+          "",
+          "112876543210",
+          ""
+        ],
+        [
+          "",
+          "P. Meena",
+          "",
+          "9092345678",
+          "",
+          "113456789012",
+          ""
+        ],
+        [
+          "",
+          "V. Kumar",
+          "",
+          "9367890123",
+          "",
+          "113098765432",
+          ""
+        ],
+        [
+          "",
+          "A. Geetha",
+          "",
+          "9790123456",
+          "",
+          "114567890123",
+          ""
+        ],
+        [
+          "",
+          "S. Dinesh",
+          "",
+          "8876543210",
+          "",
+          "114321098765",
+          ""
+        ],
+        [
+          "9",
+          "T. Revathi",
+          "",
+          "9956789012",
+          "",
+          "115678901234",
+          ""
+        ],
+        [
+          "10",
+          "R. Arul",
+          "",
+          "9365432789",
+          "",
+          "115432109876",
+          ""
+        ]
+      ],
+      "row_count": 11,
+      "column_count": 7,
+      "columns": [
+        {
+          "key": "sno",
+          "label": "S.No",
+          "original_header": "S.No",
+          "display_header": "S.No",
+          "semantic_type": "serial_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "farmer",
+          "label": "Farmer",
+          "original_header": "Farmer",
+          "display_header": "Farmer",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Farmer' contains data matching 'farmer_name' (100% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "key": "name",
+          "label": "Name",
+          "original_header": "Name",
+          "display_header": "Name",
+          "semantic_type": "person_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "phone",
+          "label": "Phone",
+          "original_header": "Phone",
+          "display_header": "Phone",
+          "semantic_type": "phone_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "no",
+          "label": "No.",
+          "original_header": "No.",
+          "display_header": "No.",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "pashu",
+          "label": "Pashu",
+          "original_header": "Pashu",
+          "display_header": "Pashu",
+          "semantic_type": "cattle_aadhaar_id",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "aadhar",
+          "label": "Aadhar",
+          "original_header": "Aadhar",
+          "display_header": "Aadhar",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        }
+      ],
+      "data": [
+        {
+          "sno": "",
+          "farmer": "",
+          "name": "",
+          "phone": "",
+          "no": "",
+          "pashu": "(12",
+          "aadhar": "Digit)"
+        },
+        {
+          "sno": "1",
+          "farmer": "R. Murugan",
+          "name": "",
+          "phone": "9345126780",
+          "no": "",
+          "pashu": "111234567890",
+          "aadhar": ""
+        },
+        {
+          "sno": "2",
+          "farmer": "S. Lakshmi",
+          "name": "",
+          "phone": "9786543210",
+          "no": "",
+          "pashu": "111987654321",
+          "aadhar": ""
+        },
+        {
+          "sno": "",
+          "farmer": "M. Ramesh",
+          "name": "",
+          "phone": "9500876123",
+          "no": "",
+          "pashu": "112345678901",
+          "aadhar": ""
+        },
+        {
+          "sno": "",
+          "farmer": "K. Selvam",
+          "name": "",
+          "phone": "9843210765",
+          "no": "",
+          "pashu": "112876543210",
+          "aadhar": ""
+        },
+        {
+          "sno": "",
+          "farmer": "P. Meena",
+          "name": "",
+          "phone": "9092345678",
+          "no": "",
+          "pashu": "113456789012",
+          "aadhar": ""
+        },
+        {
+          "sno": "",
+          "farmer": "V. Kumar",
+          "name": "",
+          "phone": "9367890123",
+          "no": "",
+          "pashu": "113098765432",
+          "aadhar": ""
+        },
+        {
+          "sno": "",
+          "farmer": "A. Geetha",
+          "name": "",
+          "phone": "9790123456",
+          "no": "",
+          "pashu": "114567890123",
+          "aadhar": ""
+        },
+        {
+          "sno": "",
+          "farmer": "S. Dinesh",
+          "name": "",
+          "phone": "8876543210",
+          "no": "",
+          "pashu": "114321098765",
+          "aadhar": ""
+        },
+        {
+          "sno": "9",
+          "farmer": "T. Revathi",
+          "name": "",
+          "phone": "9956789012",
+          "no": "",
+          "pashu": "115678901234",
+          "aadhar": ""
+        },
+        {
+          "sno": "10",
+          "farmer": "R. Arul",
+          "name": "",
+          "phone": "9365432789",
+          "no": "",
+          "pashu": "115432109876",
+          "aadhar": ""
+        }
+      ],
+      "confidence": 0.94,
+      "detection_strategy": "bbox_clustering",
+      "is_uncertain": false,
+      "warnings": [
+        "Column 'Farmer' contains data matching 'farmer_name' (100% consistency); preserved explicit header."
+      ],
+      "html": "<div class=\"ocr-table-container\">\n  <table class=\"ocr-rendered-table\" data-table-index=\"0\" data-strategy=\"bbox_clustering\">\n    <thead>\n      <tr>\n        <th scope=\"col\" data-col-idx=\"0\" contenteditable=\"true\" data-semantic-type=\"serial_number\" data-inference-method=\"explicit_header\" title=\"Click to rename\">S.No</th>\n        <th scope=\"col\" data-col-idx=\"1\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Column &#x27;Farmer&#x27; contains data matching &#x27;farmer_name&#x27; (100% consistency); preserved explicit header.\">Farmer <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n        <th scope=\"col\" data-col-idx=\"2\" contenteditable=\"true\" data-semantic-type=\"person_name\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Name</th>\n        <th scope=\"col\" data-col-idx=\"3\" contenteditable=\"true\" data-semantic-type=\"phone_number\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Phone</th>\n        <th scope=\"col\" data-col-idx=\"4\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">No.</th>\n        <th scope=\"col\" data-col-idx=\"5\" contenteditable=\"true\" data-semantic-type=\"cattle_aadhaar_id\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Pashu</th>\n        <th scope=\"col\" data-col-idx=\"6\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Aadhar</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr data-row-idx=\"0\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">(12</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">Digit)</td>\n      </tr>\n      <tr data-row-idx=\"1\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">1</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">R. Murugan</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9345126780</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">111234567890</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"2\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">2</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">S. Lakshmi</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9786543210</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">111987654321</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"3\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">M. Ramesh</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9500876123</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">112345678901</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"4\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">K. Selvam</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9843210765</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">112876543210</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"5\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">P. Meena</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9092345678</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">113456789012</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"6\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">V. Kumar</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9367890123</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">113098765432</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"7\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">A. Geetha</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9790123456</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">114567890123</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"8\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">S. Dinesh</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">8876543210</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">114321098765</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"9\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">9</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">T. Revathi</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9956789012</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">115678901234</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"10\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">10</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">R. Arul</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">9365432789</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">115432109876</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n    </tbody>\n  </table>\n</div>",
+      "detected_languages": [
+        "en"
+      ],
+      "unassigned_text": null
+    }
+  ],
+  "records": [
+    {
+      "record_id": 1,
+      "farmer_name": "R. Murugan",
+      "raw_farmer_name": "R. Murugan",
+      "phone": "9345126780",
+      "raw_phone": "9345126780",
+      "village": null,
+      "cow_count": null,
+      "member_id": "1",
+      "cattle_ids": [
+        "111234567890"
+      ],
+      "cattle": [
+        {
+          "tag_id": "111234567890",
+          "raw_tag_id": "111234567890",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        1
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 2,
+      "farmer_name": "S. Lakshmi",
+      "raw_farmer_name": "S. Lakshmi",
+      "phone": "9786543210",
+      "raw_phone": "9786543210",
+      "village": null,
+      "cow_count": null,
+      "member_id": "2",
+      "cattle_ids": [
+        "111987654321"
+      ],
+      "cattle": [
+        {
+          "tag_id": "111987654321",
+          "raw_tag_id": "111987654321",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        2
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 3,
+      "farmer_name": "M. Ramesh",
+      "raw_farmer_name": "M. Ramesh",
+      "phone": "9500876123",
+      "raw_phone": "9500876123",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [
+        "112345678901"
+      ],
+      "cattle": [
+        {
+          "tag_id": "112345678901",
+          "raw_tag_id": "112345678901",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        3
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 4,
+      "farmer_name": "K. Selvam",
+      "raw_farmer_name": "K. Selvam",
+      "phone": "9843210765",
+      "raw_phone": "9843210765",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [
+        "112876543210"
+      ],
+      "cattle": [
+        {
+          "tag_id": "112876543210",
+          "raw_tag_id": "112876543210",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        4
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 5,
+      "farmer_name": "P. Meena",
+      "raw_farmer_name": "P. Meena",
+      "phone": "9092345678",
+      "raw_phone": "9092345678",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [
+        "113456789012"
+      ],
+      "cattle": [
+        {
+          "tag_id": "113456789012",
+          "raw_tag_id": "113456789012",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        5
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 6,
+      "farmer_name": "V. Kumar",
+      "raw_farmer_name": "V. Kumar",
+      "phone": "9367890123",
+      "raw_phone": "9367890123",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [
+        "113098765432"
+      ],
+      "cattle": [
+        {
+          "tag_id": "113098765432",
+          "raw_tag_id": "113098765432",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        6
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 7,
+      "farmer_name": "A. Geetha",
+      "raw_farmer_name": "A. Geetha",
+      "phone": "9790123456",
+      "raw_phone": "9790123456",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [
+        "114567890123"
+      ],
+      "cattle": [
+        {
+          "tag_id": "114567890123",
+          "raw_tag_id": "114567890123",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        7
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 8,
+      "farmer_name": "S. Dinesh",
+      "raw_farmer_name": "S. Dinesh",
+      "phone": "8876543210",
+      "raw_phone": "8876543210",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [
+        "114321098765"
+      ],
+      "cattle": [
+        {
+          "tag_id": "114321098765",
+          "raw_tag_id": "114321098765",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        8
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 9,
+      "farmer_name": "T. Revathi",
+      "raw_farmer_name": "T. Revathi",
+      "phone": "9956789012",
+      "raw_phone": "9956789012",
+      "village": null,
+      "cow_count": null,
+      "member_id": "9",
+      "cattle_ids": [
+        "115678901234"
+      ],
+      "cattle": [
+        {
+          "tag_id": "115678901234",
+          "raw_tag_id": "115678901234",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        9
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 10,
+      "farmer_name": "R. Arul",
+      "raw_farmer_name": "R. Arul",
+      "phone": "9365432789",
+      "raw_phone": "9365432789",
+      "village": null,
+      "cow_count": null,
+      "member_id": "10",
+      "cattle_ids": [
+        "115432109876"
+      ],
+      "cattle": [
+        {
+          "tag_id": "115432109876",
+          "raw_tag_id": "115432109876",
+          "breed": null,
+          "age": null,
+          "status": "candidate",
+          "review_required": true,
+          "confidence": 0.92,
+          "warnings": []
+        }
+      ],
+      "milk_records": [],
+      "source_row_indices": [
+        10
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    }
+  ],
+  "unassigned_cattle_ids": [],
+  "metadata": {
+    "ocr_engine": "surya-ocr",
+    "preprocessing_applied": true,
+    "processing_time_ms": 17423.0,
+    "image_dimensions": {
+      "width": 1024,
+      "height": 682
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

@@ -647,9 +647,9 @@
       <div class="header-title">
         <h1>
           Tamil OCR API Tester
-          <span class="badge-engine">ocr-tamil v0.1.4</span>
+          <span class="badge-engine">Surya OCR 0.1.2 & ParSeq Tamil</span>
         </h1>
-        <p>Production test dashboard for Tamil & mixed-language text recognition and structured table extraction.</p>
+        <p>Production test dashboard for Tamil & mixed-language text recognition, Surya 0.1.2 table layout detection, and Aavin Smart Cattle Passport Register Intelligence.</p>
       </div>
       <div>
         <span id="headerConnStatus" class="badge badge-primary">Checking Server...</span>
@@ -718,7 +718,7 @@
           </div>
 
           <div class="options-grid">
-            <label class="checkbox-label" title="Run OpenCV morphological table & cell detection">
+            <label class="checkbox-label" title="Run Surya 0.1.2 & OpenCV table & cell detection">
               <input type="checkbox" id="chkExtractTables" checked>
               <span>Extract Tables</span>
             </label>
@@ -744,6 +744,10 @@
             <button type="button" class="btn-secondary" id="btnExtractTable" onclick="executeOCR('table')" disabled>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
               Extract Table Only
+            </button>
+            <button type="button" class="btn-primary" id="btnExtractStructured" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); grid-column: span 2;" onclick="executeOCR('structured')" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+              Aavin Register Intelligence (Surya 0.1.2)
             </button>
             <button type="button" class="btn-outline" id="btnClear" onclick="clearResults()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 6L6 19M6 6l13 13"/></svg>
@@ -815,6 +819,32 @@
           </div>
         </article>
 
+        <!-- 4.5 Aavin Smart Cattle Passport Register Intelligence Panel -->
+        <article class="result-section" id="aavinSection" style="display: none; border-left: 4px solid #10b981;">
+          <div class="section-header">
+            <div class="section-title" style="color: #065f46;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+              Aavin Smart Cattle Passport Candidates
+            </div>
+            <div class="badges-row">
+              <span class="badge badge-success" id="badgeFarmerCount">0 Farmers</span>
+              <span class="badge badge-primary" id="badgeCattleCount">0 Cattle Tags</span>
+            </div>
+          </div>
+
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+            <strong>Review-First Workflow:</strong> Validate and edit recognized candidates below before committing to the application database. 12-digit Pashu Aadhaar IDs are strictly preserved as strings with leading zeros.
+          </p>
+
+          <div id="aavinCandidatesContainer"></div>
+
+          <div style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn-primary" id="btnCommitAavin" style="background: #10b981; border: none;" onclick="commitAavinCandidates()">
+              ✓ Confirm & Commit to Aavin Application
+            </button>
+          </div>
+        </article>
+
         <!-- 5. Raw API Response Panel -->
         <article class="result-section">
           <details id="detailsRawJson">
@@ -866,12 +896,14 @@
     const TABLE_ENDPOINT = "/api/v1/ocr/table";
     const TEXT_ENDPOINT = "/api/v1/ocr/text";
     const INFO_ENDPOINT = "/api/v1/info";
+    const STRUCTURED_ENDPOINT = "/api/v1/ocr/structured";
 
     // Application State
     let selectedFile = null;
     let currentRawResponse = null;
     let isProcessing = false;
     let activeTimer = null;
+    let currentAavinFarmers = [];
 
     // DOM Elements Cache
     const el = {
@@ -890,6 +922,7 @@
       selLanguageHint: document.getElementById('selLanguageHint'),
       btnExtractText: document.getElementById('btnExtractText'),
       btnExtractTable: document.getElementById('btnExtractTable'),
+      btnExtractStructured: document.getElementById('btnExtractStructured'),
       btnClear: document.getElementById('btnClear'),
       progressBar: document.getElementById('progressBar'),
       errorAlert: document.getElementById('errorAlert'),
@@ -901,6 +934,11 @@
       btnCopyText: document.getElementById('btnCopyText'),
       tablesOutputContainer: document.getElementById('tablesOutputContainer'),
       badgeTableCount: document.getElementById('badgeTableCount'),
+      aavinSection: document.getElementById('aavinSection'),
+      aavinCandidatesContainer: document.getElementById('aavinCandidatesContainer'),
+      badgeFarmerCount: document.getElementById('badgeFarmerCount'),
+      badgeCattleCount: document.getElementById('badgeCattleCount'),
+      btnCommitAavin: document.getElementById('btnCommitAavin'),
       btnDownloadJson: document.getElementById('btnDownloadJson'),
       jsonOutput: document.getElementById('jsonOutput'),
       badgeHttpStatus: document.getElementById('badgeHttpStatus'),
@@ -1057,6 +1095,7 @@
       // Enable Action Buttons
       el.btnExtractText.disabled = false;
       el.btnExtractTable.disabled = false;
+      if (el.btnExtractStructured) el.btnExtractStructured.disabled = false;
     }
 
     function removeImage() {
@@ -1066,6 +1105,8 @@
       el.previewContainer.style.display = 'none';
       el.btnExtractText.disabled = true;
       el.btnExtractTable.disabled = true;
+      if (el.btnExtractStructured) el.btnExtractStructured.disabled = true;
+      if (el.aavinSection) el.aavinSection.style.display = 'none';
       hideAlerts();
     }
 
@@ -1083,7 +1124,12 @@
 
       const base = getCleanBaseUrl();
       const apiKey = el.apiKeyInput.value.trim();
-      const endpoint = (mode === 'table') ? TABLE_ENDPOINT : OCR_ENDPOINT;
+      let endpoint = OCR_ENDPOINT;
+      if (mode === 'table') {
+        endpoint = TABLE_ENDPOINT;
+      } else if (mode === 'structured') {
+        endpoint = STRUCTURED_ENDPOINT;
+      }
       const targetUrl = `${base}${endpoint}`;
 
       // Build Multipart Form Data
@@ -1092,11 +1138,15 @@
       
       if (mode === 'full') {
         formData.append('extract_tables', el.chkExtractTables.checked ? 'true' : 'false');
+      } else if (mode === 'structured') {
+        formData.append('document_type', 'aavin_register');
       }
       formData.append('preprocess', el.chkPreprocess.checked ? 'true' : 'false');
       const langHint = el.selLanguageHint ? el.selLanguageHint.value : '';
       if (langHint) {
         formData.append('language_hint', langHint);
+      } else if (mode === 'structured') {
+        formData.append('language_hint', 'ta,en');
       }
 
       const headers = { 'Accept': 'application/json' };
@@ -1148,6 +1198,7 @@
       isProcessing = processing;
       el.btnExtractText.disabled = processing || !selectedFile;
       el.btnExtractTable.disabled = processing || !selectedFile;
+      if (el.btnExtractStructured) el.btnExtractStructured.disabled = processing || !selectedFile;
       el.progressBar.style.display = processing ? 'block' : 'none';
 
       if (processing) {
@@ -1202,12 +1253,287 @@
       // 2. Render Structured Tables
       renderTables(data);
 
+      // 2.5 Render Aavin Candidate Records
+      if (Array.isArray(data.records) && data.records.length > 0) {
+        renderAavinCandidates(data.records);
+      } else {
+        if (el.aavinSection) el.aavinSection.style.display = 'none';
+      }
+
       // 3. Render Raw JSON
       el.jsonOutput.textContent = JSON.stringify(data, null, 2);
       el.btnCopyJson.disabled = false;
       el.btnDownloadJson.style.display = 'inline-flex';
       const btnCopyHtml = document.getElementById('btnCopyHtml');
       if (btnCopyHtml) btnCopyHtml.style.display = 'inline-flex';
+    }
+
+    /**
+     * Render Aavin Smart Cattle Passport Register Candidate Records
+     */
+    function renderAavinCandidates(records) {
+      if (!el.aavinSection || !el.aavinCandidatesContainer) return;
+      currentAavinFarmers = JSON.parse(JSON.stringify(records));
+
+      const container = el.aavinCandidatesContainer;
+      container.innerHTML = '';
+      el.aavinSection.style.display = 'block';
+
+      let totalCattle = 0;
+      records.forEach(r => {
+        totalCattle += (r.cattle_ids || []).length;
+      });
+
+      el.badgeFarmerCount.textContent = `${records.length} Farmers`;
+      el.badgeCattleCount.textContent = `${totalCattle} Cattle Tags`;
+
+      records.forEach((farmer, idx) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 14px;';
+
+        const headerDiv = document.createElement('div');
+        headerDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;';
+
+        const titleSpan = document.createElement('strong');
+        titleSpan.style.color = 'var(--text-main)';
+        titleSpan.textContent = `Farmer #${farmer.record_id || idx + 1}`;
+        headerDiv.appendChild(titleSpan);
+
+        if (farmer.review_required) {
+          const warnBadge = document.createElement('span');
+          warnBadge.className = 'badge badge-warning';
+          warnBadge.textContent = 'Review Required';
+          headerDiv.appendChild(warnBadge);
+        }
+        card.appendChild(headerDiv);
+
+        // Grid for fields
+        const grid = document.createElement('div');
+        grid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;';
+
+        // 1. Farmer Name
+        const nameBox = document.createElement('div');
+        nameBox.innerHTML = '<label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Farmer Name (விவசாயி பெயர்):</label>';
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = farmer.farmer_name || '';
+        nameInput.style.cssText = 'width: 100%; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: var(--font-tamil); font-size: 0.95rem;';
+        nameInput.oninput = (e) => { currentAavinFarmers[idx].farmer_name = e.target.value; };
+        nameBox.appendChild(nameInput);
+        grid.appendChild(nameBox);
+
+        // 2. Phone Number
+        const phoneBox = document.createElement('div');
+        phoneBox.innerHTML = '<label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Mobile Phone (கைபேசி):</label>';
+        const phoneInput = document.createElement('input');
+        phoneInput.type = 'text';
+        phoneInput.value = farmer.phone || '';
+        phoneInput.placeholder = '10 digits';
+        phoneInput.style.cssText = 'width: 100%; padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.95rem;';
+        phoneInput.oninput = (e) => { currentAavinFarmers[idx].phone = e.target.value; };
+        phoneBox.appendChild(phoneInput);
+        grid.appendChild(phoneBox);
+
+        // 3. Cattle Candidates (1 ID Number = 1 Cow, N IDs = N Cows)
+        const cattleBox = document.createElement('div');
+        cattleBox.style.cssText = 'grid-column: 1 / -1; background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-top: 4px;';
+
+        // Header for Cattle
+        const cattleHeader = document.createElement('div');
+        cattleHeader.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;';
+        const cattleTitle = document.createElement('span');
+        cattleTitle.style.cssText = 'font-size: 0.85rem; font-weight: 700; color: var(--text-main);';
+
+        // Ensure farmer.cattle is initialized
+        if (!farmer.cattle || farmer.cattle.length === 0) {
+          farmer.cattle = (farmer.cattle_ids || []).map((cid, cIdx) => ({
+            cow_index: cIdx + 1,
+            tag_id: cid,
+            raw_tag_id: cid,
+            breed: null,
+            status: 'candidate',
+            review_required: true,
+            confidence: 0.92,
+            warnings: []
+          }));
+        }
+
+        const updateCattleBadge = () => {
+          const cCount = (farmer.cattle || []).length;
+          cattleTitle.innerHTML = `🐄 Registered Cows: <span class="badge badge-primary">${cCount} Cow${cCount === 1 ? '' : 's'}</span> <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">(1 ID = 1 Cow, N IDs = N Cows)</span>`;
+          // Sync farmer.cattle_ids and cow_count
+          farmer.cattle_ids = (farmer.cattle || []).map(c => c.tag_id).filter(Boolean);
+          farmer.cow_count = farmer.cattle_ids.length;
+          // Update global badge
+          let grandTotal = 0;
+          currentAavinFarmers.forEach(f => { grandTotal += (f.cattle_ids || []).length; });
+          el.badgeCattleCount.textContent = `${grandTotal} Cattle Tags`;
+        };
+        updateCattleBadge();
+        cattleHeader.appendChild(cattleTitle);
+
+        const addCowBtn = document.createElement('button');
+        addCowBtn.type = 'button';
+        addCowBtn.className = 'btn btn-outline';
+        addCowBtn.style.cssText = 'padding: 4px 10px; font-size: 0.75rem;';
+        addCowBtn.innerHTML = '+ Add Cow';
+        cattleHeader.appendChild(addCowBtn);
+        cattleBox.appendChild(cattleHeader);
+
+        // Container for individual cows
+        const cowListContainer = document.createElement('div');
+        cowListContainer.style.cssText = 'display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;';
+
+        const renderCowRows = () => {
+          cowListContainer.innerHTML = '';
+          if (!farmer.cattle || farmer.cattle.length === 0) {
+            cowListContainer.innerHTML = '<div style="font-size:0.8rem; color:var(--text-muted); font-style:italic;">No cattle tag IDs associated yet.</div>';
+            return;
+          }
+
+          farmer.cattle.forEach((cow, cIdx) => {
+            cow.cow_index = cIdx + 1;
+            const cowRow = document.createElement('div');
+            cowRow.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; flex-wrap: wrap;';
+
+            // Cow badge
+            const cowIdxBadge = document.createElement('span');
+            cowIdxBadge.className = 'badge badge-info';
+            cowIdxBadge.style.cssText = 'font-weight: 700; font-size: 0.75rem; min-width: 60px; text-align: center;';
+            cowIdxBadge.textContent = `Cow #${cow.cow_index}`;
+            cowRow.appendChild(cowIdxBadge);
+
+            // Tag ID label & input
+            const tagLabel = document.createElement('span');
+            tagLabel.style.cssText = 'font-size: 0.75rem; color: var(--text-muted); font-weight: 600;';
+            tagLabel.textContent = 'Tag (12-Digit):';
+            cowRow.appendChild(tagLabel);
+
+            const tagInput = document.createElement('input');
+            tagInput.type = 'text';
+            tagInput.value = cow.tag_id || '';
+            tagInput.maxLength = 14;
+            tagInput.placeholder = '12-digit Pashu Aadhaar';
+            tagInput.style.cssText = 'font-family: monospace; font-weight: 600; width: 140px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem;';
+            tagInput.oninput = (e) => {
+              cow.tag_id = e.target.value.trim();
+              updateCattleBadge();
+              quickInput.value = (farmer.cattle_ids || []).join(', ');
+            };
+            cowRow.appendChild(tagInput);
+
+            // Breed label & input
+            const breedLabel = document.createElement('span');
+            breedLabel.style.cssText = 'font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-left: 4px;';
+            breedLabel.textContent = 'Breed:';
+            cowRow.appendChild(breedLabel);
+
+            const breedInput = document.createElement('input');
+            breedInput.type = 'text';
+            breedInput.value = cow.breed || '';
+            breedInput.placeholder = 'e.g. HF / சிந்தி';
+            breedInput.style.cssText = 'width: 110px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; font-family: var(--font-tamil);';
+            breedInput.oninput = (e) => {
+              cow.breed = e.target.value.trim();
+            };
+            cowRow.appendChild(breedInput);
+
+            // Remove button
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.style.cssText = 'margin-left: auto; background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.85rem; padding: 2px 6px;';
+            removeBtn.innerHTML = '✕ Remove';
+            removeBtn.onclick = () => {
+              farmer.cattle.splice(cIdx, 1);
+              updateCattleBadge();
+              renderCowRows();
+              quickInput.value = (farmer.cattle_ids || []).join(', ');
+            };
+            cowRow.appendChild(removeBtn);
+
+            cowListContainer.appendChild(cowRow);
+          });
+        };
+
+        renderCowRows();
+        cattleBox.appendChild(cowListContainer);
+
+        addCowBtn.onclick = () => {
+          const nextIdx = (farmer.cattle || []).length + 1;
+          farmer.cattle.push({
+            cow_index: nextIdx,
+            tag_id: '',
+            raw_tag_id: '',
+            breed: null,
+            status: 'candidate',
+            review_required: true,
+            confidence: 0.90,
+            warnings: []
+          });
+          updateCattleBadge();
+          renderCowRows();
+        };
+
+        // Quick edit comma-separated IDs input
+        const quickEditBox = document.createElement('div');
+        quickEditBox.style.cssText = 'border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 6px;';
+        const quickLabel = document.createElement('label');
+        quickLabel.style.cssText = 'font-size: 0.72rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 3px;';
+        quickLabel.textContent = 'Quick Comma-Separated IDs (N IDs by "," automatically maps to N Cows):';
+        quickEditBox.appendChild(quickLabel);
+
+        const quickInput = document.createElement('input');
+        quickInput.type = 'text';
+        quickInput.value = (farmer.cattle_ids || []).join(', ');
+        quickInput.placeholder = 'e.g. 100346652999, 100346652994, 143216789555';
+        quickInput.style.cssText = 'width: 100%; padding: 5px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: monospace; font-size: 0.85rem; background: #fafafa;';
+        quickInput.oninput = (e) => {
+          const split = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+          farmer.cattle_ids = split;
+          // Sync individual cows
+          farmer.cattle = split.map((cid, cIdx) => {
+            const existing = (farmer.cattle || [])[cIdx];
+            return {
+              cow_index: cIdx + 1,
+              tag_id: cid,
+              raw_tag_id: (existing && existing.raw_tag_id) || cid,
+              breed: (existing && existing.breed) || null,
+              status: 'candidate',
+              review_required: true,
+              confidence: 0.92,
+              warnings: []
+            };
+          });
+          updateCattleBadge();
+          renderCowRows();
+        };
+        quickEditBox.appendChild(quickInput);
+        cattleBox.appendChild(quickEditBox);
+
+        grid.appendChild(cattleBox);
+
+        card.appendChild(grid);
+
+        // Milk Records if any
+        if (farmer.milk_records && farmer.milk_records.length > 0) {
+          const milkDiv = document.createElement('div');
+          milkDiv.style.cssText = 'background: #eff6ff; border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.85rem; color: #1e40af;';
+          milkDiv.innerHTML = '<strong>Milk Supply:</strong> ' + farmer.milk_records.map(m => `${m.litres} L (${m.session || 'Session'})`).join(', ');
+          card.appendChild(milkDiv);
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function commitAavinCandidates() {
+      if (!currentAavinFarmers || currentAavinFarmers.length === 0) {
+        showError("No candidates available to commit.");
+        return;
+      }
+      let cattleCount = 0;
+      currentAavinFarmers.forEach(f => { cattleCount += (f.cattle_ids || []).length; });
+      showSuccess(`✓ Review Confirmed: ${currentAavinFarmers.length} farmer record(s) and ${cattleCount} cattle Pashu Aadhaar tag(s) verified and ready for authorized registration.`);
     }
 
     /**

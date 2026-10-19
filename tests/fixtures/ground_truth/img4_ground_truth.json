@@ -1,0 +1,162 @@
+{
+  "image_filename": "img4_large_tamil_handwritten_register.jpg",
+  "document_type": "aavin_tamil_cattle_register",
+  "language": "ta",
+  "total_farmers": 6,
+  "headers": [
+    "வரிசை எண்",
+    "விவசாயியின் பெயர்",
+    "விவசாயியின் ஆதார்",
+    "பசு எண்ணிக்கை",
+    "பசு ஆதார்",
+    "பசுவின் வகைகள்",
+    "முகவரி",
+    "தொலைபேசி எண்"
+  ],
+  "farmers": [
+    {
+      "s_no": "1",
+      "farmer_name": "மு. கந்தன்",
+      "farmer_aadhaar": "743586924216",
+      "cow_count": "1",
+      "cattle_records": [
+        {
+          "pashu_aadhaar": "322687625891",
+          "cow_breed": "கறவை மாடு",
+          "address": "75, மாரியம்மன் கோவில் தெரு, மேலூர்",
+          "phone_no": "9150870971"
+        }
+      ]
+    },
+    {
+      "s_no": "2",
+      "farmer_name": "க. மாரியப்பன்",
+      "farmer_aadhaar": "426857663224",
+      "cow_count": "3",
+      "cattle_records": [
+        {
+          "pashu_aadhaar": "400678541362",
+          "cow_breed": "கறவை மாடு",
+          "address": "115, வடம்போக்கி தெரு, காரியாபட்டி",
+          "phone_no": "9787607530"
+        },
+        {
+          "pashu_aadhaar": "156792861041",
+          "cow_breed": "கறவை மாடு",
+          "address": "115, வடம்போக்கி தெரு, காரியாபட்டி",
+          "phone_no": "9787607530"
+        },
+        {
+          "pashu_aadhaar": "296541050723",
+          "cow_breed": "கறவை மாடு",
+          "address": "115, வடம்போக்கி தெரு, காரியாபட்டி",
+          "phone_no": "9787607530"
+        }
+      ]
+    },
+    {
+      "s_no": "3",
+      "farmer_name": "ம. கருப்பாயி",
+      "farmer_aadhaar": "632140027899",
+      "cow_count": "5",
+      "cattle_records": [
+        {
+          "pashu_aadhaar": "100346652999",
+          "cow_breed": "கிர் பசு",
+          "address": "29, காமராஜர் சாலை, செல்லூர், மதுரை",
+          "phone_no": "8682811882"
+        },
+        {
+          "pashu_aadhaar": "100346652994",
+          "cow_breed": "கிர் பசு",
+          "address": "29, காமராஜர் சாலை, செல்லூர், மதுரை",
+          "phone_no": "8682811882"
+        },
+        {
+          "pashu_aadhaar": "143216789555",
+          "cow_breed": "கிர் பசு",
+          "address": "29, காமராஜர் சாலை, செல்லூர், மதுரை",
+          "phone_no": "8682811882"
+        },
+        {
+          "pashu_aadhaar": "122643227894",
+          "cow_breed": "கிர் பசு",
+          "address": "29, காமராஜர் சாலை, செல்லூர், மதுரை",
+          "phone_no": "8682811882"
+        },
+        {
+          "pashu_aadhaar": "467898443201",
+          "cow_breed": "கிர் பசு",
+          "address": "29, காமராஜர் சாலை, செல்லூர், மதுரை",
+          "phone_no": "8682811882"
+        }
+      ]
+    },
+    {
+      "s_no": "4",
+      "farmer_name": "அ. துர்கா",
+      "farmer_aadhaar": "992456532001",
+      "cow_count": "2",
+      "cattle_records": [
+        {
+          "pashu_aadhaar": "265432798801",
+          "cow_breed": "சிவப்புக் சிந்தி",
+          "address": "84, அண்ணா தெரு, விருதுநகர்",
+          "phone_no": "7894564311"
+        },
+        {
+          "pashu_aadhaar": "265432894325",
+          "cow_breed": "சிவப்புக் சிந்தி",
+          "address": "84, அண்ணா தெரு, விருதுநகர்",
+          "phone_no": "7894564311"
+        }
+      ]
+    },
+    {
+      "s_no": "5",
+      "farmer_name": "ப. பெருமாள்",
+      "farmer_aadhaar": "543265310079",
+      "cow_count": "4",
+      "cattle_records": [
+        {
+          "pashu_aadhaar": "141466543327",
+          "cow_breed": "கறவை மாடு",
+          "address": "16, சீனிவாச நகர், மேலூர்",
+          "phone_no": "63432108050"
+        },
+        {
+          "pashu_aadhaar": "144783546469",
+          "cow_breed": "கறவை மாடு",
+          "address": "16, சீனிவாச நகர், மேலூர்",
+          "phone_no": "63432108050"
+        },
+        {
+          "pashu_aadhaar": "142467894379",
+          "cow_breed": "கறவை மாடு",
+          "address": "16, சீனிவாச நகர், மேலூர்",
+          "phone_no": "63432108050"
+        },
+        {
+          "pashu_aadhaar": "150057895688",
+          "cow_breed": "கறவை மாடு",
+          "address": "16, சீனிவாச நகர், மேலூர்",
+          "phone_no": "63432108050"
+        }
+      ]
+    },
+    {
+      "s_no": "6",
+      "farmer_name": "10. முத்து",
+      "farmer_aadhaar": "889470043264",
+      "cow_count": "1",
+      "cattle_records": [
+        {
+          "pashu_aadhaar": "267846996543",
+          "cow_breed": "கறவை மாடு",
+          "address": "87, கோவில் தெரு, சித்திரப்பட்டி",
+          "phone_no": "9432165431"
+        }
+      ]
+    }
+  ]
+}

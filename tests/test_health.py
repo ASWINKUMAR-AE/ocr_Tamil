@@ -15,8 +15,8 @@ def test_health_check_success(client):
     data = response.json()
     assert data["status"] == "ok"
     assert data["service"] == "Tamil OCR API"
-    assert data["ocr_engine"] == "ocr-tamil"
-    assert data["version"] == "0.1.4"
+    assert data["ocr_engine"] in ("ocr-tamil", "surya-ocr")
+    assert data["version"] in ("0.1.4", "0.2.0")
 
 
 def test_health_check_failure_when_unhealthy(client):

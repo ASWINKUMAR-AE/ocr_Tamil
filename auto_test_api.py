@@ -186,6 +186,59 @@ def run_tests(base_url: str):
             log_fail("POST /api/v1/ocr (Table)", f"Error: {e}")
             failures += 1
 
+    # 8. Backward-Compatible Table Extraction (/api/v1/ocr/table)
+    if os.path.exists(table_img):
+        try:
+            t0 = time.time()
+            with open(table_img, "rb") as f:
+                res = requests.post(
+                    f"{base_url}/api/v1/ocr/table",
+                    files={"file": ("table_test.png", f, "image/png")},
+                    timeout=30,
+                )
+            dur = (time.time() - t0) * 1000
+            if res.status_code == 200:
+                data = res.json()
+                if "table_id" in data and "headers" in data and "rows" in data and "columns" in data:
+                    log_pass("POST /api/v1/ocr/table (Legacy Contract)", f"({dur:.1f}ms) -> Backward compatibility verified (table_id, headers, rows, columns)")
+                else:
+                    log_fail("POST /api/v1/ocr/table", f"Missing legacy keys in response: {list(data.keys())}")
+                    failures += 1
+            else:
+                log_fail("POST /api/v1/ocr/table", f"Status: {res.status_code}, Body: {res.text}")
+                failures += 1
+        except Exception as e:
+            log_fail("POST /api/v1/ocr/table", f"Error: {e}")
+            failures += 1
+
+    # 9. Structured OCR & Aavin Register Intelligence (/api/v1/ocr/structured)
+    if os.path.exists(table_img):
+        try:
+            t0 = time.time()
+            with open(table_img, "rb") as f:
+                res = requests.post(
+                    f"{base_url}/api/v1/ocr/structured",
+                    files={"file": ("table_test.png", f, "image/png")},
+                    data={"document_type": "aavin_register", "language_hint": "ta,en"},
+                    timeout=30,
+                )
+            dur = (time.time() - t0) * 1000
+            if res.status_code == 200:
+                data = res.json()
+                engine_name = data.get("engine", {}).get("name")
+                engine_ver = data.get("engine", {}).get("version")
+                if data.get("success") and engine_name == "surya-ocr" and engine_ver == "0.1.2":
+                    log_pass("POST /api/v1/ocr/structured (Surya 0.1.2 + Aavin)", f"({dur:.1f}ms) -> Engine: {engine_name}=={engine_ver}, Tables: {len(data.get('tables', []))}, Records: {len(data.get('records', []))}")
+                else:
+                    log_fail("POST /api/v1/ocr/structured", f"Unexpected response schema: {data}")
+                    failures += 1
+            else:
+                log_fail("POST /api/v1/ocr/structured", f"Status: {res.status_code}, Body: {res.text}")
+                failures += 1
+        except Exception as e:
+            log_fail("POST /api/v1/ocr/structured", f"Error: {e}")
+            failures += 1
+
     total_dur = (time.time() - start_total)
     print("=" * 60)
     if failures == 0:

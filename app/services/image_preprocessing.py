@@ -117,18 +117,23 @@ class ImagePreprocessor:
     @staticmethod
     def enhance_contrast(img: np.ndarray) -> np.ndarray:
         """
-        Apply gentle CLAHE (Contrast Limited Adaptive Histogram Equalization)
-        to improve text clarity without degrading fine Tamil pulli (dots) and curves.
+        Apply gentle, dimension-adaptive CLAHE to improve text contrast
+        without over-amplifying noise or degrading fine Tamil pulli (dots) and curves.
         """
+        h, w = img.shape[:2]
+        grid_x = max(2, min(8, w // 100))
+        grid_y = max(2, min(8, h // 100))
+        clip_limit = 1.2 if min(h, w) < 150 else 1.8
+
         if len(img.shape) == 3:
             lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
             l, a, b = cv2.split(lab)
-            clahe = cv2.createCLAHE(clipLimit=1.8, tileGridSize=(8, 8))
+            clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(grid_x, grid_y))
             cl = clahe.apply(l)
             merged = cv2.merge((cl, a, b))
             return cv2.cvtColor(merged, cv2.COLOR_LAB2BGR)
         else:
-            clahe = cv2.createCLAHE(clipLimit=1.8, tileGridSize=(8, 8))
+            clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(grid_x, grid_y))
             return clahe.apply(img)
 
     @staticmethod

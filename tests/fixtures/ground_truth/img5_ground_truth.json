@@ -1,0 +1,118 @@
+{
+  "image_filename": "img5_printed_tamil_register.jpg",
+  "document_type": "printed_tamil_register",
+  "language": "ta",
+  "total_records": 10,
+  "headers": [
+    "வ.எண்",
+    "மாணவர் பெயர்",
+    "சேர்க்கை எண்",
+    "பிறந்த தேதி",
+    "பாலினம்",
+    "பெற்றோர் பெயர்",
+    "கைபேசி எண்",
+    "முகவரி"
+  ],
+  "records": [
+    {
+      "s_no": "1",
+      "student_name": "க. செல்வன்",
+      "admission_no": "15A01",
+      "dob": "12/05/2009",
+      "gender": "ஆண்",
+      "parent_name": "கண்ணன்",
+      "phone_no": "9843123456",
+      "address": "4 அண்ணா தெரு, சென்னை"
+    },
+    {
+      "s_no": "2",
+      "student_name": "ம. மாலதி",
+      "admission_no": "15A02",
+      "dob": "03/08/2009",
+      "gender": "பெண்",
+      "parent_name": "முருகன்",
+      "phone_no": "9500678901",
+      "address": "12 காந்தி சாலை, மதுரை"
+    },
+    {
+      "s_no": "3",
+      "student_name": "செ. இனியன்",
+      "admission_no": "15A03",
+      "dob": "21/11/2009",
+      "gender": "ஆண்",
+      "parent_name": "சேகர்",
+      "phone_no": "8870345678",
+      "address": "8 நேரு நகர், திருச்சி"
+    },
+    {
+      "s_no": "4",
+      "student_name": "பா. கவிதா",
+      "admission_no": "15A04",
+      "dob": "09/01/2010",
+      "gender": "பெண்",
+      "parent_name": "பாலு",
+      "phone_no": "9791123456",
+      "address": "15 திருவள்ளுவர் வீதி, சேலம்"
+    },
+    {
+      "s_no": "5",
+      "student_name": "ரா. அரவிந்த்",
+      "admission_no": "15A05",
+      "dob": "15/04/2010",
+      "gender": "ஆண்",
+      "parent_name": "ராஜு",
+      "phone_no": "9443789012",
+      "address": "10 பாரதியார் சாலை, கோவை"
+    },
+    {
+      "s_no": "6",
+      "student_name": "லெ. சுதா",
+      "admission_no": "15A06",
+      "dob": "27/06/2010",
+      "gender": "பெண்",
+      "parent_name": "லெனின்",
+      "phone_no": "9159456789",
+      "address": "7 மேட்டுத் தெரு, ஈரோடு"
+    },
+    {
+      "s_no": "7",
+      "student_name": "வி. தினேஷ்",
+      "admission_no": "15A07",
+      "dob": "11/09/2010",
+      "gender": "ஆண்",
+      "parent_name": "விஜய்",
+      "phone_no": "8220678123",
+      "address": "21 காமராஜர் நகர், வேலூர்"
+    },
+    {
+      "s_no": "8",
+      "student_name": "மு. ப்ரியா",
+      "admission_no": "15A08",
+      "dob": "19/12/2010",
+      "gender": "பெண்",
+      "parent_name": "முரளி",
+      "phone_no": "9626234567",
+      "address": "5 புதிய காலனி, தஞ்சை"
+    },
+    {
+      "s_no": "9",
+      "student_name": "சு. சதீஷ்",
+      "admission_no": "15A09",
+      "dob": "05/03/2011",
+      "gender": "ஆண்",
+      "parent_name": "சுரேஷ்",
+      "phone_no": "9360567890",
+      "address": "14 அக்ரஹாரம், கடலூர்"
+    },
+    {
+      "s_no": "10",
+      "student_name": "தே. யாழினி",
+      "admission_no": "15A10",
+      "dob": "22/07/2011",
+      "gender": "பெண்",
+      "parent_name": "தேவா",
+      "phone_no": "9092789123",
+      "address": "9 கிழக்கு வீதி, திண்டுக்கல்"
+    }
+  ]
+}

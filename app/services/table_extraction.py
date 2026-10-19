@@ -25,6 +25,8 @@ import numpy as np
 from app.schemas.ocr import ColumnHeaderDetail, TableColumn, TableResult
 from app.services.ocr_service import ocr_service
 from app.services.pattern_classifier import pattern_classifier, ClassificationResult
+from app.services.surya_engine import surya_engine
+from app.services.aavin_mapping import aavin_mapper, extract_cattle_ids_from_text
 
 logger = logging.getLogger("tamil_ocr.tables")
 
@@ -637,8 +639,12 @@ class TableExtractor:
 
         for c_idx in range(num_cols):
             h_info = headers[c_idx]
-            raw_h = h_info.get("original", "").strip()
-            disp_h = h_info.get("display", "").strip()
+            if isinstance(h_info, dict):
+                raw_h = h_info.get("original", "").strip()
+                disp_h = h_info.get("display", "").strip()
+            else:
+                raw_h = str(h_info).strip()
+                disp_h = str(h_info).strip()
 
             col_vals = [r[c_idx].strip() for r in body_rows if c_idx < len(r) and r[c_idx].strip()]
 
@@ -733,6 +739,503 @@ class TableExtractor:
         return valid_rows
 
     # -------------------------------------------------------------------------
+    # Surya 0.1.2 Layout & Affinity Strategy
+    # -------------------------------------------------------------------------
+    def _extract_surya_table(
+        self,
+        image_bgr: np.ndarray,
+        words: Optional[List[Dict[str, Any]]] = None,
+        schema_hint: Optional[Dict[str, str]] = None
+    ) -> Optional[TableResult]:
+        """
+        Extract tabular structure using Surya 0.1.2 Segformer layout & affinity cues:
+        1. Calls surya_engine.detect_layout(image_bgr) to obtain line bboxes, vertical affinity lines,
+           and horizontal affinity lines.
+        2. Discovers row bands and column boundaries from Surya geometry.
+        3. Assigns OCR words and cropped cells geometrically.
+        4. Identifies header row (Tamil/English vocabulary).
+        5. Performs semantic column classification & Aavin candidate extraction.
+        """
+        if not surya_engine.is_healthy():
+            surya_engine.initialize()
+            if not surya_engine.is_healthy():
+                return None
+
+        try:
+            layout = surya_engine.detect_layout(image_bgr)
+        except Exception as e:
+            logger.warning(f"Surya layout detection failed in table extractor: {e}")
+            return None
+
+        surya_bboxes = layout.get("bboxes", [])
+        if len(surya_bboxes) < 3:
+            return None
+
+        img_h, img_w = image_bgr.shape[:2]
+
+        # 1. Discover horizontal row bands from Surya bboxes
+        sorted_bboxes = sorted(surya_bboxes, key=lambda b: (b[1] + b[3]) / 2.0)
+        
+        row_bands: List[List[List[int]]] = []
+        for box in sorted_bboxes:
+            cy = (box[1] + box[3]) / 2.0
+            h = max(10, box[3] - box[1])
+            placed = False
+            for band in row_bands:
+                band_cys = [(b[1] + b[3]) / 2.0 for b in band]
+                mean_cy = float(np.mean(band_cys))
+                if abs(cy - mean_cy) <= max(h * 0.70, 16.0):
+                    band.append(box)
+                    placed = True
+                    break
+            if not placed:
+                row_bands.append([box])
+
+        if len(row_bands) < 2:
+            return None
+
+        for band in row_bands:
+            band.sort(key=lambda b: b[0])
+
+        # 2. Discover column boundaries
+        all_boxes = [b for band in row_bands for b in band]
+        xs = [b[0] for b in all_boxes] + [b[2] for b in all_boxes]
+        if words:
+            xs.extend([w["bbox"][0] for w in words])
+            xs.extend([w["bbox"][0] + w["bbox"][2] for w in words])
+        
+        min_x = max(0, min(xs) - 15) if xs else 0
+        max_x = min(img_w, max(xs) + 15) if xs else img_w
+
+        vlines = layout.get("vertical_lines", [])
+        x_cuts: List[float] = []
+
+        if len(vlines) >= 3:
+            raw_vx = sorted(list(set([vl[0] for vl in vlines if 10 <= vl[0] <= img_w - 10])))
+            clustered_vx: List[float] = []
+            for vx in raw_vx:
+                if not clustered_vx or (vx - clustered_vx[-1]) > 35:
+                    clustered_vx.append(float(vx))
+            if len(clustered_vx) >= 2:
+                if clustered_vx[0] - min_x > 35:
+                    clustered_vx = [float(min_x)] + clustered_vx
+                if max_x - clustered_vx[-1] > 35:
+                    clustered_vx = clustered_vx + [float(max_x)]
+                if len(clustered_vx) >= 3:
+                    x_cuts = clustered_vx
+
+        if len(x_cuts) < 2:
+            multi_elem_bands = [band for band in row_bands if len(band) >= 2]
+            if multi_elem_bands:
+                candidate_splits: List[float] = []
+                for band in multi_elem_bands:
+                    for i in range(len(band) - 1):
+                        gap_start = band[i][2]
+                        gap_end = band[i + 1][0]
+                        if gap_end > gap_start:
+                            candidate_splits.append((gap_start + gap_end) / 2.0)
+                
+                if candidate_splits:
+                    candidate_splits.sort()
+                    clustered_splits: List[float] = []
+                    for s in candidate_splits:
+                        if not clustered_splits or (s - clustered_splits[-1]) > 35:
+                            clustered_splits.append(s)
+                    x_cuts = [min_x] + clustered_splits + [max_x]
+
+        if len(x_cuts) < 2:
+            return None
+
+        # Refine column cuts if internal word gaps indicate multiple columns in one interval
+        if words and len(x_cuts) >= 2:
+            refined_cuts = list(x_cuts)
+            for i in range(len(x_cuts) - 1):
+                cl, cr = x_cuts[i], x_cuts[i + 1]
+                if cr - cl < 110:
+                    continue
+                col_words = [w for w in words if cl + 5 <= w.get("center_x", w["bbox"][0] + w["bbox"][2]/2.0) <= cr - 5]
+                if len(col_words) < 4:
+                    continue
+                sorted_by_x = sorted(col_words, key=lambda w: w["bbox"][0])
+                best_split = None
+                max_gap = 0
+                for j in range(len(sorted_by_x) - 1):
+                    w1_right = sorted_by_x[j]["bbox"][0] + sorted_by_x[j]["bbox"][2]
+                    w2_left = sorted_by_x[j + 1]["bbox"][0]
+                    gap = w2_left - w1_right
+                    if gap >= 24 and (w1_right - cl) >= 22 and (cr - w2_left) >= 25:
+                        left_cnt = sum(1 for w in col_words if w["bbox"][0] + w["bbox"][2] <= w2_left)
+                        right_cnt = sum(1 for w in col_words if w["bbox"][0] >= w1_right)
+                        if left_cnt >= 2 and right_cnt >= 2 and gap > max_gap:
+                            max_gap = gap
+                            best_split = (w1_right + w2_left) / 2.0
+                if best_split is not None:
+                    refined_cuts.append(best_split)
+            x_cuts = sorted(list(set(refined_cuts)))
+
+        col_bounds: List[Tuple[float, float]] = []
+        for i in range(len(x_cuts) - 1):
+            if (x_cuts[i + 1] - x_cuts[i]) >= 25:
+                col_bounds.append((x_cuts[i], x_cuts[i + 1]))
+
+        if len(col_bounds) < 2:
+            return None
+
+        num_cols = len(col_bounds)
+
+        # 3. Populate cells for each row band
+        all_rows: List[List[str]] = []
+        words_source = words or []
+
+        for band in row_bands:
+            row_y_top = min(b[1] for b in band)
+            row_y_bot = max(b[3] for b in band)
+            row_cells: List[str] = ["" for _ in range(num_cols)]
+
+            for c_idx, (cl, cr) in enumerate(col_bounds):
+                cell_words = []
+                for w in words_source:
+                    cx = w.get("center_x", w["bbox"][0] + w["bbox"][2] / 2.0)
+                    cy = w.get("center_y", w["bbox"][1] + w["bbox"][3] / 2.0)
+                    if (cl - 5 <= cx <= cr + 5) and (row_y_top - 8 <= cy <= row_y_bot + 8):
+                        cell_words.append(w)
+
+                if cell_words:
+                    cell_words.sort(key=lambda item: item.get("center_x", 0))
+                    row_cells[c_idx] = " ".join(cw.get("text", "") for cw in cell_words if cw.get("text")).strip()
+                else:
+                    matching_bboxes = [
+                        b for b in band
+                        if (cl - 10 <= (b[0] + b[2]) / 2.0 <= cr + 10)
+                    ]
+                    if matching_bboxes:
+                        cx1 = max(0, int(min(b[0] for b in matching_bboxes)))
+                        cx2 = min(img_w, int(max(b[2] for b in matching_bboxes)))
+                        cy1 = max(0, int(min(b[1] for b in matching_bboxes)))
+                        cy2 = min(img_h, int(max(b[3] for b in matching_bboxes)))
+                        if cx2 - cx1 >= 8 and cy2 - cy1 >= 8:
+                            crop = image_bgr[cy1:cy2, cx1:cx2]
+                            txt = ocr_service.recognize_crop(crop)
+                            row_cells[c_idx] = txt.strip()
+
+            if any(cell for cell in row_cells):
+                all_rows.append(row_cells)
+
+        if len(all_rows) < 2:
+            return None
+
+        # 4. Detect and Consolidate Header Rows
+        header_rows_count = 0
+        for test_idx in range(min(3, len(all_rows))):
+            row_text = " ".join(all_rows[test_idx]).lower()
+            keyword_matches = sum(1 for kw in TABLE_HEADER_KEYWORDS if kw in row_text)
+            has_data_values = any(
+                re.search(r"^\d{10,12}$", c.replace(" ", "")) for c in all_rows[test_idx] if c.strip()
+            )
+            has_sub_kw = any(term in row_text for term in ["digit", "12", "வகை", "லிட்டர்", "ரூபாய்"])
+            if (keyword_matches >= 1 or has_sub_kw) and not has_data_values:
+                header_rows_count = test_idx + 1
+            else:
+                break
+
+        if header_rows_count > 0:
+            raw_headers = ["" for _ in range(num_cols)]
+            for h_row in all_rows[:header_rows_count]:
+                for c_idx in range(num_cols):
+                    val = h_row[c_idx].strip()
+                    if val:
+                        if raw_headers[c_idx]:
+                            raw_headers[c_idx] = f"{raw_headers[c_idx]} {val}".strip()
+                        else:
+                            raw_headers[c_idx] = val
+            # Deduplicate repetitive words in consolidated headers
+            for c_idx in range(num_cols):
+                tokens = raw_headers[c_idx].split()
+                seen = set()
+                dedup = []
+                for t in tokens:
+                    clean_t = t.lower().strip("().,")
+                    if clean_t not in seen or len(clean_t) <= 1:
+                        seen.add(clean_t)
+                        dedup.append(t)
+                raw_headers[c_idx] = " ".join(dedup)
+            body_rows = all_rows[header_rows_count:]
+            is_explicit = True
+        else:
+            raw_headers = [f"Column {i + 1}" for i in range(num_cols)]
+            body_rows = all_rows
+            is_explicit = False
+
+        # Align leading serial numbers from name column if col 0 is empty
+        for r_idx, r in enumerate(body_rows):
+            expected_sno = str(r_idx + 1)
+            if len(r) >= 2:
+                c0 = r[0].strip()
+                if not c0 or (c0 != expected_sno and expected_sno in c0):
+                    r[0] = expected_sno
+                elif not c0 and r[1].strip():
+                    m = re.match(r"^(\d{1,2})[\.\s]+(.+)$", r[1].strip())
+                    if m:
+                        r[0] = m.group(1)
+                        r[1] = m.group(2).strip()
+
+        if not body_rows:
+            return None
+
+        total_cells = len(body_rows) * num_cols
+        filled_cells = sum(1 for r in body_rows for c in r if c.strip())
+        if total_cells == 0 or (filled_cells / float(total_cells)) < 0.15:
+            return None
+
+        # 5. Clean headers and infer semantics
+        cleaned_headers = [clean_tamil_header_ocr(h) if h.strip() else f"Column {i + 1}" for i, h in enumerate(raw_headers)]
+        
+        doc_context = " ".join(" ".join(r) for r in body_rows[:3])
+        display_headers, header_details = self.infer_column_semantics(
+            cleaned_headers,
+            body_rows,
+            is_explicit_header=is_explicit,
+            document_context=doc_context,
+            dominant_language="ta"
+        )
+
+        for idx in range(num_cols):
+            aavin_match = aavin_mapper.match_header_semantic(cleaned_headers[idx])
+            if aavin_match:
+                header_details[idx].semantic_type = aavin_match
+                if not header_details[idx].display or "Column" in header_details[idx].display:
+                    header_details[idx].display = cleaned_headers[idx]
+
+        columns: List[TableColumn] = []
+        for idx in range(num_cols):
+            h_text = display_headers[idx]
+            detail = header_details[idx]
+            key = self._slugify_key(h_text, idx)
+            columns.append(TableColumn(
+                key=key,
+                label=h_text,
+                original_header=detail.original or cleaned_headers[idx],
+                display_header=detail.display or h_text,
+                semantic_type=detail.semantic_type,
+                confidence=detail.confidence,
+                inference_method="surya_layout",
+                classification_warnings=detail.classification_warnings
+            ))
+
+        data: List[Dict[str, str]] = []
+        for r in body_rows:
+            data.append({col.key: str(r[idx]) if idx < len(r) else "" for idx, col in enumerate(columns)})
+
+        html_table = generate_html_table(
+            headers=display_headers,
+            rows=body_rows,
+            table_index=0,
+            strategy="surya_layout",
+            is_uncertain=False,
+            headers_detail=header_details
+        )
+
+        return TableResult(
+            table_index=0,
+            table_id=1,
+            headers=display_headers,
+            headers_detail=header_details,
+            rows=body_rows,
+            row_count=len(body_rows),
+            column_count=num_cols,
+            columns=columns,
+            data=data,
+            confidence=0.94,
+            detection_strategy="surya_layout",
+            is_uncertain=False,
+            warnings=[],
+            html=html_table,
+            detected_languages=["ta"]
+        )
+
+    # -------------------------------------------------------------------------
+    # Multi-ID Column Expansion: 1 ID = 1 Column, N IDs = N Columns
+    # -------------------------------------------------------------------------
+    def expand_multi_cattle_columns(self, table: TableResult) -> TableResult:
+        """
+        Expand cells containing N Aadhaar / Pashu Aadhaar IDs (separated by comma, newline, etc.)
+        into N distinct columns (e.g. 'Pashu Aadhar 1', 'Pashu Aadhar 2', ...).
+        Ensures that N Aadhaar IDs are NOT packed into a single cell, but set into individual columns.
+        If all cells in a column have at most 1 ID, the column structure remains completely unchanged.
+        """
+        if not table or not table.rows:
+            return table
+
+        num_cols = len(table.headers) if table.headers else (len(table.rows[0]) if table.rows else 0)
+        if num_cols == 0:
+            return table
+
+        headers = list(table.headers) if table.headers else [f"Column {i+1}" for i in range(num_cols)]
+        headers_detail = list(table.headers_detail) if table.headers_detail else []
+        columns = list(table.columns) if table.columns else []
+        rows = [list(r) for r in table.rows]
+
+        # 1. Analyze each column for multiple 12-digit Aadhaar / cattle IDs
+        col_expansions: Dict[int, int] = {}
+        for c_idx in range(num_cols):
+            max_ids = 0
+            for r in rows:
+                if c_idx < len(r) and r[c_idx]:
+                    ids = extract_cattle_ids_from_text(r[c_idx])
+                    if len(ids) > max_ids:
+                        max_ids = len(ids)
+            if max_ids > 1:
+                col_expansions[c_idx] = max_ids
+
+        # 2. Check if breed column also has comma-separated values matching multiple cows
+        for c_idx in range(num_cols):
+            orig_h = headers[c_idx] if c_idx < len(headers) else ""
+            if aavin_mapper.match_header_semantic(orig_h) == "breed":
+                max_b = 0
+                for r in rows:
+                    if c_idx < len(r) and r[c_idx]:
+                        b_tokens = [b.strip() for b in re.split(r"[,;\n\r]+", r[c_idx]) if b.strip()]
+                        if len(b_tokens) > max_b:
+                            max_b = len(b_tokens)
+                if max_b > 1:
+                    col_expansions[c_idx] = max_b
+
+        # If no column contains multiple IDs, return original table untouched
+        if not col_expansions:
+            return table
+
+        logger.info(f"Expanding multi-Aadhaar / multi-cattle columns in Table {table.table_index}: {col_expansions}")
+
+        # Build new expanded headers, details, and columns
+        new_headers: List[str] = []
+        new_headers_detail: List[ColumnHeaderDetail] = []
+        new_columns: List[TableColumn] = []
+
+        for c_idx in range(num_cols):
+            orig_h = headers[c_idx] if c_idx < len(headers) else f"Column {c_idx + 1}"
+            orig_detail = headers_detail[c_idx] if c_idx < len(headers_detail) else None
+            orig_col = columns[c_idx] if c_idx < len(columns) else None
+
+            if c_idx in col_expansions:
+                expansion_count = col_expansions[c_idx]
+                is_breed = (aavin_mapper.match_header_semantic(orig_h) == "breed")
+                base = re.sub(r"\s*\((?:12\s*digit|12-digit|\d+\s*digit)\)", "", orig_h, flags=re.IGNORECASE).strip()
+                if not base:
+                    base = "Breed" if is_breed else "Aadhaar ID"
+
+                for k in range(1, expansion_count + 1):
+                    exp_h = f"{base} {k}"
+                    new_headers.append(exp_h)
+
+                    sem_type = "breed" if is_breed else "cattle_aadhaar_id"
+                    new_detail = ColumnHeaderDetail(
+                        original=f"{orig_detail.original if orig_detail and orig_detail.original else orig_h} {k}",
+                        display=exp_h,
+                        original_header=f"{orig_detail.original_header if orig_detail and orig_detail.original_header else orig_h} {k}",
+                        display_header=exp_h,
+                        semantic_type=sem_type,
+                        confidence=orig_detail.confidence if orig_detail else 0.95,
+                        inference_method="multi_id_cell_expansion",
+                        classification_warnings=[]
+                    )
+                    new_headers_detail.append(new_detail)
+
+                    key_base = orig_col.key if orig_col else self._slugify_key(base, c_idx)
+                    exp_key = f"{key_base}_{k}"
+                    new_columns.append(TableColumn(
+                        key=exp_key,
+                        label=exp_h,
+                        original_header=new_detail.original,
+                        display_header=exp_h,
+                        semantic_type=sem_type,
+                        confidence=new_detail.confidence,
+                        inference_method="multi_id_cell_expansion",
+                        classification_warnings=[]
+                    ))
+            else:
+                new_headers.append(orig_h)
+                if orig_detail:
+                    new_headers_detail.append(orig_detail)
+                else:
+                    new_headers_detail.append(ColumnHeaderDetail(
+                        original=orig_h,
+                        display=orig_h,
+                        semantic_type="unknown"
+                    ))
+                if orig_col:
+                    new_columns.append(orig_col)
+                else:
+                    new_columns.append(TableColumn(
+                        key=self._slugify_key(orig_h, c_idx),
+                        label=orig_h
+                    ))
+
+        # Build expanded rows
+        new_rows: List[List[str]] = []
+        for r in rows:
+            new_r: List[str] = []
+            for c_idx in range(num_cols):
+                val = r[c_idx] if c_idx < len(r) else ""
+                if c_idx in col_expansions:
+                    expansion_count = col_expansions[c_idx]
+                    is_breed = (aavin_mapper.match_header_semantic(headers[c_idx]) == "breed")
+                    if not is_breed:
+                        ids = extract_cattle_ids_from_text(val)
+                        if ids:
+                            for k in range(expansion_count):
+                                new_r.append(ids[k] if k < len(ids) else "")
+                        else:
+                            new_r.append(val)
+                            for _ in range(expansion_count - 1):
+                                new_r.append("")
+                    else:
+                        tokens = [b.strip() for b in re.split(r"[,;\n\r]+", val) if b.strip()]
+                        if tokens:
+                            for k in range(expansion_count):
+                                new_r.append(tokens[k] if k < len(tokens) else "")
+                        else:
+                            new_r.append(val)
+                            for _ in range(expansion_count - 1):
+                                new_r.append("")
+                else:
+                    new_r.append(val)
+            new_rows.append(new_r)
+
+        # Build new key-value data list
+        new_data: List[Dict[str, str]] = []
+        for r in new_rows:
+            new_data.append({col.key: str(r[idx]) if idx < len(r) else "" for idx, col in enumerate(new_columns)})
+
+        # Re-render HTML table
+        new_html = generate_html_table(
+            headers=new_headers,
+            rows=new_rows,
+            table_index=table.table_index,
+            strategy=table.detection_strategy or "surya_layout",
+            is_uncertain=table.is_uncertain,
+            headers_detail=new_headers_detail
+        )
+
+        return TableResult(
+            table_index=table.table_index,
+            table_id=table.table_id,
+            headers=new_headers,
+            headers_detail=new_headers_detail,
+            rows=new_rows,
+            row_count=len(new_rows),
+            column_count=len(new_headers),
+            columns=new_columns,
+            data=new_data,
+            confidence=table.confidence,
+            detection_strategy=table.detection_strategy,
+            is_uncertain=table.is_uncertain,
+            warnings=table.warnings,
+            html=new_html,
+            detected_languages=table.detected_languages,
+            unassigned_text=table.unassigned_text
+        )
+
+    # -------------------------------------------------------------------------
     # Main Pipeline Entry Point
     # -------------------------------------------------------------------------
     def extract_tables(
@@ -740,13 +1243,15 @@ class TableExtractor:
         image_bgr: np.ndarray,
         words: Optional[List[Dict[str, Any]]] = None,
         extracted_text: Optional[str] = None,
-        extract_text: bool = True
+        extract_text: bool = True,
+        schema_hint: Optional[Dict[str, str]] = None
     ) -> Tuple[List[TableResult], List[str]]:
         """
         Main multi-strategy table extraction entry point:
-          1. Strategy A: Dynamic Layout & Schema Discovery (robust for registers, ledgers, borderless tables)
-          2. Strategy B: Morphology Grid Detection (for bordered tables with ruled lines)
-          3. Strategy C: Text Alignment & Pattern Fallback (for text-only patterns)
+          1. Strategy S: Surya 0.1.2 Layout & Affinity Table Extraction
+          2. Strategy A: Dynamic Layout & Schema Discovery (robust for registers, ledgers, borderless tables)
+          3. Strategy B: Morphology Grid Detection (for bordered tables with ruled lines)
+          4. Strategy C: Text Alignment & Pattern Fallback (for text-only patterns)
         """
         warnings: List[str] = []
         tables: List[TableResult] = []
@@ -763,6 +1268,17 @@ class TableExtractor:
                 logger.warning(f"Could not perform pre-table OCR inference: {e}")
 
         # ---------------------------------------------------------------------
+        # Strategy S: Surya 0.1.2 Layout & Affinity Table Extraction
+        # ---------------------------------------------------------------------
+        try:
+            table_s = self._extract_surya_table(image_bgr, words=words, schema_hint=schema_hint)
+            if table_s:
+                tables.append(table_s)
+                return [self.expand_multi_cattle_columns(t) for t in tables], warnings
+        except Exception as e:
+            logger.debug(f"Strategy S (Surya Layout) encountered error: {e}")
+
+        # ---------------------------------------------------------------------
         # Strategy A: Dynamic Layout & Schema Discovery
         # ---------------------------------------------------------------------
         if words and len(words) >= 3:
@@ -770,7 +1286,7 @@ class TableExtractor:
                 table_a = self._extract_dynamic_table(words, image_bgr.shape)
                 if table_a:
                     tables.append(table_a)
-                    return tables, warnings
+                    return [self.expand_multi_cattle_columns(t) for t in tables], warnings
             except Exception as e:
                 logger.debug(f"Strategy A (Dynamic Schema) encountered error: {e}")
 
@@ -784,7 +1300,7 @@ class TableExtractor:
             if bordered_tables:
                 tables.extend(bordered_tables)
                 warnings.extend(border_warnings)
-                return tables, warnings
+                return [self.expand_multi_cattle_columns(t) for t in tables], warnings
         except Exception as e:
             logger.debug(f"Strategy B (Morphology grid) encountered error: {e}")
 
@@ -797,14 +1313,14 @@ class TableExtractor:
                 if table_c:
                     tables.append(table_c)
                     warnings.append("Table structure reconstructed from text alignment. Please review columns.")
-                    return tables, warnings
+                    return [self.expand_multi_cattle_columns(t) for t in tables], warnings
             except Exception as e:
                 logger.debug(f"Strategy C (Text alignment) encountered error: {e}")
 
         if not tables and not warnings:
             warnings.append("No tabular structures detected in the image.")
 
-        return tables, warnings
+        return [self.expand_multi_cattle_columns(t) for t in tables], warnings
 
     # =========================================================================
     # Strategy A: Full Dynamic Schema Extraction Implementation

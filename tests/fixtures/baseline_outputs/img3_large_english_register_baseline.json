@@ -1,0 +1,789 @@
+{
+  "success": true,
+  "request_id": "14c3ac71-e09a-4dc4-baa3-8c6b96982021",
+  "api_version": "v1",
+  "engine": {
+    "name": "surya-ocr",
+    "version": "0.1.2"
+  },
+  "filename": "img3_large_english_register.jpg",
+  "content_type": "image/jpeg",
+  "language_hint": "ta,en",
+  "document_type": "aavin_register",
+  "tables": [
+    {
+      "table_index": 0,
+      "table_id": 1,
+      "headers": [
+        "S.No",
+        "Farmer Name",
+        "Farmer",
+        "Share",
+        "Share இகல்லை No.",
+        "Relationship",
+        "Address",
+        "Phone No."
+      ],
+      "headers_detail": [
+        {
+          "original": "S.No",
+          "display": "S.No",
+          "original_header": "S.No",
+          "display_header": "S.No",
+          "semantic_type": "serial_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Farmer Name",
+          "display": "Farmer Name",
+          "original_header": "Farmer Name",
+          "display_header": "Farmer Name",
+          "semantic_type": "person_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Farmer Name' contains data matching 'cattle_id' (83% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "original": "Farmer",
+          "display": "Farmer",
+          "original_header": "Farmer",
+          "display_header": "Farmer",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Farmer' contains data matching 'serial_number' (61% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "original": "Share",
+          "display": "Share",
+          "original_header": "Share",
+          "display_header": "Share",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Share இகல்லை No.",
+          "display": "Share இகல்லை No.",
+          "original_header": "Share இகல்லை No.",
+          "display_header": "Share இகல்லை No.",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Relationship",
+          "display": "Relationship",
+          "original_header": "Relationship",
+          "display_header": "Relationship",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Address",
+          "display": "Address",
+          "original_header": "Address",
+          "display_header": "Address",
+          "semantic_type": "address",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "Phone No.",
+          "display": "Phone No.",
+          "original_header": "Phone No.",
+          "display_header": "Phone No.",
+          "semantic_type": "phone_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Phone No.' contains data matching 'cattle_id' (75% consistency); preserved explicit header."
+          ]
+        }
+      ],
+      "rows": [
+        [
+          "",
+          "",
+          "Aadhaar No.",
+          "No.",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "M.",
+          "Kandan 7435",
+          "8692 4216",
+          "3226",
+          "8762 5891",
+          "Husband 75,",
+          "Nariyappan Colony",
+          "95087 70971"
+        ],
+        [
+          "",
+          "",
+          "",
+          "4005",
+          "7851 1362 Wife",
+          "115,",
+          "Vappankulam 97816",
+          "07730"
+        ],
+        [
+          "",
+          "",
+          "",
+          "6739",
+          "2861 0414 Son",
+          "Vappankulam",
+          "",
+          ""
+        ],
+        [
+          "2 N. Mariyappan",
+          "4268 7766",
+          "3224",
+          "2965 4050",
+          "2393 Wife",
+          "Vappankulam",
+          "",
+          ""
+        ],
+        [
+          "3. P. Kanmani",
+          "6321 1022",
+          "2899",
+          "1003 4655",
+          "2999 Son",
+          "27, Sivamur",
+          "thy Nagar, 88228",
+          "11882"
+        ],
+        [
+          "A. Thangam",
+          "9924 5353",
+          "2004",
+          "1432 6289",
+          "5555 Wife",
+          "84, Vannaar",
+          "Colony, 78945",
+          "64341"
+        ],
+        [
+          "5. P. Balamani",
+          "5723 2637 0079",
+          "1226",
+          "4322 7824",
+          "Wife",
+          "84, Vannaar",
+          "Colony,",
+          ""
+        ],
+        [
+          "",
+          "",
+          "2654",
+          "3279 8801",
+          "Son",
+          "Karaipudur",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "2574",
+          "3289 4325",
+          "Daughter",
+          "Karaipudur",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "1414",
+          "6654 3327",
+          "Daughter",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "1414",
+          "2835 4649",
+          "Daughter",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "1424 6289",
+          "4329",
+          "Daughter",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "1500 5289",
+          "5682",
+          "Daughter",
+          "",
+          "",
+          ""
+        ],
+        [
+          "6. G. Raja 8894",
+          "2004 3214",
+          "2628 8796",
+          "5431",
+          "Son 87,",
+          "Gananayan Colony,",
+          "84321 65431",
+          ""
+        ]
+      ],
+      "row_count": 15,
+      "column_count": 8,
+      "columns": [
+        {
+          "key": "sno",
+          "label": "S.No",
+          "original_header": "S.No",
+          "display_header": "S.No",
+          "semantic_type": "serial_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "farmer_name",
+          "label": "Farmer Name",
+          "original_header": "Farmer Name",
+          "display_header": "Farmer Name",
+          "semantic_type": "person_name",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Farmer Name' contains data matching 'cattle_id' (83% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "key": "farmer",
+          "label": "Farmer",
+          "original_header": "Farmer",
+          "display_header": "Farmer",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Farmer' contains data matching 'serial_number' (61% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "key": "share",
+          "label": "Share",
+          "original_header": "Share",
+          "display_header": "Share",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "share_இகலல_no",
+          "label": "Share இகல்லை No.",
+          "original_header": "Share இகல்லை No.",
+          "display_header": "Share இகல்லை No.",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "relationship",
+          "label": "Relationship",
+          "original_header": "Relationship",
+          "display_header": "Relationship",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "address",
+          "label": "Address",
+          "original_header": "Address",
+          "display_header": "Address",
+          "semantic_type": "address",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "phone_no",
+          "label": "Phone No.",
+          "original_header": "Phone No.",
+          "display_header": "Phone No.",
+          "semantic_type": "phone_number",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column 'Phone No.' contains data matching 'cattle_id' (75% consistency); preserved explicit header."
+          ]
+        }
+      ],
+      "data": [
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "Aadhaar No.",
+          "share": "No.",
+          "share_இகலல_no": "",
+          "relationship": "",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "M.",
+          "farmer_name": "Kandan 7435",
+          "farmer": "8692 4216",
+          "share": "3226",
+          "share_இகலல_no": "8762 5891",
+          "relationship": "Husband 75,",
+          "address": "Nariyappan Colony",
+          "phone_no": "95087 70971"
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "",
+          "share": "4005",
+          "share_இகலல_no": "7851 1362 Wife",
+          "relationship": "115,",
+          "address": "Vappankulam 97816",
+          "phone_no": "07730"
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "",
+          "share": "6739",
+          "share_இகலல_no": "2861 0414 Son",
+          "relationship": "Vappankulam",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "2 N. Mariyappan",
+          "farmer_name": "4268 7766",
+          "farmer": "3224",
+          "share": "2965 4050",
+          "share_இகலல_no": "2393 Wife",
+          "relationship": "Vappankulam",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "3. P. Kanmani",
+          "farmer_name": "6321 1022",
+          "farmer": "2899",
+          "share": "1003 4655",
+          "share_இகலல_no": "2999 Son",
+          "relationship": "27, Sivamur",
+          "address": "thy Nagar, 88228",
+          "phone_no": "11882"
+        },
+        {
+          "sno": "A. Thangam",
+          "farmer_name": "9924 5353",
+          "farmer": "2004",
+          "share": "1432 6289",
+          "share_இகலல_no": "5555 Wife",
+          "relationship": "84, Vannaar",
+          "address": "Colony, 78945",
+          "phone_no": "64341"
+        },
+        {
+          "sno": "5. P. Balamani",
+          "farmer_name": "5723 2637 0079",
+          "farmer": "1226",
+          "share": "4322 7824",
+          "share_இகலல_no": "Wife",
+          "relationship": "84, Vannaar",
+          "address": "Colony,",
+          "phone_no": ""
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "2654",
+          "share": "3279 8801",
+          "share_இகலல_no": "Son",
+          "relationship": "Karaipudur",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "2574",
+          "share": "3289 4325",
+          "share_இகலல_no": "Daughter",
+          "relationship": "Karaipudur",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "1414",
+          "share": "6654 3327",
+          "share_இகலல_no": "Daughter",
+          "relationship": "",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "1414",
+          "share": "2835 4649",
+          "share_இகலல_no": "Daughter",
+          "relationship": "",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "1424 6289",
+          "share": "4329",
+          "share_இகலல_no": "Daughter",
+          "relationship": "",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "",
+          "farmer_name": "",
+          "farmer": "1500 5289",
+          "share": "5682",
+          "share_இகலல_no": "Daughter",
+          "relationship": "",
+          "address": "",
+          "phone_no": ""
+        },
+        {
+          "sno": "6. G. Raja 8894",
+          "farmer_name": "2004 3214",
+          "farmer": "2628 8796",
+          "share": "5431",
+          "share_இகலல_no": "Son 87,",
+          "relationship": "Gananayan Colony,",
+          "address": "84321 65431",
+          "phone_no": ""
+        }
+      ],
+      "confidence": 0.94,
+      "detection_strategy": "bbox_clustering",
+      "is_uncertain": false,
+      "warnings": [
+        "Column 'Farmer Name' contains data matching 'cattle_id' (83% consistency); preserved explicit header.",
+        "Column 'Farmer' contains data matching 'serial_number' (61% consistency); preserved explicit header.",
+        "Column 'Phone No.' contains data matching 'cattle_id' (75% consistency); preserved explicit header."
+      ],
+      "html": "<div class=\"ocr-table-container\">\n  <table class=\"ocr-rendered-table\" data-table-index=\"0\" data-strategy=\"bbox_clustering\">\n    <thead>\n      <tr>\n        <th scope=\"col\" data-col-idx=\"0\" contenteditable=\"true\" data-semantic-type=\"serial_number\" data-inference-method=\"explicit_header\" title=\"Click to rename\">S.No</th>\n        <th scope=\"col\" data-col-idx=\"1\" contenteditable=\"true\" data-semantic-type=\"person_name\" data-inference-method=\"explicit_header\" title=\"Column &#x27;Farmer Name&#x27; contains data matching &#x27;cattle_id&#x27; (83% consistency); preserved explicit header.\">Farmer Name <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n        <th scope=\"col\" data-col-idx=\"2\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Column &#x27;Farmer&#x27; contains data matching &#x27;serial_number&#x27; (61% consistency); preserved explicit header.\">Farmer <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n        <th scope=\"col\" data-col-idx=\"3\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Share</th>\n        <th scope=\"col\" data-col-idx=\"4\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Share இகல்லை No.</th>\n        <th scope=\"col\" data-col-idx=\"5\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Relationship</th>\n        <th scope=\"col\" data-col-idx=\"6\" contenteditable=\"true\" data-semantic-type=\"address\" data-inference-method=\"explicit_header\" title=\"Click to rename\">Address</th>\n        <th scope=\"col\" data-col-idx=\"7\" contenteditable=\"true\" data-semantic-type=\"phone_number\" data-inference-method=\"explicit_header\" title=\"Column &#x27;Phone No.&#x27; contains data matching &#x27;cattle_id&#x27; (75% consistency); preserved explicit header.\">Phone No. <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr data-row-idx=\"0\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">Aadhaar No.</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">No.</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"1\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">M.</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">Kandan 7435</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">8692 4216</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">3226</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">8762 5891</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">Husband 75,</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">Nariyappan Colony</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">95087 70971</td>\n      </tr>\n      <tr data-row-idx=\"2\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">4005</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">7851 1362 Wife</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">115,</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">Vappankulam 97816</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">07730</td>\n      </tr>\n      <tr data-row-idx=\"3\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">6739</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">2861 0414 Son</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">Vappankulam</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"4\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">2 N. Mariyappan</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">4268 7766</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">3224</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">2965 4050</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">2393 Wife</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">Vappankulam</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"5\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">3. P. Kanmani</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">6321 1022</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">2899</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">1003 4655</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">2999 Son</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">27, Sivamur</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">thy Nagar, 88228</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">11882</td>\n      </tr>\n      <tr data-row-idx=\"6\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">A. Thangam</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">9924 5353</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">2004</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">1432 6289</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">5555 Wife</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">84, Vannaar</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">Colony, 78945</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">64341</td>\n      </tr>\n      <tr data-row-idx=\"7\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">5. P. Balamani</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">5723 2637 0079</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">1226</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">4322 7824</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Wife</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">84, Vannaar</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">Colony,</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"8\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">2654</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">3279 8801</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Son</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">Karaipudur</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"9\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">2574</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">3289 4325</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Daughter</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">Karaipudur</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"10\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">1414</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">6654 3327</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Daughter</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"11\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">1414</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">2835 4649</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Daughter</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"12\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">1424 6289</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">4329</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Daughter</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"13\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">1500 5289</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">5682</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Daughter</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"14\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">6. G. Raja 8894</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">2004 3214</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">2628 8796</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">5431</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Son 87,</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">Gananayan Colony,</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">84321 65431</td>\n        <td data-col-idx=\"7\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n    </tbody>\n  </table>\n</div>",
+      "detected_languages": [
+        "en"
+      ],
+      "unassigned_text": null
+    }
+  ],
+  "records": [
+    {
+      "record_id": 1,
+      "farmer_name": "Aadhaar No.",
+      "raw_farmer_name": "Aadhaar No.",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        0
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 2,
+      "farmer_name": "8692 4216",
+      "raw_farmer_name": "8692 4216",
+      "phone": "9508770971",
+      "raw_phone": "95087 70971",
+      "village": "Nariyappan Colony",
+      "cow_count": null,
+      "member_id": "M.",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        1
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 3,
+      "farmer_name": "3224",
+      "raw_farmer_name": "3224",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": "2 N. Mariyappan",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        4
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 4,
+      "farmer_name": "2899",
+      "raw_farmer_name": "2899",
+      "phone": null,
+      "raw_phone": "11882",
+      "village": "thy Nagar, 88228",
+      "cow_count": null,
+      "member_id": "3. P. Kanmani",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        5
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '11882' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 5,
+      "farmer_name": "2004",
+      "raw_farmer_name": "2004",
+      "phone": null,
+      "raw_phone": "64341",
+      "village": "Colony, 78945",
+      "cow_count": null,
+      "member_id": "A. Thangam",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        6
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": [
+        "Phone '64341' could not be normalized to 10 digits"
+      ]
+    },
+    {
+      "record_id": 6,
+      "farmer_name": "1226",
+      "raw_farmer_name": "1226",
+      "phone": null,
+      "raw_phone": null,
+      "village": "Colony,",
+      "cow_count": null,
+      "member_id": "5. P. Balamani",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        7
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 7,
+      "farmer_name": "2654",
+      "raw_farmer_name": "2654",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        8
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 8,
+      "farmer_name": "2574",
+      "raw_farmer_name": "2574",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        9
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 9,
+      "farmer_name": "1414",
+      "raw_farmer_name": "1414",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        10
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 10,
+      "farmer_name": "1414",
+      "raw_farmer_name": "1414",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        11
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 11,
+      "farmer_name": "1424 6289",
+      "raw_farmer_name": "1424 6289",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        12
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 12,
+      "farmer_name": "1500 5289",
+      "raw_farmer_name": "1500 5289",
+      "phone": null,
+      "raw_phone": null,
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        13
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 13,
+      "farmer_name": "2628 8796",
+      "raw_farmer_name": "2628 8796",
+      "phone": null,
+      "raw_phone": null,
+      "village": "84321 65431",
+      "cow_count": null,
+      "member_id": "6. G. Raja 8894",
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        14
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    }
+  ],
+  "unassigned_cattle_ids": [],
+  "metadata": {
+    "ocr_engine": "surya-ocr",
+    "preprocessing_applied": true,
+    "processing_time_ms": 29872.78,
+    "image_dimensions": {
+      "width": 1024,
+      "height": 768
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

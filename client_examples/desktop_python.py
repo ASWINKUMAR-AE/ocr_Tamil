@@ -20,13 +20,14 @@ def perform_ocr(
     api_key: str = None,
     extract_tables: bool = True,
     preprocess: bool = True,
+    structured: bool = False,
     timeout: int = 30
 ):
     if not os.path.exists(image_path):
         print(f"Error: File '{image_path}' not found.")
         return False
 
-    endpoint = f"{server_url.rstrip('/')}/api/v1/ocr"
+    endpoint = f"{server_url.rstrip('/')}/api/v1/ocr/structured" if structured else f"{server_url.rstrip('/')}/api/v1/ocr"
     print(f"Connecting to Tamil OCR API at: {endpoint}")
     print(f"Uploading image: {image_path}...")
 
@@ -41,6 +42,9 @@ def perform_ocr(
                 "extract_tables": "true" if extract_tables else "false",
                 "preprocess": "true" if preprocess else "false",
             }
+            if structured:
+                data["document_type"] = "aavin_register"
+                data["language_hint"] = "ta,en"
 
             response = requests.post(
                 endpoint,
@@ -78,6 +82,26 @@ def perform_ocr(
             else:
                 print("No tables detected.")
 
+            records = result.get("records", [])
+            if records:
+                print(f"\nAAVIN CANDIDATE RECORDS ({len(records)} Farmers):")
+                for r in records:
+                    print(f"  * Farmer: {r.get('farmer_name')} | Phone: {r.get('phone')} | Declared/Mapped Cows: {r.get('cow_count')}")
+                    c_list = r.get("cattle", [])
+                    if c_list:
+                        print(f"    Cows ({len(c_list)} cows mapped 1-to-1):")
+                        for cow in c_list:
+                            c_seq = cow.get("cow_index") or "?"
+                            c_tag = cow.get("tag_id")
+                            c_breed = cow.get("breed") or "Unspecified"
+                            print(f"      - Cow #{c_seq}: Tag {c_tag} | Breed: {c_breed}")
+                    else:
+                        print(f"    Cattle Pashu Aadhaar Tags: {r.get('cattle_ids')}")
+                    if r.get("milk_records"):
+                        print(f"    Milk Records: {len(r.get('milk_records'))} entries")
+                    if r.get("review_required"):
+                        print(f"    [!] Review Required: {r.get('validation_warnings')}")
+
             if result.get("warnings"):
                 print("\nWarnings:", result["warnings"])
 
@@ -112,6 +136,7 @@ def main():
     parser.add_argument("image_path", help="Path to image file (JPEG, PNG, WebP)")
     parser.add_argument("--url", default=DEFAULT_SERVER_URL, help=f"Server URL (default: {DEFAULT_SERVER_URL})")
     parser.add_argument("--api-key", default=None, help="Optional API key")
+    parser.add_argument("--structured", action="store_true", help="Extract structured Aavin register candidate records")
     parser.add_argument("--no-tables", action="store_true", help="Disable table detection")
     parser.add_argument("--no-preprocess", action="store_true", help="Disable image preprocessing")
     parser.add_argument("--timeout", type=int, default=30, help="Request timeout in seconds")
@@ -123,6 +148,7 @@ def main():
         api_key=args.api_key,
         extract_tables=not args.no_tables,
         preprocess=not args.no_preprocess,
+        structured=args.structured,
         timeout=args.timeout
     )
     sys.exit(0 if success else 1)

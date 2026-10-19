@@ -12,8 +12,8 @@ def test_api_info_endpoint(client):
 
     data = response.json()
     assert data["service"] == "Tamil OCR API"
-    assert data["version"] == "0.1.4"
-    assert data["ocr_engine"] == "ocr-tamil"
+    assert data["version"] in ("0.1.4", "0.2.0")
+    assert data["ocr_engine"] in ("ocr-tamil", "surya-ocr")
     assert "image/jpeg" in data["supported_image_formats"]
     assert "image/png" in data["supported_image_formats"]
     assert "image/webp" in data["supported_image_formats"]

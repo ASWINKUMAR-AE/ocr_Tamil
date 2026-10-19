@@ -1,0 +1,507 @@
+{
+  "success": true,
+  "request_id": "5d8b378d-2477-40ea-ac5b-7c3ca7c3dd3b",
+  "api_version": "v1",
+  "engine": {
+    "name": "surya-ocr",
+    "version": "0.1.2"
+  },
+  "filename": "img4_large_tamil_handwritten_register.jpg",
+  "content_type": "image/jpeg",
+  "language_hint": "ta,en",
+  "document_type": "aavin_register",
+  "tables": [
+    {
+      "table_index": 0,
+      "table_id": 1,
+      "headers": [
+        "மிரம்",
+        "யுயர்களையும்",
+        "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+        "3226 8762",
+        "5891",
+        "மனமின் கிறமையாய் 75 ஊயிம்படை",
+        "91508 70971"
+      ],
+      "headers_detail": [
+        {
+          "original": "மிரம்",
+          "display": "மிரம்",
+          "original_header": "மிரம்",
+          "display_header": "மிரம்",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "யுயர்களையும்",
+          "display": "யுயர்களையும்",
+          "original_header": "யுயர்களையும்",
+          "display_header": "யுயர்களையும்",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+          "display": "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+          "original_header": "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+          "display_header": "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column '7435 அத்தர் 8692 4216 பிண்ணிக்கு' contains data matching 'identifier' (70% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "original": "3226 8762",
+          "display": "3226 8762",
+          "original_header": "3226 8762",
+          "display_header": "3226 8762",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column '3226 8762' contains data matching 'identifier' (76% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "original": "5891",
+          "display": "5891",
+          "original_header": "5891",
+          "display_header": "5891",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "மனமின் கிறமையாய் 75 ஊயிம்படை",
+          "display": "மனமின் கிறமையாய் 75 ஊயிம்படை",
+          "original_header": "மனமின் கிறமையாய் 75 ஊயிம்படை",
+          "display_header": "மனமின் கிறமையாய் 75 ஊயிம்படை",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "original": "91508 70971",
+          "display": "91508 70971",
+          "original_header": "91508 70971",
+          "display_header": "91508 70971",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column '91508 70971' contains data matching 'phone_number' (66% consistency); preserved explicit header."
+          ]
+        }
+      ],
+      "rows": [
+        [
+          "",
+          "முடக்குன்",
+          "",
+          "",
+          "",
+          "செலிலிலையே மேவும்",
+          ""
+        ],
+        [
+          "",
+          "கீட்டியியப்பன்",
+          "4268 5766 322b",
+          "400678 541362,",
+          "Expeaced",
+          "long 115 கிப்படம் இயங்கி",
+          "97876075 30"
+        ],
+        [
+          "",
+          "",
+          "",
+          "1567928610AL,",
+          "",
+          "கிம்பிடும் இவ்லைப்பட்டி",
+          ""
+        ],
+        [
+          "",
+          "",
+          "2",
+          "96 541050723,",
+          "",
+          "",
+          ""
+        ],
+        [
+          "தர்களை பிரப்பவல்",
+          "",
+          "63214002 7899 100",
+          "34 6652999,",
+          "கிப்பசு",
+          "29, கியளுக்கக் பொன்னஸ்",
+          "8682811882"
+        ],
+        [
+          "",
+          "",
+          "",
+          "100346652 9949",
+          "",
+          "பிய்க்கூடியதுறை",
+          ""
+        ],
+        [
+          "",
+          "",
+          "14321",
+          "62 89555,",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "122",
+          "64322 7894,",
+          "",
+          "",
+          ""
+        ],
+        [
+          "தும்கா",
+          "",
+          "அருஉடி 56532001",
+          "உட்டிப்படப்படை",
+          "இடைப்புக்க்க்கிடி",
+          "கிய்றுயாக மிதர 7894564311",
+          ""
+        ],
+        [
+          "",
+          "",
+          "265432",
+          "894 325.",
+          "",
+          "விடுகுளுகிக",
+          ""
+        ],
+        [
+          "மிகியம்",
+          "",
+          "543265310079 1446654",
+          "33277,",
+          "கூறவையாடும்",
+          "மிபிவர்கக் 634321",
+          "08050"
+        ],
+        [
+          "",
+          "",
+          "",
+          "144783546469,",
+          "",
+          "இடிவுப்பட்",
+          ""
+        ],
+        [
+          "",
+          "",
+          "1500",
+          "528956 88,",
+          "",
+          "",
+          ""
+        ],
+        [
+          "யூப்பி",
+          "",
+          "8894 70043264 26784",
+          "6996543. இறவிவ்",
+          "con(6) பிரத்திரம்",
+          "வேலை இர்சரு 94321 65431",
+          ""
+        ]
+      ],
+      "row_count": 14,
+      "column_count": 7,
+      "columns": [
+        {
+          "key": "மரம",
+          "label": "மிரம்",
+          "original_header": "மிரம்",
+          "display_header": "மிரம்",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "யயரகளயம",
+          "label": "யுயர்களையும்",
+          "original_header": "யுயர்களையும்",
+          "display_header": "யுயர்களையும்",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "7435_அததர_8692_4216_பணணகக",
+          "label": "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+          "original_header": "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+          "display_header": "7435 அத்தர் 8692 4216 பிண்ணிக்கு",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column '7435 அத்தர் 8692 4216 பிண்ணிக்கு' contains data matching 'identifier' (70% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "key": "3226_8762",
+          "label": "3226 8762",
+          "original_header": "3226 8762",
+          "display_header": "3226 8762",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column '3226 8762' contains data matching 'identifier' (76% consistency); preserved explicit header."
+          ]
+        },
+        {
+          "key": "5891",
+          "label": "5891",
+          "original_header": "5891",
+          "display_header": "5891",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "மனமன_கறமயய_75_ஊயமபட",
+          "label": "மனமின் கிறமையாய் 75 ஊயிம்படை",
+          "original_header": "மனமின் கிறமையாய் 75 ஊயிம்படை",
+          "display_header": "மனமின் கிறமையாய் 75 ஊயிம்படை",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": []
+        },
+        {
+          "key": "91508_70971",
+          "label": "91508 70971",
+          "original_header": "91508 70971",
+          "display_header": "91508 70971",
+          "semantic_type": "explicit_text",
+          "confidence": 0.95,
+          "inference_method": "explicit_header",
+          "classification_warnings": [
+            "Column '91508 70971' contains data matching 'phone_number' (66% consistency); preserved explicit header."
+          ]
+        }
+      ],
+      "data": [
+        {
+          "மரம": "",
+          "யயரகளயம": "முடக்குன்",
+          "7435_அததர_8692_4216_பணணகக": "",
+          "3226_8762": "",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "செலிலிலையே மேவும்",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "கீட்டியியப்பன்",
+          "7435_அததர_8692_4216_பணணகக": "4268 5766 322b",
+          "3226_8762": "400678 541362,",
+          "5891": "Expeaced",
+          "மனமன_கறமயய_75_ஊயமபட": "long 115 கிப்படம் இயங்கி",
+          "91508_70971": "97876075 30"
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "",
+          "3226_8762": "1567928610AL,",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "கிம்பிடும் இவ்லைப்பட்டி",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "2",
+          "3226_8762": "96 541050723,",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "தர்களை பிரப்பவல்",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "63214002 7899 100",
+          "3226_8762": "34 6652999,",
+          "5891": "கிப்பசு",
+          "மனமன_கறமயய_75_ஊயமபட": "29, கியளுக்கக் பொன்னஸ்",
+          "91508_70971": "8682811882"
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "",
+          "3226_8762": "100346652 9949",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "பிய்க்கூடியதுறை",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "14321",
+          "3226_8762": "62 89555,",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "122",
+          "3226_8762": "64322 7894,",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "தும்கா",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "அருஉடி 56532001",
+          "3226_8762": "உட்டிப்படப்படை",
+          "5891": "இடைப்புக்க்க்கிடி",
+          "மனமன_கறமயய_75_ஊயமபட": "கிய்றுயாக மிதர 7894564311",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "265432",
+          "3226_8762": "894 325.",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "விடுகுளுகிக",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "மிகியம்",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "543265310079 1446654",
+          "3226_8762": "33277,",
+          "5891": "கூறவையாடும்",
+          "மனமன_கறமயய_75_ஊயமபட": "மிபிவர்கக் 634321",
+          "91508_70971": "08050"
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "",
+          "3226_8762": "144783546469,",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "இடிவுப்பட்",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "1500",
+          "3226_8762": "528956 88,",
+          "5891": "",
+          "மனமன_கறமயய_75_ஊயமபட": "",
+          "91508_70971": ""
+        },
+        {
+          "மரம": "யூப்பி",
+          "யயரகளயம": "",
+          "7435_அததர_8692_4216_பணணகக": "8894 70043264 26784",
+          "3226_8762": "6996543. இறவிவ்",
+          "5891": "con(6) பிரத்திரம்",
+          "மனமன_கறமயய_75_ஊயமபட": "வேலை இர்சரு 94321 65431",
+          "91508_70971": ""
+        }
+      ],
+      "confidence": 0.94,
+      "detection_strategy": "bbox_clustering",
+      "is_uncertain": false,
+      "warnings": [
+        "Column '7435 அத்தர் 8692 4216 பிண்ணிக்கு' contains data matching 'identifier' (70% consistency); preserved explicit header.",
+        "Column '3226 8762' contains data matching 'identifier' (76% consistency); preserved explicit header.",
+        "Column '91508 70971' contains data matching 'phone_number' (66% consistency); preserved explicit header."
+      ],
+      "html": "<div class=\"ocr-table-container\">\n  <table class=\"ocr-rendered-table\" data-table-index=\"0\" data-strategy=\"bbox_clustering\">\n    <thead>\n      <tr>\n        <th scope=\"col\" data-col-idx=\"0\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">மிரம்</th>\n        <th scope=\"col\" data-col-idx=\"1\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">யுயர்களையும்</th>\n        <th scope=\"col\" data-col-idx=\"2\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Column &#x27;7435 அத்தர் 8692 4216 பிண்ணிக்கு&#x27; contains data matching &#x27;identifier&#x27; (70% consistency); preserved explicit header.\">7435 அத்தர் 8692 4216 பிண்ணிக்கு <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n        <th scope=\"col\" data-col-idx=\"3\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Column &#x27;3226 8762&#x27; contains data matching &#x27;identifier&#x27; (76% consistency); preserved explicit header.\">3226 8762 <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n        <th scope=\"col\" data-col-idx=\"4\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">5891</th>\n        <th scope=\"col\" data-col-idx=\"5\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Click to rename\">மனமின் கிறமையாய் 75 ஊயிம்படை</th>\n        <th scope=\"col\" data-col-idx=\"6\" contenteditable=\"true\" data-semantic-type=\"explicit_text\" data-inference-method=\"explicit_header\" title=\"Column &#x27;91508 70971&#x27; contains data matching &#x27;phone_number&#x27; (66% consistency); preserved explicit header.\">91508 70971 <span class=\"th-warn-icon\" title=\"Review note\">⚠️</span></th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr data-row-idx=\"0\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">முடக்குன்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">செலிலிலையே மேவும்</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"1\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">கீட்டியியப்பன்</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">4268 5766 322b</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">400678 541362,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">Expeaced</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">long 115 கிப்படம் இயங்கி</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">97876075 30</td>\n      </tr>\n      <tr data-row-idx=\"2\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">1567928610AL,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">கிம்பிடும் இவ்லைப்பட்டி</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"3\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">2</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">96 541050723,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"4\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">தர்களை பிரப்பவல்</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">63214002 7899 100</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">34 6652999,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">கிப்பசு</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">29, கியளுக்கக் பொன்னஸ்</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">8682811882</td>\n      </tr>\n      <tr data-row-idx=\"5\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">100346652 9949</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">பிய்க்கூடியதுறை</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"6\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">14321</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">62 89555,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"7\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">122</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">64322 7894,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"8\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">தும்கா</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">அருஉடி 56532001</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">உட்டிப்படப்படை</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">இடைப்புக்க்க்கிடி</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">கிய்றுயாக மிதர 7894564311</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"9\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">265432</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">894 325.</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">விடுகுளுகிக</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"10\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">மிகியம்</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">543265310079 1446654</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">33277,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">கூறவையாடும்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">மிபிவர்கக் 634321</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">08050</td>\n      </tr>\n      <tr data-row-idx=\"11\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">144783546469,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">இடிவுப்பட்</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"12\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">1500</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">528956 88,</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n      <tr data-row-idx=\"13\">\n        <td data-col-idx=\"0\" contenteditable=\"true\">யூப்பி</td>\n        <td data-col-idx=\"1\" contenteditable=\"true\">&nbsp;</td>\n        <td data-col-idx=\"2\" contenteditable=\"true\">8894 70043264 26784</td>\n        <td data-col-idx=\"3\" contenteditable=\"true\">6996543. இறவிவ்</td>\n        <td data-col-idx=\"4\" contenteditable=\"true\">con(6) பிரத்திரம்</td>\n        <td data-col-idx=\"5\" contenteditable=\"true\">வேலை இர்சரு 94321 65431</td>\n        <td data-col-idx=\"6\" contenteditable=\"true\">&nbsp;</td>\n      </tr>\n    </tbody>\n  </table>\n</div>",
+      "detected_languages": [
+        "ta"
+      ],
+      "unassigned_text": "லியன் பரோப்பு டப்பிட ஆருகட் பக்ஷின் டுருவமி மிற்றமையே"
+    }
+  ],
+  "records": [
+    {
+      "record_id": 1,
+      "farmer_name": null,
+      "raw_farmer_name": null,
+      "phone": "9787607530",
+      "raw_phone": "97876075 30",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        1
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    },
+    {
+      "record_id": 2,
+      "farmer_name": null,
+      "raw_farmer_name": null,
+      "phone": "8682811882",
+      "raw_phone": "8682811882",
+      "village": null,
+      "cow_count": null,
+      "member_id": null,
+      "cattle_ids": [],
+      "cattle": [],
+      "milk_records": [],
+      "source_row_indices": [
+        4
+      ],
+      "confidence": 0.94,
+      "review_required": true,
+      "validation_warnings": []
+    }
+  ],
+  "unassigned_cattle_ids": [],
+  "metadata": {
+    "ocr_engine": "surya-ocr",
+    "preprocessing_applied": true,
+    "processing_time_ms": 25241.6,
+    "image_dimensions": {
+      "width": 1024,
+      "height": 768
+    }
+  },
+  "warnings": [],
+  "errors": []
+}

@@ -111,6 +111,56 @@ class OCRFormats(BaseModel):
 
 
 # ============================================================================
+# Engine & Aavin Domain Candidate Record Schemas
+# ============================================================================
+
+class EngineInfo(BaseModel):
+    name: str = Field(default="surya-ocr", description="OCR & layout engine identifier")
+    version: str = Field(default="0.1.2", description="Pinned engine version")
+
+
+class CattleCandidateRecord(BaseModel):
+    cow_index: Optional[int] = Field(default=None, description="1-indexed sequence number of cow (e.g. Cow 1 of N)")
+    tag_id: str = Field(..., description="12-digit string Pashu Aadhaar / Tag ID, leading-zero safe")
+    raw_tag_id: Optional[str] = Field(default=None, description="Original raw recognized string")
+    breed: Optional[str] = Field(default=None, description="Breed name in Tamil or English")
+    age: Optional[str] = Field(default=None, description="Age or lactation info")
+    status: str = Field(default="candidate", description="Status of candidate record")
+    review_required: bool = Field(default=True, description="Review flag for human confirmation")
+    confidence: float = Field(default=0.90, description="Detection confidence score")
+    warnings: List[str] = Field(default_factory=list, description="Validation warnings or notes")
+
+
+class MilkCandidateRecord(BaseModel):
+    date: Optional[str] = Field(default=None, description="Collection date string")
+    session: Optional[str] = Field(default=None, description="Morning or Evening session")
+    litres: Optional[float] = Field(default=None, description="Supplied litres as decimal, not zero when absent")
+    booth_id: Optional[str] = Field(default=None, description="Society or booth code")
+    confidence: float = Field(default=0.90, description="Extraction confidence")
+    review_required: bool = Field(default=True, description="Human review required flag")
+    warnings: List[str] = Field(default_factory=list, description="Warnings")
+
+
+class FarmerCandidateRecord(BaseModel):
+    record_id: int = Field(default=1, description="Sequential candidate record ID")
+    farmer_name: Optional[str] = Field(default=None, description="Normalized farmer name preserving Tamil Unicode")
+    raw_farmer_name: Optional[str] = Field(default=None, description="Raw OCR recognized text before normalization")
+    phone: Optional[str] = Field(default=None, description="Normalized 10-digit Indian mobile number string")
+    raw_phone: Optional[str] = Field(default=None, description="Raw phone text from cell")
+    village: Optional[str] = Field(default=None, description="Village or locality name")
+    cow_count: Optional[int] = Field(default=None, description="Declared cattle count")
+    member_id: Optional[str] = Field(default=None, description="Society member or farmer identifier")
+    cattle_ids: List[str] = Field(default_factory=list, description="12-digit Pashu Aadhaar tag IDs belonging to this farmer")
+    cattle: List[CattleCandidateRecord] = Field(default_factory=list, description="Individual cattle candidate records")
+    milk_records: List[MilkCandidateRecord] = Field(default_factory=list, description="Milk collection entries")
+    source_row_indices: List[int] = Field(default_factory=list, description="Table row indices contributing to this record")
+    confidence: float = Field(default=0.90, description="Overall record confidence")
+    review_required: bool = Field(default=True, description="Review required before saving")
+    validation_status: str = Field(default="valid", description="Status: valid, review_required, or invalid")
+    validation_warnings: List[str] = Field(default_factory=list, description="Field validation messages")
+
+
+# ============================================================================
 # Main OCR Response Schemas
 # ============================================================================
 
@@ -118,6 +168,9 @@ class OCRResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     success: bool = True
     request_id: str = Field(..., description="Unique UUID for request tracing")
+    api_version: str = Field(default="v1", description="REST API version")
+    engine: EngineInfo = Field(default_factory=EngineInfo, description="OCR engine metadata")
+    language_hint: Optional[str] = Field(default=None, description="Language hint used during recognition")
     filename: str = Field(..., description="Name of uploaded image file")
     content_type: str = Field(..., description="MIME content type")
     extracted_text: str = Field(..., description="Full recognized Tamil & mixed-language text")
@@ -126,8 +179,10 @@ class OCRResponse(BaseModel):
     json: Dict[str, Any] = Field(default_factory=dict, description="Rich structured JSON format with line, word, and table metadata")
     formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
     tables: List[TableResult] = Field(default_factory=list, description="Detected tabular structures")
+    records: List[FarmerCandidateRecord] = Field(default_factory=list, description="Mapped Aavin farmer/cattle candidate records")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list, description="Non-fatal warnings")
+    errors: List[str] = Field(default_factory=list, description="Non-fatal processing errors or notices")
     detected_languages: List[str] = Field(default_factory=lambda: ["ta"], description="Languages detected across image: ta, en, or mixed")
     unassigned_text: Optional[str] = Field(default=None, description="Text tokens located outside recognized table boundaries")
 
@@ -136,6 +191,8 @@ class TextOnlyResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     success: bool = True
     request_id: str
+    api_version: str = Field(default="v1", description="REST API version")
+    engine: EngineInfo = Field(default_factory=EngineInfo, description="OCR engine metadata")
     filename: str
     content_type: str
     extracted_text: str
@@ -145,22 +202,56 @@ class TextOnlyResponse(BaseModel):
     formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list)
+    errors: List[str] = Field(default_factory=list)
 
 
 class TableOnlyResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
     success: bool = True
     request_id: str
+    api_version: str = Field(default="v1", description="REST API version")
+    engine: EngineInfo = Field(default_factory=EngineInfo, description="OCR engine metadata")
+    language_hint: Optional[str] = Field(default=None, description="Language hint used during recognition")
     filename: str
     content_type: str
     tables: List[TableResult]
+    # Root level legacy compatibility fields matching TableResult
+    table_id: Optional[int] = Field(default=None, description="1-indexed table identifier (legacy root field)")
+    headers: List[str] = Field(default_factory=list, description="Column header strings (legacy root field)")
+    headers_detail: List[ColumnHeaderDetail] = Field(default_factory=list, description="Detailed column header objects (legacy root field)")
+    rows: List[List[str]] = Field(default_factory=list, description="Row values as 2D string array (legacy root field)")
+    columns: List[TableColumn] = Field(default_factory=list, description="Structured column definitions (legacy root field)")
+    confidence: Optional[float] = Field(default=None, description="Detection confidence score (legacy root field)")
+    detection_strategy: Optional[str] = Field(default=None, description="Strategy used: surya_layout, bbox_clustering, morphology_grid (legacy root field)")
     extracted_text: str
     text: str = Field(default="", description="Clean plain text format")
     html: str = Field(default="", description="Semantic HTML format")
     json: Dict[str, Any] = Field(default_factory=dict, description="Structured JSON format")
     formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
+    records: List[FarmerCandidateRecord] = Field(default_factory=list, description="Extracted Aavin domain candidate records")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list)
+    errors: List[str] = Field(default_factory=list)
+
+
+class StructuredOCRResponse(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+    success: bool = True
+    request_id: str
+    api_version: str = "v1"
+    engine: EngineInfo = Field(default_factory=EngineInfo)
+    filename: str
+    content_type: str
+    language_hint: Optional[str] = None
+    document_type: str = Field(default="aavin_register", description="Register profile used for semantic extraction")
+    tables: List[TableResult] = Field(default_factory=list, description="Detected and reconstructed tables")
+    records: List[FarmerCandidateRecord] = Field(default_factory=list, description="Extracted Aavin farmer & cattle candidate records")
+    candidates: List[FarmerCandidateRecord] = Field(default_factory=list, description="Alias for records")
+    review_required: bool = Field(default=True, description="Strict review flag requiring explicit operator confirmation before saving to database")
+    unassigned_cattle_ids: List[str] = Field(default_factory=list, description="Pashu Aadhaar tag IDs unassociated with a specific farmer")
+    metadata: ProcessingMetadata
+    warnings: List[str] = Field(default_factory=list)
+    errors: List[str] = Field(default_factory=list)
 
 
 # ============================================================================
