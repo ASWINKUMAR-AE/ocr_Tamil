@@ -1,6 +1,7 @@
 """
 Pydantic Schemas for Tamil OCR API Requests and Responses.
 Provides strong typing, validation, and serialization matching the API specification.
+Includes schemas for Aavin Abstract/Dispatch Reports (shift-wise production & dispatch tables).
 """
 
 from typing import Any, Dict, List, Optional
@@ -161,6 +162,59 @@ class FarmerCandidateRecord(BaseModel):
 
 
 # ============================================================================
+# Aavin Abstract / Dispatch Report Schemas
+# ============================================================================
+
+class AbstractProductRecord(BaseModel):
+    """
+    One product row extracted from an Aavin shift-wise dispatch abstract.
+
+    Example document: GA1301 Madurai District Co-operative Milk Producers' Union
+    Abstract table columns: No | Type of Product | QTY (LTR) | QTY (PKT) | TRAY
+    """
+    row_no: Optional[str] = Field(default=None, description="Serial number / row number (e.g. '1', '6')")
+    product_name: Optional[str] = Field(default=None, description="Product name as printed (e.g. 'COW MILK 500 ML')")
+    qty_ltr: Optional[float] = Field(default=None, description="Quantity in litres (decimal)")
+    qty_pkt: Optional[int] = Field(default=None, description="Quantity in packets (integer count)")
+    tray: Optional[float] = Field(default=None, description="Tray count (may be fractional, e.g. 2148.01)")
+    is_subtotal: bool = Field(default=False, description="True if this row is a subtotal line (e.g. MILK TOTAL)")
+    is_grand_total: bool = Field(default=False, description="True if this row is the GRAND TOTAL line")
+    subtotal_label: Optional[str] = Field(default=None, description="Label text for subtotal/total rows")
+    confidence: float = Field(default=0.90, description="Extraction confidence score")
+    review_required: bool = Field(default=True, description="Human review required flag")
+    warnings: List[str] = Field(default_factory=list, description="Validation warnings")
+
+
+class AbstractReportMeta(BaseModel):
+    """Header metadata extracted from an Aavin abstract/dispatch report."""
+    unit_code: Optional[str] = Field(default=None, description="Plant/unit code (e.g. 'GA1301')")
+    unit_name: Optional[str] = Field(default=None, description="Union/plant name")
+    address: Optional[str] = Field(default=None, description="Address line from report header")
+    report_date: Optional[str] = Field(default=None, description="Report date string (e.g. '21.10.2026')")
+    shift: Optional[str] = Field(default=None, description="Shift: MORNING or EVENING")
+    report_title: Optional[str] = Field(default=None, description="Report title (e.g. 'ABSTRACT')")
+    confidence: float = Field(default=0.85, description="Header extraction confidence")
+
+
+class AbstractReportSummary(BaseModel):
+    """
+    Complete structured output for an Aavin Abstract / Dispatch Report image.
+    Captures header metadata, all product rows, subtotals, and the grand total.
+    """
+    meta: AbstractReportMeta = Field(default_factory=AbstractReportMeta, description="Report header metadata")
+    products: List[AbstractProductRecord] = Field(default_factory=list, description="Individual product data rows")
+    milk_total: Optional[AbstractProductRecord] = Field(default=None, description="Milk category subtotal row")
+    curd_butter_total: Optional[AbstractProductRecord] = Field(default=None, description="Curd & Buttermilk subtotal row")
+    grand_total: Optional[AbstractProductRecord] = Field(default=None, description="Grand total row")
+    total_qty_ltr: Optional[float] = Field(default=None, description="Grand total QTY in Litres")
+    total_qty_pkt: Optional[int] = Field(default=None, description="Grand total QTY in Packets")
+    total_tray: Optional[float] = Field(default=None, description="Grand total Trays")
+    confidence: float = Field(default=0.90, description="Overall report confidence")
+    review_required: bool = Field(default=True, description="Review required before saving")
+    warnings: List[str] = Field(default_factory=list, description="Report-level warnings")
+
+
+# ============================================================================
 # Main OCR Response Schemas
 # ============================================================================
 
@@ -180,6 +234,7 @@ class OCRResponse(BaseModel):
     formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
     tables: List[TableResult] = Field(default_factory=list, description="Detected tabular structures")
     records: List[FarmerCandidateRecord] = Field(default_factory=list, description="Mapped Aavin farmer/cattle candidate records")
+    abstract_records: List[AbstractReportSummary] = Field(default_factory=list, description="Structured Aavin abstract/dispatch report records (shift-wise production tables)")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list, description="Non-fatal warnings")
     errors: List[str] = Field(default_factory=list, description="Non-fatal processing errors or notices")
@@ -229,6 +284,7 @@ class TableOnlyResponse(BaseModel):
     json: Dict[str, Any] = Field(default_factory=dict, description="Structured JSON format")
     formats: Optional[OCRFormats] = Field(default=None, description="Bundled json, html, and text format outputs")
     records: List[FarmerCandidateRecord] = Field(default_factory=list, description="Extracted Aavin domain candidate records")
+    abstract_records: List[AbstractReportSummary] = Field(default_factory=list, description="Structured Aavin abstract/dispatch report records")
     metadata: ProcessingMetadata
     warnings: List[str] = Field(default_factory=list)
     errors: List[str] = Field(default_factory=list)
@@ -243,10 +299,11 @@ class StructuredOCRResponse(BaseModel):
     filename: str
     content_type: str
     language_hint: Optional[str] = None
-    document_type: str = Field(default="aavin_register", description="Register profile used for semantic extraction")
+    document_type: str = Field(default="aavin_register", description="Register profile used for semantic extraction: aavin_register | aavin_abstract")
     tables: List[TableResult] = Field(default_factory=list, description="Detected and reconstructed tables")
     records: List[FarmerCandidateRecord] = Field(default_factory=list, description="Extracted Aavin farmer & cattle candidate records")
     candidates: List[FarmerCandidateRecord] = Field(default_factory=list, description="Alias for records")
+    abstract_records: List[AbstractReportSummary] = Field(default_factory=list, description="Structured Aavin abstract/dispatch report records (shift-wise production tables)")
     review_required: bool = Field(default=True, description="Strict review flag requiring explicit operator confirmation before saving to database")
     unassigned_cattle_ids: List[str] = Field(default_factory=list, description="Pashu Aadhaar tag IDs unassociated with a specific farmer")
     metadata: ProcessingMetadata

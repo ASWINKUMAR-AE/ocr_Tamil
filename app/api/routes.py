@@ -32,7 +32,11 @@ from app.schemas.ocr import (
     TableOnlyResponse,
     TextOnlyResponse,
 )
-from app.services.aavin_mapping import aavin_mapper
+from app.services.aavin_mapping import (
+    aavin_abstract_mapper,
+    aavin_mapper,
+    detect_document_type,
+)
 from app.services.format_builder import build_output_formats
 from app.services.image_preprocessing import image_preprocessor
 from app.services.ocr_service import ocr_service
@@ -239,7 +243,18 @@ async def process_ocr(
         return PlainTextResponse(content=text_out, media_type="text/plain; charset=utf-8")
 
     first_tbl = tables[0] if tables else None
-    cand_records, _ = aavin_mapper.extract_candidate_records(first_tbl) if first_tbl else ([], [])
+    all_headers = first_tbl.headers if first_tbl else []
+    doc_type = detect_document_type(extracted_text, all_headers)
+
+    cand_records = []
+    abstract_records = []
+    if doc_type == "aavin_abstract":
+        for tbl in tables:
+            abstract_records.append(
+                aavin_abstract_mapper.extract_abstract_report(tbl, raw_text=extracted_text)
+            )
+    else:
+        cand_records, _ = aavin_mapper.extract_candidate_records(first_tbl) if first_tbl else ([], [])
 
     return OCRResponse(
         success=True,
@@ -256,6 +271,7 @@ async def process_ocr(
         formats=OCRFormats(**formats_bundle),
         tables=tables,
         records=cand_records,
+        abstract_records=abstract_records,
         metadata=ProcessingMetadata(**meta_dict),
         warnings=warnings,
         errors=[],
@@ -340,7 +356,18 @@ async def extract_table_only(
         return PlainTextResponse(content=text_out, media_type="text/plain; charset=utf-8")
 
     first_tbl = tables[0] if tables else None
-    cand_records, _ = aavin_mapper.extract_candidate_records(first_tbl) if first_tbl else ([], [])
+    all_headers = first_tbl.headers if first_tbl else []
+    doc_type = detect_document_type(extracted_text, all_headers)
+
+    cand_records = []
+    abstract_records = []
+    if doc_type == "aavin_abstract":
+        for tbl in tables:
+            abstract_records.append(
+                aavin_abstract_mapper.extract_abstract_report(tbl, raw_text=extracted_text)
+            )
+    else:
+        cand_records, _ = aavin_mapper.extract_candidate_records(first_tbl) if first_tbl else ([], [])
 
     return TableOnlyResponse(
         success=True,
@@ -359,6 +386,7 @@ async def extract_table_only(
         confidence=first_tbl.confidence if first_tbl else None,
         detection_strategy=first_tbl.detection_strategy if first_tbl else None,
         records=cand_records,
+        abstract_records=abstract_records,
         extracted_text=extracted_text,
         text=text_out,
         html=html_out,
@@ -448,10 +476,26 @@ async def extract_structured_aavin(
 
     all_records = []
     all_unassigned = []
+    abstract_records = []
+
+    # Auto-detect document type; caller's document_type param can override
+    all_headers: List[str] = []
     for tbl in tables:
-        tbl_records, tbl_unassigned = aavin_mapper.extract_candidate_records(tbl, schema_hint=parsed_schema_hint)
-        all_records.extend(tbl_records)
-        all_unassigned.extend(tbl_unassigned)
+        all_headers.extend(tbl.headers or [])
+    effective_doc_type = document_type
+    if effective_doc_type == "aavin_register":
+        effective_doc_type = detect_document_type(extracted_text, all_headers)
+
+    if effective_doc_type == "aavin_abstract":
+        for tbl in tables:
+            abstract_records.append(
+                aavin_abstract_mapper.extract_abstract_report(tbl, raw_text=extracted_text)
+            )
+    else:
+        for tbl in tables:
+            tbl_records, tbl_unassigned = aavin_mapper.extract_candidate_records(tbl, schema_hint=parsed_schema_hint)
+            all_records.extend(tbl_records)
+            all_unassigned.extend(tbl_unassigned)
 
     return StructuredOCRResponse(
         success=True,
@@ -461,10 +505,11 @@ async def extract_structured_aavin(
         filename=file.filename or "image",
         content_type=file.content_type or "image/png",
         language_hint=language_hint,
-        document_type=document_type,
+        document_type=effective_doc_type,
         tables=tables,
         records=all_records,
         candidates=all_records,
+        abstract_records=abstract_records,
         review_required=True,
         unassigned_cattle_ids=all_unassigned,
         metadata=ProcessingMetadata(**meta_dict),

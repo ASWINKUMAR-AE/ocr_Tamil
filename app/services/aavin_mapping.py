@@ -9,6 +9,9 @@ import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from app.schemas.ocr import (
+    AbstractProductRecord,
+    AbstractReportMeta,
+    AbstractReportSummary,
     CattleCandidateRecord,
     ColumnHeaderDetail,
     FarmerCandidateRecord,
@@ -99,6 +102,59 @@ HEADER_SYNONYMS: Dict[str, Set[str]] = {
         # English
         "society", "booth", "center", "dairy society", "cooperative"
     }
+}
+
+# =============================================================================
+# Aavin Abstract / Dispatch Report — Header Synonyms & Keywords
+# =============================================================================
+
+# Column header synonyms for shift-wise abstract/dispatch reports
+# (e.g. GA1301 Madurai District Co-operative Milk Producers' Union abstract table)
+ABSTRACT_HEADER_SYNONYMS: Dict[str, Set[str]] = {
+    "row_no": {
+        "no", "no.", "s.no", "sl", "sl.no", "sr", "sr.no", "#",
+        "வரிசை", "வ.எண்", "எண்",
+    },
+    "product_name": {
+        "type of product", "product", "product name", "item", "item name",
+        "description", "particulars", "milk type", "product type",
+        "பொருள்", "பொருள் வகை", "வகை", "பால் வகை", "இனம்", "விவரம்",
+    },
+    "qty_ltr": {
+        "qty (ltr)", "qty ltr", "qty(ltr)", "quantity (ltr)", "quantity ltr",
+        "qty (litres)", "qty litres", "qty (l)", "qty(l)", "ltr", "litres",
+        "liters", "volume", "qty in ltr", "qty in litres",
+        "அளவு (லி)", "லிட்டர்", "அளவு",
+    },
+    "qty_pkt": {
+        "qty (pkt)", "qty pkt", "qty(pkt)", "quantity (pkt)", "quantity pkt",
+        "qty (packets)", "qty packets", "packets", "pkt", "packet count",
+        "nos", "number", "count", "pieces",
+        "பாக்கெட்", "பொட்டலம்", "எண்ணிக்கை (பாக்கெட்)",
+    },
+    "tray": {
+        "tray", "trays", "tray count", "tray nos",
+        "crate", "crates", "box", "boxes",
+        "தட்டு", "தட்டுகள்",
+    },
+}
+
+# Keywords in OCR text that strongly indicate this is an abstract/dispatch report
+ABSTRACT_DOCUMENT_KEYWORDS: Set[str] = {
+    "abstract", "dispatch", "shift", "morning", "evening",
+    "grand total", "milk total", "curd", "buttermilk",
+    "qty (ltr)", "qty (pkt)", "tray", "type of product",
+    "producers", "union", "co-operative", "cooperative",
+    "சுருக்கம்", "அனுப்புதல்", "காலை", "மாலை",
+    "பெரும் மொத்தம்", "பால் மொத்தம்",
+}
+
+# Labels that mark subtotal/total rows in abstract tables
+SUBTOTAL_ROW_LABELS: Set[str] = {
+    "milk total", "milk t o t a l", "m i l k   t o t a l",
+    "curd & butter milk total", "curd and butter milk total",
+    "curd & butter milk t o t a l", "curd & buttermilk total",
+    "grand total", "g r a n d   t o t a l", "total",
 }
 
 
@@ -268,6 +324,82 @@ def parse_cow_count(text: str) -> Optional[int]:
 
 
 # =============================================================================
+# Abstract Report Quantity Parsers
+# =============================================================================
+
+def parse_abstract_qty_ltr(text: str) -> Optional[float]:
+    """
+    Parse QTY (LTR) column from abstract table.
+    Handles values like '25776.500', '4763.600', '48941.100'.
+    Accepts very large values (entire shift production in litres).
+    """
+    if not text:
+        return None
+    cleaned = text.strip().replace(",", ".").rstrip("|")
+    m = re.search(r"(\d+(?:\.\d+)?)", cleaned)
+    if m:
+        try:
+            return round(float(m.group(1)), 3)
+        except ValueError:
+            pass
+    return None
+
+
+def parse_abstract_qty_pkt(text: str) -> Optional[int]:
+    """
+    Parse QTY (PKT) column from abstract table.
+    Handles values like '51553', '23818', '106626'.
+    """
+    if not text:
+        return None
+    cleaned = re.sub(r"[^\d]", "", text)
+    if cleaned:
+        try:
+            return int(cleaned)
+        except ValueError:
+            pass
+    return None
+
+
+def parse_abstract_tray(text: str) -> Optional[float]:
+    """
+    Parse TRAY column from abstract table.
+    Handles fractional tray counts like '2148.01', '476.18'.
+    """
+    if not text:
+        return None
+    cleaned = text.strip().rstrip("|")
+    m = re.search(r"(\d+(?:\.\d+)?)", cleaned)
+    if m:
+        try:
+            return round(float(m.group(1)), 2)
+        except ValueError:
+            pass
+    return None
+
+
+def is_subtotal_label(text: str) -> Tuple[bool, bool, str]:
+    """
+    Detect if a row text is a subtotal/total label in an abstract table.
+    Returns (is_subtotal, is_grand_total, normalized_label).
+    """
+    if not text:
+        return False, False, ""
+    # Collapse spaced letters: 'M I L K   T O T A L' -> 'MILKTOTAL'
+    collapsed = re.sub(r"(?<=[A-Za-z])\s(?=[A-Za-z])", "", text)
+    normalized = re.sub(r"\s+", " ", collapsed).strip().upper()
+    if re.search(r"GRAND\s*TOTAL", normalized):
+        return True, True, text.strip()
+    if re.search(r"MILK\s*(T\s*O\s*T\s*A\s*L|TOTAL)", normalized):
+        return True, False, text.strip()
+    if re.search(r"(CURD|BUTTER|BUTTERMILK).*(T\s*O\s*T\s*A\s*L|TOTAL)", normalized):
+        return True, False, text.strip()
+    if re.search(r"\bTOTAL\b", normalized):
+        return True, False, text.strip()
+    return False, False, ""
+
+
+# =============================================================================
 # Semantic Column Classifier
 # =============================================================================
 
@@ -416,7 +548,16 @@ class AavinTableMapper:
                     row_session = v_clean
 
             # Check if this row is a new farmer entry or a continuation row
-            is_new_farmer = bool(row_farmer_name or row_phone or (row_member_id and not row_cattle_pairs))
+            is_same_farmer = bool(
+                current_farmer is not None
+                and row_farmer_name
+                and row_farmer_name == current_farmer.farmer_name
+                and (not row_phone or row_phone == current_farmer.phone)
+            )
+            is_new_farmer = bool(
+                (row_farmer_name or row_phone or (row_member_id and not row_cattle_pairs))
+                and not is_same_farmer
+            )
 
             if is_new_farmer:
                 # Commit previous farmer record if any
@@ -516,3 +657,296 @@ class AavinTableMapper:
 
 # Global singleton instance
 aavin_mapper = AavinTableMapper()
+
+
+# =============================================================================
+# Aavin Abstract / Dispatch Report Mapper
+# =============================================================================
+
+class AavinAbstractMapper:
+    """
+    Extracts structured AbstractReportSummary from an Aavin shift-wise
+    dispatch abstract table (the 'ABSTRACT' document type).
+
+    Trained on the GA1301 Madurai District Co-operative Milk Producers' Union
+    abstract format with columns:
+        No | TYPE OF PRODUCT | QTY (LTR) | QTY (PKT) | TRAY
+
+    Handles:
+    - Product rows (COW MILK 500 ML, ICM 200 ML, AAVIN GOLD 500 ML …)
+    - Subtotal rows (MILK TOTAL, CURD & BUTTER MILK TOTAL)
+    - Grand total row (GRAND TOTAL)
+    - Report header metadata (unit code, name, date, shift)
+    """
+
+    @classmethod
+    def match_header_abstract(cls, header_text: str) -> Optional[str]:
+        """
+        Map a raw OCR column header to an abstract table field name.
+        Returns one of: row_no, product_name, qty_ltr, qty_pkt, tray, or None.
+        """
+        if not header_text:
+            return None
+        norm = header_text.strip().lower()
+        norm_clean = re.sub(r"[\.:,;\-_/|]", " ", norm).strip()
+        for field_name, synonyms in ABSTRACT_HEADER_SYNONYMS.items():
+            for syn in synonyms:
+                if syn in norm or syn in norm_clean:
+                    return field_name
+        return None
+
+    @classmethod
+    def infer_abstract_column_mapping(
+        cls,
+        headers: List[str],
+        sample_rows: List[List[str]],
+    ) -> Dict[int, str]:
+        """
+        Determine abstract-table field for each column index.
+        Falls back to positional heuristics when headers are absent/ambiguous.
+
+        Positional fallback (5-column abstract table standard):
+          col 0 → row_no
+          col 1 → product_name
+          col 2 → qty_ltr
+          col 3 → qty_pkt
+          col 4 → tray
+        """
+        col_count = len(headers) if headers else (len(sample_rows[0]) if sample_rows else 0)
+        col_mapping: Dict[int, str] = {}
+
+        # 1. Header-based matching
+        for idx in range(col_count):
+            h_text = headers[idx] if idx < len(headers) else ""
+            matched = cls.match_header_abstract(h_text)
+            if matched:
+                col_mapping[idx] = matched
+
+        # 2. Positional fallback for standard 5-column abstract table
+        if col_count >= 5 and len(col_mapping) < 3:
+            positional = {0: "row_no", 1: "product_name", 2: "qty_ltr", 3: "qty_pkt", 4: "tray"}
+            for idx, field_name in positional.items():
+                if idx not in col_mapping:
+                    col_mapping[idx] = field_name
+
+        # 3. For 4-column tables (no row_no): product | ltr | pkt | tray
+        elif col_count == 4 and len(col_mapping) < 2:
+            positional4 = {0: "product_name", 1: "qty_ltr", 2: "qty_pkt", 3: "tray"}
+            for idx, field_name in positional4.items():
+                if idx not in col_mapping:
+                    col_mapping[idx] = field_name
+
+        logger.debug(f"Abstract column mapping: {col_mapping}")
+        return col_mapping
+
+    @classmethod
+    def extract_meta_from_text(cls, raw_text: str) -> AbstractReportMeta:
+        """
+        Parse report header metadata from the raw OCR text.
+        Extracts: unit_code, unit_name, address, report_date, shift, report_title.
+
+        Example lines:
+            GA1301 THE MADURAI DISTRICT CO-OPERATIVE MILK PRODUCERS' UNION LTD.,
+            SIVAGANGAI MAIN ROAD, MADURAI – 625 020
+            DATE 21.10.2026                         SHIFT: EVENING
+        """
+        meta = AbstractReportMeta()
+        if not raw_text:
+            return meta
+
+        lines = [l.strip() for l in raw_text.splitlines() if l.strip()]
+
+        for line in lines:
+            line_up = line.upper()
+
+            # Unit code: starts with 2 letters + digits, e.g. GA1301
+            if not meta.unit_code:
+                m = re.match(r"\b([A-Z]{1,3}\d{3,6})\b", line)
+                if m:
+                    meta.unit_code = m.group(1)
+
+            # Unit name: line containing UNION or CO-OPERATIVE
+            if not meta.unit_name:
+                if re.search(r"(UNION|CO-?OPERATIVE|MILK PRODUCERS)", line_up):
+                    meta.unit_name = re.sub(r"^[A-Z]{1,3}\d{3,6}\s*", "", line).strip()
+
+            # Address: line with ROAD or PIN or city pattern
+            if not meta.address:
+                if re.search(r"(ROAD|STREET|NAGAR|MAIN|625\s*\d{3})", line_up):
+                    meta.address = line
+
+            # Date: DATE dd.mm.yyyy
+            if not meta.report_date:
+                m = re.search(r"DATE\s+(\d{1,2}[\.\-/]\d{1,2}[\.\-/]\d{2,4})", line, re.IGNORECASE)
+                if m:
+                    meta.report_date = m.group(1)
+                else:
+                    m = re.search(r"\b(\d{2}[\.\-/]\d{2}[\.\-/]\d{4})\b", line)
+                    if m:
+                        meta.report_date = m.group(1)
+
+            # Shift: SHIFT: MORNING / EVENING
+            if not meta.shift:
+                m = re.search(r"SHIFT\s*[:\-]\s*(MORNING|EVENING|NIGHT|AFTERNOON)", line, re.IGNORECASE)
+                if m:
+                    meta.shift = m.group(1).upper()
+                elif re.search(r"\bMORNING\b", line_up):
+                    meta.shift = "MORNING"
+                elif re.search(r"\bEVENING\b", line_up):
+                    meta.shift = "EVENING"
+
+            # Report title: line containing ABSTRACT alone
+            if not meta.report_title:
+                if re.search(r"\bA\s*B\s*S\s*T\s*R\s*A\s*C\s*T\b", line_up):
+                    meta.report_title = "ABSTRACT"
+
+        return meta
+
+    @classmethod
+    def extract_abstract_report(
+        cls,
+        table: TableResult,
+        raw_text: str = "",
+    ) -> AbstractReportSummary:
+        """
+        Convert a reconstructed TableResult from an abstract/dispatch document
+        into a fully structured AbstractReportSummary.
+
+        Distinguishes:
+        - Regular product rows (COW MILK 500 ML, CURD 200 GM CUP, …)
+        - Subtotal rows (MILK TOTAL, CURD & BUTTER MILK TOTAL)
+        - Grand total row (GRAND TOTAL)
+        """
+        headers = table.headers or []
+        rows = table.rows or []
+
+        col_mapping = cls.infer_abstract_column_mapping(headers, rows)
+        meta = cls.extract_meta_from_text(raw_text)
+
+        products: List[AbstractProductRecord] = []
+        milk_total: Optional[AbstractProductRecord] = None
+        curd_butter_total: Optional[AbstractProductRecord] = None
+        grand_total: Optional[AbstractProductRecord] = None
+        warnings: List[str] = []
+
+        for r_idx, row in enumerate(rows):
+            row_no: Optional[str] = None
+            product_name: Optional[str] = None
+            qty_ltr: Optional[float] = None
+            qty_pkt: Optional[int] = None
+            tray: Optional[float] = None
+
+            for c_idx, val in enumerate(row):
+                field_name = col_mapping.get(c_idx)
+                if not field_name:
+                    continue
+                v = str(val).strip() if val else ""
+                if not v:
+                    continue
+
+                if field_name == "row_no":
+                    row_no = v
+                elif field_name == "product_name":
+                    product_name = v
+                elif field_name == "qty_ltr":
+                    qty_ltr = parse_abstract_qty_ltr(v)
+                elif field_name == "qty_pkt":
+                    qty_pkt = parse_abstract_qty_pkt(v)
+                elif field_name == "tray":
+                    tray = parse_abstract_tray(v)
+
+            # Skip completely empty rows
+            if not any([row_no, product_name, qty_ltr, qty_pkt, tray]):
+                continue
+
+            # Determine if this is a subtotal / grand-total row
+            label_text = product_name or (row_no or "")
+            is_sub, is_grand, label_clean = is_subtotal_label(label_text)
+
+            rec = AbstractProductRecord(
+                row_no=row_no,
+                product_name=product_name,
+                qty_ltr=qty_ltr,
+                qty_pkt=qty_pkt,
+                tray=tray,
+                is_subtotal=is_sub,
+                is_grand_total=is_grand,
+                subtotal_label=label_clean if is_sub else None,
+                confidence=table.confidence or 0.90,
+                review_required=True,
+            )
+
+            if is_grand:
+                grand_total = rec
+            elif is_sub:
+                # Classify which subtotal by label content
+                label_up = (label_clean or "").upper()
+                collapsed_up = re.sub(r"(?<=[A-Z])\s(?=[A-Z])", "", label_up)
+                if re.search(r"CURD|BUTTER", collapsed_up):
+                    curd_butter_total = rec
+                else:
+                    milk_total = rec
+            else:
+                products.append(rec)
+
+        # Surface grand total values for quick access
+        total_qty_ltr = grand_total.qty_ltr if grand_total else None
+        total_qty_pkt = grand_total.qty_pkt if grand_total else None
+        total_tray = grand_total.tray if grand_total else None
+
+        return AbstractReportSummary(
+            meta=meta,
+            products=products,
+            milk_total=milk_total,
+            curd_butter_total=curd_butter_total,
+            grand_total=grand_total,
+            total_qty_ltr=total_qty_ltr,
+            total_qty_pkt=total_qty_pkt,
+            total_tray=total_tray,
+            confidence=table.confidence or 0.90,
+            review_required=True,
+            warnings=warnings,
+        )
+
+
+# Global singleton instance
+aavin_abstract_mapper = AavinAbstractMapper()
+
+
+# =============================================================================
+# Document Type Auto-Detection
+# =============================================================================
+
+def detect_document_type(raw_text: str, table_headers: Optional[List[str]] = None) -> str:
+    """
+    Auto-detect document type from OCR text and table headers.
+
+    Returns:
+        "aavin_abstract"  — Shift-wise dispatch/production abstract report
+        "aavin_register"  — Farmer/cattle/milk collection register (default)
+
+    Scoring: Count matching keywords for each type; highest score wins.
+    A score of 0 falls back to "aavin_register".
+    """
+    text_lower = (raw_text or "").lower()
+    header_text_lower = " ".join(table_headers or []).lower()
+    combined = f"{text_lower} {header_text_lower}"
+
+    abstract_score = sum(1 for kw in ABSTRACT_DOCUMENT_KEYWORDS if kw in combined)
+
+    # Strong signal: "type of product" or "qty (ltr)" are uniquely abstract
+    if "type of product" in combined or "qty (ltr)" in combined or "qty(ltr)" in combined:
+        abstract_score += 5
+    if re.search(r"shift\s*[:\-]\s*(morning|evening)", combined):
+        abstract_score += 3
+    if re.search(r"a\s*b\s*s\s*t\s*r\s*a\s*c\s*t", combined):
+        abstract_score += 4
+    if "grand total" in combined or "milk total" in combined:
+        abstract_score += 2
+
+    logger.info(f"Document type detection — abstract_score={abstract_score}")
+
+    if abstract_score >= 3:
+        return "aavin_abstract"
+    return "aavin_register"
+
