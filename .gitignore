@@ -25,3 +25,8 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Django artifacts
+db.sqlite3
+media/
+staticfiles/
