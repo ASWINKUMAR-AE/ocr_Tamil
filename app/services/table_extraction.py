@@ -18,7 +18,7 @@ import json
 import logging
 import os
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Set
 import cv2
 import numpy as np
 
@@ -26,7 +26,13 @@ from app.schemas.ocr import ColumnHeaderDetail, TableColumn, TableResult
 from app.services.ocr_service import ocr_service
 from app.services.pattern_classifier import pattern_classifier, ClassificationResult
 from app.services.surya_engine import surya_engine
-from app.services.aavin_mapping import aavin_mapper, extract_cattle_ids_from_text
+from app.services.aavin_mapping import (
+    aavin_mapper,
+    extract_cattle_ids_from_text,
+    extract_cattle_ids_with_raw_from_text,
+    clean_digits,
+    normalize_indian_phone,
+)
 
 logger = logging.getLogger("tamil_ocr.tables")
 
@@ -1100,9 +1106,9 @@ class TableExtractor:
                 if max_b > 1:
                     col_expansions[c_idx] = max_b
 
-        # If no column contains multiple IDs, return original table untouched
+        # If no column contains multiple IDs, return table with deduplicated 12-digit cells
         if not col_expansions:
-            return table
+            return self.deduplicate_12digit_cells(table)
 
         logger.info(f"Expanding multi-Aadhaar / multi-cattle columns in Table {table.table_index}: {col_expansions}")
 
@@ -1216,7 +1222,7 @@ class TableExtractor:
             headers_detail=new_headers_detail
         )
 
-        return TableResult(
+        expanded_table = TableResult(
             table_index=table.table_index,
             table_id=table.table_id,
             headers=new_headers,
@@ -1225,6 +1231,104 @@ class TableExtractor:
             row_count=len(new_rows),
             column_count=len(new_headers),
             columns=new_columns,
+            data=new_data,
+            confidence=table.confidence,
+            detection_strategy=table.detection_strategy,
+            is_uncertain=table.is_uncertain,
+            warnings=table.warnings,
+            html=new_html,
+            detected_languages=table.detected_languages,
+            unassigned_text=table.unassigned_text
+        )
+        return self.deduplicate_12digit_cells(expanded_table)
+
+    # -------------------------------------------------------------------------
+    # Deduplicate 12-Digit IDs across rows
+    # -------------------------------------------------------------------------
+    def deduplicate_12digit_cells(self, table: TableResult) -> TableResult:
+        """
+        Make cell empty if it contains a duplicate 12-digit ID (Aadhaar / Pashu Aadhaar)
+        that has already appeared in another row (or an earlier cell in the table).
+        Prevents repeated 12-digit tags from appearing in continuation / duplicate rows.
+        """
+        if not table or not table.rows:
+            return table
+
+        rows = [list(r) for r in table.rows]
+        seen_12digits: Set[str] = set()
+        modified = False
+
+        for r_idx, row in enumerate(rows):
+            for c_idx, cell in enumerate(row):
+                if not cell or not str(cell).strip():
+                    continue
+                val_str = str(cell).strip()
+
+                # 1. Check if the cell contains a single 12-digit ID
+                digits = clean_digits(val_str)
+                is_phone = (
+                    len(digits) == 12 and digits.startswith("91") and digits[2] in "6789"
+                ) or (normalize_indian_phone(val_str)[0] and len(digits) != 12)
+
+                if len(digits) == 12 and not is_phone:
+                    if digits in seen_12digits:
+                        row[c_idx] = ""
+                        modified = True
+                        logger.info(
+                            f"Emptied cell at row {r_idx}, col {c_idx} with duplicate 12-digit ID: {digits}"
+                        )
+                    else:
+                        seen_12digits.add(digits)
+                    continue
+
+                # 2. Check if the cell contains multiple 12-digit IDs (e.g. comma/slash/newline separated)
+                pairs = extract_cattle_ids_with_raw_from_text(val_str)
+                if pairs:
+                    dup_count = sum(1 for cid, _ in pairs if cid in seen_12digits)
+                    if dup_count > 0:
+                        modified = True
+                        if dup_count == len(pairs):
+                            row[c_idx] = ""
+                            logger.info(
+                                f"Emptied cell at row {r_idx}, col {c_idx} because all {len(pairs)} 12-digit IDs are duplicates"
+                            )
+                        else:
+                            remaining_raw = [raw for cid, raw in pairs if cid not in seen_12digits]
+                            row[c_idx] = ", ".join(remaining_raw)
+                            logger.info(
+                                f"Filtered duplicates from cell at row {r_idx}, col {c_idx}: kept {remaining_raw}"
+                            )
+
+                    for cid, _ in pairs:
+                        seen_12digits.add(cid)
+
+        if not modified:
+            return table
+
+        # Rebuild key-value data list
+        new_data: List[Dict[str, str]] = []
+        for r in rows:
+            new_data.append({col.key: str(r[idx]) if idx < len(r) else "" for idx, col in enumerate(table.columns)})
+
+        # Re-render semantic HTML table with emptied cells
+        new_html = generate_html_table(
+            headers=table.headers,
+            rows=rows,
+            table_index=table.table_index,
+            strategy=table.detection_strategy or "surya_layout",
+            is_uncertain=table.is_uncertain,
+            headers_detail=table.headers_detail
+        )
+
+        return TableResult(
+            table_index=table.table_index,
+            table_id=table.table_id,
+            headers=table.headers,
+            headers_detail=table.headers_detail,
+            rows=rows,
+            row_count=len(rows),
+            column_count=table.column_count,
+            columns=table.columns,
             data=new_data,
             confidence=table.confidence,
             detection_strategy=table.detection_strategy,

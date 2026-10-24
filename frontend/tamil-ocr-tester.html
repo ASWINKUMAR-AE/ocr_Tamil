@@ -1760,6 +1760,32 @@
           });
         }
 
+        // Deduplicate 12-digit IDs across rows: make cell empty if duplicate in another row
+        const seen12Digits = new Set();
+        rows.forEach((r, rIdx) => {
+          if (Array.isArray(r)) {
+            r.forEach((cellVal, cIdx) => {
+              if (cellVal !== undefined && cellVal !== null) {
+                const s = String(cellVal).trim();
+                const digits = s.replace(/\D/g, '');
+                const isPhone = (digits.length === 12 && digits.startsWith('91') && '6789'.includes(digits[2]));
+                if (digits.length === 12 && !isPhone) {
+                  if (seen12Digits.has(digits)) {
+                    r[cIdx] = '';
+                    if (tbl.rows && tbl.rows[rIdx]) tbl.rows[rIdx][cIdx] = '';
+                    if (tbl.data && tbl.data[rIdx] && tbl.columns && tbl.columns[cIdx]) {
+                      const k = typeof tbl.columns[cIdx] === 'object' ? tbl.columns[cIdx].key : tbl.columns[cIdx];
+                      tbl.data[rIdx][k] = '';
+                    }
+                  } else {
+                    seen12Digits.add(digits);
+                  }
+                }
+              }
+            });
+          }
+        });
+
         // Build Table Card
         const card = document.createElement('div');
         card.className = 'table-card';

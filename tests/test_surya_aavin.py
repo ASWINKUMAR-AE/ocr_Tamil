@@ -411,3 +411,78 @@ def test_expand_multi_cattle_columns_table_transformation():
     assert ">400678541362</td>" in expanded.html
 
 
+def test_deduplicate_12digit_cells_in_another_row():
+    """
+    Verify that if a 12-digit number (Aadhaar / Pashu Aadhaar) is repeated in another row,
+    the duplicate cell is set to empty ("") while preserving the first occurrence.
+    """
+    headers = [
+        "வ.எண்", "விவசாயி பெயர்", "விவசாயி ஆதார்", "எண்ணிக்கை",
+        "பசு ஆதார் 1", "பசு ஆதார் 2", "இனம்", "முகவரி", "தொலைபேசி"
+    ]
+    columns = [TableColumn(key=f"col_{i}", label=h) for i, h in enumerate(headers)]
+
+    # Simulation matching the user's issue:
+    # Row 0: Kandhan with cow 1 (322687625 892) and cow 2 (322687625 891)
+    # Row 1: Duplicate row for Kandhan repeating cow 1 (322687625 892)
+    # Row 2: Maniyappan with cow 1 (400678541 362) and cow 2 (400678541 363)
+    # Row 3: Continuation row for Maniyappan with cow 3 (400678541 364)
+    # Row 4: Sanga with cow 1 (265432798 801) and cow 2 in col 5 (265432798 803)
+    # Row 5: Continuation row repeating cow 2 in col 4 (265432798 803)
+    rows = [
+        ["1", "கந்தன்", "7435 86924216", "2", "322687625 892", "322687625 891", "ஜெர்சி", "மேலூர்", "9150870971"],
+        ["", "கந்தன்", "7435 86924216", "2", "322687625 892", "", "ஜெர்சி", "மேலூர்", "9150870971"],
+        ["2", "மணியப்பன்", "426857663 224", "3", "400678541 362", "400678541 363", "HF", "காரியாபட்டி", "9787607530"],
+        ["", "", "", "", "400678541 364", "", "", "", ""],
+        ["3", "சங்கா", "992455320001", "3", "265432798 801", "265432798 803", "ஜெர்சி", "விருதுநகர்", "7894564311"],
+        ["", "சங்கா", "992455320001", "", "265432798 803", "", "", "", ""],
+    ]
+
+    table = TableResult(
+        table_index=0,
+        headers=headers,
+        rows=rows,
+        columns=columns,
+        confidence=0.95
+    )
+
+    result = table_extractor.deduplicate_12digit_cells(table)
+
+    # Row 0: First occurrence preserved
+    assert result.rows[0][4] == "322687625 892"
+    assert result.rows[0][5] == "322687625 891"
+    assert result.rows[0][2] == "7435 86924216"
+    assert result.rows[0][8] == "9150870971"
+
+    # Row 1: Duplicate 12-digit cattle ID and duplicate farmer Aadhaar are emptied!
+    assert result.rows[1][4] == ""
+    assert result.rows[1][2] == ""
+    # Non-12-digit values preserved
+    assert result.rows[1][1] == "கந்தன்"
+    assert result.rows[1][3] == "2"
+    assert result.rows[1][8] == "9150870971"
+
+    # Row 2 & 3: Unique cattle IDs 362, 363, 364 are all preserved
+    assert result.rows[2][4] == "400678541 362"
+    assert result.rows[2][5] == "400678541 363"
+    assert result.rows[3][4] == "400678541 364"
+
+    # Row 4: 801 and 803 preserved
+    assert result.rows[4][4] == "265432798 801"
+    assert result.rows[4][5] == "265432798 803"
+
+    # Row 5: 803 was in Row 4 Col 5, so in Row 5 Col 4 it MUST be emptied!
+    assert result.rows[5][4] == ""
+
+    # Check key-value data dictionary sync
+    assert result.data[1]["col_4"] == ""
+    assert result.data[5]["col_4"] == ""
+    assert result.data[0]["col_4"] == "322687625 892"
+
+    # Check HTML table sync
+    assert "322687625 892" in result.html
+    # Empty cells rendered as empty td with &nbsp;
+    assert '<td data-col-idx="4" contenteditable="true">&nbsp;</td>' in result.html
+
+
+
